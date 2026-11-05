@@ -136,7 +136,7 @@ export function App() {
         )}
 
         {/* Dynamic Main Stage View with mobile bottom nav clearance */}
-        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-5xl overflow-x-hidden min-h-[calc(100vh-4rem)] pb-24 md:pb-8">
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-6xl xl:max-w-7xl overflow-x-hidden min-h-[calc(100vh-4rem)] pb-24 md:pb-8">
           {currentTab === 'dashboard' && (
             <StudentDashboard
               currentUser={currentUser}

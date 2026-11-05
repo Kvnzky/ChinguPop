@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserProfile, Course, Lesson } from '../../types';
 import { storage } from '../../services/storageService';
 import { ProgressBar } from '../common/ProgressBar';
@@ -22,7 +22,16 @@ import {
   Lightbulb,
   Headphones,
   FileText,
-  Bell
+  Bell,
+  Search,
+  MoreHorizontal,
+  Folder,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Check,
+  Users
 } from 'lucide-react';
 import { NavItemKey } from '../common/Sidebar';
 
@@ -71,6 +80,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const weeklyTargetHours = (currentUser.dailyStudyMinutes * currentUser.studyDaysPerWeek / 60).toFixed(1);
   const pendingAssignments = assignments.filter(a => !submissions.some(s => s.assignmentId === a.id));
   const pendingLessonsCount = Math.max(0, totalLessonsInCourse - completedInCourse);
+
+  // Desktop interactive states matching ChinguPop design
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<number>(26);
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState('March 2026');
+  const [showAcademicDrawer, setShowAcademicDrawer] = useState(false);
+  const [activeArticleModal, setActiveArticleModal] = useState<{
+    title: string;
+    category: string;
+    readTime: string;
+    content: string;
+    tab: NavItemKey;
+  } | null>(null);
 
   // Determine dynamic recommendations based on student performance
   const recommendations: {
@@ -495,279 +517,790 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
       </div>
 
-      {/* 💻 2. DESKTOP & TABLET CLASSROOM VIEW (Visible on screens >= 768px) */}
+      {/* 💻 2. DESKTOP & TABLET CLASSROOM VIEW (Visible on screens >= 768px) - MATCHING CHINGUPOP DESKTOP UX */}
       <div className="hidden md:block space-y-6">
-      <div className="bg-gradient-to-br from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-purple-400/20">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono tracking-widest text-[#55C8F5] uppercase font-bold">
-                ChinguPop Dashboard • Student ID
-              </span>
-              <span className="text-[10px] bg-white/10 border border-purple-300/40 text-purple-200 px-2 py-0.5 rounded font-mono">
-                {currentUser.studentId}
-              </span>
-            </div>
-            
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Welcome back, {currentUser.name}
-            </h1>
-            
-            <p className="text-xs sm:text-sm text-purple-100/90 max-w-xl leading-relaxed">
-              Enrolled in <strong className="text-[#FF5CA8] font-semibold">{currentCourse?.title}</strong> ({currentUser.proficiency}, {currentUser.immersionStage} immersion). Daily commitment: {currentUser.dailyStudyMinutes} min/day, {currentUser.studyDaysPerWeek} days/week.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <button
-              type="button"
-              onClick={() => onNavigate('classroom')}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-pink-500/25 active:scale-95"
-            >
-              <span>{completedInCourse === 0 ? 'Start Lesson 1: Basic Vowels' : 'Resume Study Session'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Academic Overview Quick Metrics */}
-        <div className="mt-8 pt-6 border-t border-purple-400/30 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-          <div className="space-y-1">
-            <span className="text-purple-100 font-medium block text-xs">Academic Standing</span>
-            <div className="text-xl font-bold text-[#FF5CA8]">
-              {completedInCourse > 0 || submissions.length > 0
-                ? `Grade ${currentUser.currentAcademicGrade}`
-                : 'Enrolled (Not Started)'}
-            </div>
-          </div>
-          <div className="space-y-1">
-            <span className="text-purple-100 font-medium block text-xs">Attendance Record</span>
-            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-emerald-400' : 'text-purple-200'}`}>
-              {activeDaysThisWeek > 0 ? `${activeDaysThisWeek} Days Active` : '0 Days (Ready)'}
-            </div>
-          </div>
-          <div className="space-y-1">
-            <span className="text-purple-100 font-medium block text-xs">Course Progress</span>
-            <div className="text-xl font-mono font-bold text-white">
-              {completionPercent}% ({completedInCourse}/{totalLessonsInCourse} Lessons)
-            </div>
-          </div>
-          <div className="space-y-1">
-            <span className="text-purple-100 font-medium block text-xs">Weekly Target</span>
-            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-[#55C8F5]' : 'text-purple-200'}`}>
-              {activeDaysThisWeek} / {currentUser.studyDaysPerWeek} Days Active
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Launchpad Buttons */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { key: 'hangul-lab', label: 'Hangul Lab', sub: 'Interactive Vowels & Consonants', icon: Grid, color: 'text-[#6C52EE]' },
-          { key: 'classroom', label: 'Virtual Classroom', sub: 'Structured Lectures & Audio', icon: GraduationCap, color: 'text-[#2C1E6D]' },
-          { key: 'ai-tutor', label: 'AI Korean Teacher', sub: 'Personalized Tutoring', icon: Bot, color: 'text-[#FF5CA8]' },
-          { key: 'speaking-lab', label: 'Speaking Lab', sub: 'Microphone & Shadowing', icon: Mic, color: 'text-[#44C5F5]' }
-        ].map((item) => {
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => onNavigate(item.key as any)}
-              className="p-4 rounded-xl border border-stone-200 bg-white hover:border-[#6C52EE]/60 hover:shadow-md transition-all text-left flex items-start gap-3 group"
-            >
-              <div className="p-2.5 rounded-lg bg-purple-50/50 border border-purple-100 group-hover:bg-purple-100/50 group-hover:border-purple-200 transition-colors">
-                <Icon className={`w-5 h-5 ${item.color}`} />
-              </div>
-              <div>
-                <div className="text-xs font-serif font-bold text-academy-navy group-hover:text-[#6C52EE] transition-colors">
-                  {item.label}
-                </div>
-                <div className="text-[11px] text-stone-600 font-medium mt-0.5">
-                  {item.sub}
-                </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Dynamic Recommendations Box */}
-      <div className="bg-white rounded-xl border border-amber-200/80 p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-          <div className="flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-academy-gold-dark" />
-            <h3 className="font-serif font-bold text-base text-academy-navy">
-              Personalized Academic Recommendations
-            </h3>
-          </div>
-          <span className="text-[11px] font-mono text-stone-500 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
-            Updated Daily for {currentUser.name}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {recommendations.map((rec, idx) => (
-            <div
-              key={idx}
-              className="p-4 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-stone-50 flex flex-col justify-between gap-3 text-xs transition-colors"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-academy-navy text-xs">
-                    {rec.title}
-                  </span>
-                  <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded bg-white border border-stone-200 text-stone-600">
-                    {rec.type}
-                  </span>
-                </div>
-                <p className="text-stone-600 leading-relaxed text-[11px]">
-                  {rec.description}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => onNavigate(rec.targetTab)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-academy-gold-dark hover:text-academy-navy self-start transition-colors"
-              >
-                <span>{rec.actionLabel}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Academic Overview Breakdown & Weekly Statistics */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Left (2 cols): Weekly Academic Performance Statistics */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-            <div>
-              <h3 className="font-serif font-bold text-base text-academy-navy flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-academy-gold-dark" />
-                <span>Weekly Academic Study Statistics</span>
-              </h3>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Target: {weeklyTargetHours} hours/week ({currentUser.dailyStudyMinutes} min/day, 7 days/week).
-              </p>
-            </div>
-            <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
-              Number(weeklyStudyHours) > 0
-                ? 'text-emerald-700 bg-emerald-50 border border-emerald-200'
-                : 'text-stone-600 bg-stone-100 border border-stone-200'
-            }`}>
-              {Number(weeklyStudyHours) > 0 ? 'In Progress' : 'Awaiting First Session'}
-            </span>
-          </div>
-
-          {/* Key Stat Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-              <span className="text-stone-700 font-semibold block text-[11px]">Total Study Time</span>
-              <span className="text-base font-serif font-bold text-[#2C1E6D]">{weeklyStudyHours} hrs</span>
-              <span className="text-[11px] text-stone-600 font-medium block mt-0.5">Target: {weeklyTargetHours} hrs</span>
-            </div>
-
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-              <span className="text-stone-700 font-semibold block text-[11px]">Completed Lessons</span>
-              <span className="text-base font-serif font-bold text-[#2C1E6D]">{completedInCourse} Finished</span>
-              <span className="text-[11px] text-stone-600 font-medium block mt-0.5">{pendingLessonsCount} pending</span>
-            </div>
-
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-              <span className="text-stone-700 font-semibold block text-[11px]">SRS Flashcards</span>
-              <span className="text-base font-serif font-bold text-[#2C1E6D]">{vocabLearnedCount} Terms</span>
-              <span className="text-[11px] text-stone-600 font-medium block mt-0.5">{vocabLearnedCount > 0 ? 'In Review' : '0 Reviewed'}</span>
-            </div>
-
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-              <span className="text-stone-700 font-semibold block text-[11px]">Homework Submissions</span>
-              <span className="text-base font-serif font-bold text-[#2C1E6D]">{submissions.length} Completed</span>
-              <span className="text-[11px] text-stone-600 font-medium block mt-0.5">{pendingAssignments.length} pending</span>
-            </div>
-          </div>
-
-          {/* Today's 60-Minute Timetable */}
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between">
-              <span className="font-serif font-bold text-sm text-academy-navy flex items-center gap-2">
-                <Clock className="w-4 h-4 text-academy-navy" />
-                <span>Daily 60-Minute Timetable Breakdown</span>
-              </span>
-              <button
+        {/* TOP BAR: Search Input + Quick Actions (Folder, Notifications, Profile) */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Search Input with Live Filter */}
+          <div className="relative flex-1 max-w-xl">
+            <Search className="w-4 h-4 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search something"
+              className="w-full bg-white rounded-2xl pl-11 pr-10 py-3 text-xs border border-stone-200/90 shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#6C52EE]/30 focus:border-[#6C52EE] text-stone-800 placeholder-stone-400 font-medium"
+            />
+            {searchQuery && (
+              <button 
                 type="button"
-                onClick={() => onNavigate('planner')}
-                className="text-xs font-semibold text-academy-gold-dark hover:underline flex items-center gap-1"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-xs font-bold"
               >
-                <span>Full Timetable</span>
-                <ArrowRight className="w-3 h-3" />
+                ✕
               </button>
+            )}
+
+            {/* Quick Search Dropdown */}
+            {searchQuery.trim().length > 0 && (
+              <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-stone-200 shadow-xl z-50 p-3 space-y-2">
+                <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-2">
+                  Matching Lessons & Modules
+                </div>
+                {['Basic Vowels (ㅏ, ㅑ, ㅓ, ㅕ, ㅗ, ㅛ, ㅜ, ㅠ, ㅡ, ㅣ)', 'Hangul Stroke Lab', 'Vocabulary Flashcard Deck (SRS)', 'Sentence Grammar & Particles', 'Speaking Studio & Native Voice']
+                  .filter(item => item.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map((item, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        setSearchQuery('');
+                        if (item.includes('Vowels')) onNavigate('classroom');
+                        else if (item.includes('Hangul')) onNavigate('hangul-lab');
+                        else if (item.includes('Vocabulary')) onNavigate('vocabulary');
+                        else if (item.includes('Grammar')) onNavigate('courses');
+                        else onNavigate('speaking-lab');
+                      }}
+                      className="p-2 rounded-xl hover:bg-purple-50 text-xs text-[#2C1E6D] font-medium cursor-pointer flex items-center justify-between"
+                    >
+                      <span>{item}</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-stone-400" />
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right Icons: Assignments/Folder, Notifications, Profile Avatar */}
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => onNavigate('assignments')}
+              className="w-10 h-10 rounded-2xl bg-white border border-stone-200/90 flex items-center justify-center text-stone-600 hover:text-[#6C52EE] hover:border-[#6C52EE]/40 transition-all shadow-2xs relative"
+              title="Assignments Portal"
+            >
+              <Folder className="w-4 h-4" />
+              {pendingAssignments.length > 0 && (
+                <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#FF5CA8]" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onNavigate('records')}
+              className="w-10 h-10 rounded-2xl bg-white border border-stone-200/90 flex items-center justify-center text-stone-600 hover:text-[#6C52EE] hover:border-[#6C52EE]/40 transition-all shadow-2xs relative"
+              title="Notifications & Academic Records"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#38BDF8]" />
+            </button>
+
+            {/* User Profile Avatar */}
+            <div 
+              onClick={() => onNavigate('settings')}
+              className="flex items-center gap-2 cursor-pointer group"
+              title={`${currentUser.name} (${currentUser.role})`}
+            >
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] p-0.5 shadow-2xs group-hover:scale-105 transition-transform">
+                <div className="w-full h-full rounded-2xl bg-white flex items-center justify-center font-bold text-xs text-[#2C1E6D]">
+                  {currentUser.name.charAt(0)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* MAIN TWO-COLUMN DASHBOARD GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          {/* LEFT MAIN COLUMN (lg:col-span-8) */}
+          <div className="lg:col-span-8 space-y-6">
+
+            {/* 1. HERO PROMOTIONAL BANNER */}
+            <div className="bg-[#D8D2FD] rounded-[28px] p-7 md:p-8 relative overflow-hidden flex items-center justify-between shadow-xs">
+              <div className="max-w-md space-y-4 z-10">
+                <h2 className="text-xl md:text-2xl font-bold text-[#1E1B4B] tracking-tight leading-snug">
+                  Have you seen the new vocabulary course that has come out yet?
+                </h2>
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('vocabulary')}
+                    className="px-6 py-2.5 rounded-2xl bg-[#18181B] hover:bg-black text-white font-bold text-xs tracking-wider transition-all shadow-md active:scale-98"
+                  >
+                    Start course
+                  </button>
+                </div>
+              </div>
+
+              {/* Vector SVG Illustration of Girl Student sitting on books with laptop & checklist */}
+              <div className="hidden sm:block shrink-0 w-52 h-44 relative -mr-2 select-none">
+                <svg viewBox="0 0 220 180" className="w-full h-full">
+                  {/* Floating Checklist at Top */}
+                  <g transform="translate(110, 8)">
+                    <rect x="0" y="0" width="34" height="24" rx="4" fill="white" stroke="#1E1B4B" strokeWidth="1.5" />
+                    <path d="M 6 12 L 11 17 L 20 8" stroke="#FF5CA8" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    <line x1="16" y1="16" x2="28" y2="16" stroke="#C7D2FE" strokeWidth="1.5" strokeLinecap="round" />
+                  </g>
+
+                  {/* Sparkle Stars */}
+                  <path d="M 95 32 Q 97 38 103 40 Q 97 42 95 48 Q 93 42 87 40 Q 93 38 95 32 Z" fill="#FF5CA8" />
+                  <circle cx="155" cy="42" r="2.5" fill="#FF5CA8" />
+                  <circle cx="178" cy="24" r="3" fill="#6C52EE" />
+
+                  {/* Stacked Books Base */}
+                  <g transform="translate(50, 115)">
+                    {/* Bottom Book (Purple) */}
+                    <rect x="0" y="24" width="130" height="16" rx="3" fill="#6C52EE" />
+                    <rect x="15" y="27" width="100" height="10" rx="1" fill="#EDE9FE" />
+                    
+                    {/* Middle Book (White with Pink Spine) */}
+                    <rect x="8" y="10" width="116" height="15" rx="3" fill="#FFFFFF" stroke="#1E1B4B" strokeWidth="1.5" />
+                    <rect x="8" y="10" width="16" height="15" rx="2" fill="#FF5CA8" />
+                    
+                    {/* Top Book (Pink) */}
+                    <rect x="18" y="-4" width="98" height="15" rx="3" fill="#FF5CA8" />
+                    <rect x="30" y="-1" width="75" height="9" rx="1" fill="#FFFFFF" />
+                  </g>
+
+                  {/* Student Character sitting cross-legged */}
+                  <g transform="translate(85, 30)">
+                    {/* Legs / Pants */}
+                    <path d="M 28 85 Q 10 95 18 105 Q 35 105 45 95 Z" fill="#FFFFFF" stroke="#1E1B4B" strokeWidth="2" />
+                    <path d="M 45 92 Q 62 105 52 112 Q 35 110 32 95 Z" fill="#FFFFFF" stroke="#1E1B4B" strokeWidth="2" />
+
+                    {/* Torso / Top */}
+                    <path d="M 28 58 L 22 88 L 48 88 L 44 58 Z" fill="#FFFFFF" stroke="#1E1B4B" strokeWidth="2" />
+
+                    {/* Open Laptop on Lap */}
+                    <polygon points="12,82 48,82 42,90 18,90" fill="#1E1B4B" />
+                    <rect x="15" y="66" width="30" height="17" rx="2" fill="#FFFFFF" stroke="#1E1B4B" strokeWidth="1.5" />
+                    <circle cx="30" cy="74" r="2.5" fill="#FF5CA8" />
+
+                    {/* Arms holding laptop */}
+                    <path d="M 24 64 Q 18 75 22 83" stroke="#1E1B4B" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    <path d="M 44 64 Q 48 75 42 83" stroke="#1E1B4B" strokeWidth="2" fill="none" strokeLinecap="round" />
+
+                    {/* Head & Face */}
+                    <ellipse cx="34" cy="46" rx="9" ry="10" fill="#FFE4D6" />
+
+                    {/* Hair / Topknot */}
+                    <path d="M 25 44 Q 34 32 44 42 Q 40 48 34 48 Q 28 48 25 44 Z" fill="#1E1B4B" />
+                    <ellipse cx="44" cy="35" rx="6" ry="6" fill="#1E1B4B" />
+                  </g>
+
+                  {/* Little Leaves / Flora */}
+                  <path d="M 42 120 Q 35 100 48 95 Q 52 112 42 120 Z" fill="#FFFFFF" stroke="#1E1B4B" strokeWidth="1.5" />
+                  <path d="M 40 125 Q 30 115 36 108" stroke="#1E1B4B" strokeWidth="1.5" fill="none" />
+                </svg>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              {[
-                { slot: '08:00 - 08:20', min: '20 min', label: 'Structured Core Lesson', desc: 'Hangul Vowels & Consonant Architecture' },
-                { slot: '08:20 - 08:30', min: '10 min', label: 'Grammar & Vocabulary', desc: 'SuperMemo SM-2 Spaced Repetition Cards' },
-                { slot: '08:30 - 08:40', min: '10 min', label: 'Listening Practice', desc: 'Native Audio Dictation & Liaison Recognition' },
-                { slot: '08:40 - 08:50', min: '10 min', label: 'Speaking Practice', desc: 'Speaking Lab Voice Shadowing & Mic Feedback' },
-                { slot: '08:50 - 08:55', min: '5 min', label: 'Reading or Writing', desc: 'Syllable Block Reading & Notice Deciphering' },
-                { slot: '08:55 - 09:00', min: '5 min', label: 'Review & Homework', desc: 'Daily Self-Introduction Exercise Submission' }
-              ].map((item, idx) => (
-                <div key={idx} className="p-2.5 rounded-lg border border-stone-200 bg-stone-50 flex items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-stone-600 font-bold text-[11px] w-24">
-                      {item.slot}
-                    </span>
-                    <div>
-                      <span className="font-bold text-academy-navy">{item.label}</span>
-                      <span className="text-stone-600 font-medium text-[11px] block">{item.desc}</span>
+            {/* 2. YOUR PROGRESS SECTION */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-extrabold text-[#1E1B4B] tracking-tight">
+                  Your progress
+                </h3>
+                <button 
+                  type="button" 
+                  onClick={() => onNavigate('courses')}
+                  className="text-stone-400 hover:text-stone-600 p-1"
+                  title="Course Options"
+                >
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* 3 Colored Progress Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                
+                {/* Card 1: Periwinkle / Lavender */}
+                <div 
+                  onClick={() => onNavigate('classroom')}
+                  className="bg-[#C7D2FE] rounded-2xl p-4 flex flex-col justify-between space-y-5 cursor-pointer hover:shadow-md transition-all active:scale-98"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-2xs">
+                      {/* Geometric Symbol */}
+                      <svg viewBox="0 0 20 20" className="w-4 h-4">
+                        <path d="M 10 3 L 17 15 L 3 15 Z" fill="#1E1B4B" />
+                      </svg>
+                    </div>
+                    <MoreHorizontal className="w-4 h-4 text-[#312E81]/60" />
+                  </div>
+
+                  <div>
+                    <h4 className="font-extrabold text-xs text-[#1E1B4B] leading-snug">
+                      Beginner's Language Mastery
+                    </h4>
+                    <p className="text-[10px] text-[#312E81]/70 font-semibold mt-0.5">Hangul & Vowels</p>
+                  </div>
+
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-[#1E1B4B]">
+                      <span className="text-[10px] text-[#312E81]/70 font-medium">Progress</span>
+                      <span>{Math.max(15, competencies.hangulReading)}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[#1E1B4B]/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-[#1E1B4B] rounded-full transition-all"
+                        style={{ width: `${Math.max(15, competencies.hangulReading)}%` }}
+                      />
                     </div>
                   </div>
-                  <span className="font-mono text-[11px] text-academy-gold-dark font-semibold px-2 py-0.5 rounded bg-white border border-stone-200">
-                    {item.min}
+                </div>
+
+                {/* Card 2: Warm Peach / Orange */}
+                <div 
+                  onClick={() => onNavigate('courses')}
+                  className="bg-[#FED7AA] rounded-2xl p-4 flex flex-col justify-between space-y-5 cursor-pointer hover:shadow-md transition-all active:scale-98"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-2xs">
+                      {/* Orange 3-Dot Cluster */}
+                      <svg viewBox="0 0 20 20" className="w-4 h-4">
+                        <circle cx="10" cy="6" r="3.5" fill="#431407" />
+                        <circle cx="6" cy="13" r="3.5" fill="#431407" />
+                        <circle cx="14" cy="13" r="3.5" fill="#431407" />
+                      </svg>
+                    </div>
+                    <MoreHorizontal className="w-4 h-4 text-[#7C2D12]/60" />
+                  </div>
+
+                  <div>
+                    <h4 className="font-extrabold text-xs text-[#431407] leading-snug">
+                      Korean Essentials Course
+                    </h4>
+                    <p className="text-[10px] text-[#7C2D12]/70 font-semibold mt-0.5">Grammar & Structure</p>
+                  </div>
+
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-[#431407]">
+                      <span className="text-[10px] text-[#7C2D12]/70 font-medium">Progress</span>
+                      <span>{Math.max(20, competencies.grammar)}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[#431407]/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-[#431407] rounded-full transition-all"
+                        style={{ width: `${Math.max(20, competencies.grammar)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 3: Soft Fuchsia / Pink */}
+                <div 
+                  onClick={() => onNavigate('vocabulary')}
+                  className="bg-[#FBCFE8] rounded-2xl p-4 flex flex-col justify-between space-y-5 cursor-pointer hover:shadow-md transition-all active:scale-98"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-2xs">
+                      {/* Pink Card Glyphs */}
+                      <svg viewBox="0 0 20 20" className="w-4 h-4">
+                        <rect x="4" y="4" width="12" height="12" rx="2.5" fill="#500724" />
+                        <line x1="7" y1="8" x2="13" y2="8" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                        <line x1="7" y1="12" x2="11" y2="12" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                    <MoreHorizontal className="w-4 h-4 text-[#831843]/60" />
+                  </div>
+
+                  <div>
+                    <h4 className="font-extrabold text-xs text-[#500724] leading-snug">
+                      Novice to Proficient Korean
+                    </h4>
+                    <p className="text-[10px] text-[#831843]/70 font-semibold mt-0.5">Vocabulary (SRS)</p>
+                  </div>
+
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-[#500724]">
+                      <span className="text-[10px] text-[#831843]/70 font-medium">Progress</span>
+                      <span>{Math.max(10, competencies.vocabulary)}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[#500724]/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-[#500724] rounded-full transition-all"
+                        style={{ width: `${Math.max(10, competencies.vocabulary)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* 3. TOP ARTICLES FOR YOU SECTION */}
+            <div className="space-y-3">
+              <h3 className="text-base font-extrabold text-[#1E1B4B] tracking-tight">
+                Top articles for you
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* Article 1 */}
+                <div 
+                  onClick={() => setActiveArticleModal({
+                    title: 'Mastering Vocabulary: Proven Strategies for Efficient Korean Word Learning',
+                    category: 'Technique',
+                    readTime: '5 min',
+                    content: 'Learn Korean vocabulary faster with Spaced Repetition (SRS). By scheduling reviews right before you forget a word, you transfer Hangul terms from working memory into permanent long-term fluency.',
+                    tab: 'vocabulary'
+                  })}
+                  className="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-2xs hover:shadow-md transition-all flex items-center gap-4 cursor-pointer active:scale-98 group"
+                >
+                  <div className="w-24 h-24 shrink-0 rounded-2xl bg-[#FCE7F3] flex items-center justify-center relative overflow-hidden select-none">
+                    <svg viewBox="0 0 100 100" className="w-20 h-20">
+                      {/* Pink Circle BG */}
+                      <circle cx="50" cy="50" r="42" fill="#F472B6" opacity="0.3" />
+                      
+                      {/* Speech Bubble with ? */}
+                      <g transform="translate(14, 16)">
+                        <path d="M 0 14 C 0 6 6 0 14 0 L 26 0 C 34 0 40 6 40 14 C 40 22 34 28 26 28 L 14 28 L 6 34 L 8 28 C 3 26 0 20 0 14 Z" fill="#FFFFFF" stroke="#1E1B4B" strokeWidth="1.5" />
+                        <text x="18" y="19" fontSize="16" fontWeight="bold" fill="#FF5CA8" textAnchor="middle">?</text>
+                      </g>
+
+                      {/* Speech Bubble with ! */}
+                      <g transform="translate(60, 18)">
+                        <path d="M 0 10 C 0 4 4 0 10 0 L 16 0 C 22 0 26 4 26 10 C 26 16 22 20 16 20 L 10 20 L 4 24 L 6 20 C 2 18 0 14 0 10 Z" fill="#FF5CA8" />
+                        <text x="13" y="15" fontSize="13" fontWeight="bold" fill="#FFFFFF" textAnchor="middle">!</text>
+                      </g>
+
+                      {/* Character looking over shoulder */}
+                      <g transform="translate(32, 42)">
+                        <ellipse cx="24" cy="20" rx="9" ry="10" fill="#FFE4D6" />
+                        <path d="M 16 18 Q 24 10 32 18 Q 28 24 24 24 Q 18 24 16 18 Z" fill="#1E1B4B" />
+                        <ellipse cx="28" cy="12" rx="4" ry="4" fill="#1E1B4B" />
+                        <path d="M 10 35 Q 24 25 38 35 L 42 55 L 6 55 Z" fill="#1E1B4B" />
+                      </g>
+                    </svg>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h4 className="font-extrabold text-xs text-[#1E1B4B] leading-snug group-hover:text-[#6C52EE] transition-colors">
+                      Mastering Vocabulary: Proven Strategies for Efficient Korean Word Learning
+                    </h4>
+                    <div className="flex items-center gap-2 text-[10px] text-stone-500 font-medium">
+                      <FileText className="w-3 h-3 text-stone-400" />
+                      <span>Technique</span>
+                      <span>•</span>
+                      <span>5 min</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Article 2 */}
+                <div 
+                  onClick={() => setActiveArticleModal({
+                    title: 'Embarking on Korean: A Beginner\'s Guide to Kickstart Your Language Learning',
+                    category: 'Technique',
+                    readTime: '5 min',
+                    content: 'King Sejong created Hangul in 1443 with scientific logic. Vowels represent the Sky (•), Earth (ㅡ), and Human (ㅣ), while consonants represent the vocal organ shapes. Master the building blocks and you can read anything in Korean.',
+                    tab: 'hangul-lab'
+                  })}
+                  className="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-2xs hover:shadow-md transition-all flex items-center gap-4 cursor-pointer active:scale-98 group"
+                >
+                  <div className="w-24 h-24 shrink-0 rounded-2xl bg-[#EDE9FE] flex items-center justify-center relative overflow-hidden select-none">
+                    <svg viewBox="0 0 100 100" className="w-20 h-20">
+                      {/* Lavender Circle BG */}
+                      <circle cx="50" cy="50" r="42" fill="#818CF8" opacity="0.3" />
+
+                      {/* Gear Icon in Background */}
+                      <g transform="translate(62, 50)">
+                        <circle cx="12" cy="12" r="10" fill="#1E1B4B" />
+                        <circle cx="12" cy="12" r="4" fill="#EDE9FE" />
+                      </g>
+
+                      {/* Info Badge */}
+                      <g transform="translate(68, 22)">
+                        <circle cx="8" cy="8" r="8" fill="#FFFFFF" stroke="#1E1B4B" strokeWidth="1.5" />
+                        <text x="8" y="12" fontSize="10" fontWeight="bold" fill="#6C52EE" textAnchor="middle">i</text>
+                      </g>
+
+                      {/* Student reading open book */}
+                      <g transform="translate(25, 34)">
+                        {/* Head */}
+                        <ellipse cx="20" cy="16" rx="8" ry="9" fill="#FFE4D6" />
+                        <path d="M 12 14 Q 20 6 28 14 Q 26 20 20 20 Q 14 20 12 14 Z" fill="#1E1B4B" />
+                        
+                        {/* Body / Arms */}
+                        <path d="M 6 36 Q 20 26 34 36 L 36 50 L 4 50 Z" fill="#1E1B4B" />
+
+                        {/* Open Pink Book */}
+                        <g transform="translate(8, 28)">
+                          <polygon points="0,6 12,2 24,6 24,18 12,14 0,18" fill="#FF5CA8" />
+                          <polygon points="2,7 12,3 22,7 22,17 12,13 2,17" fill="#FFFFFF" />
+                          <line x1="12" y1="3" x2="12" y2="13" stroke="#FF5CA8" strokeWidth="1" />
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h4 className="font-extrabold text-xs text-[#1E1B4B] leading-snug group-hover:text-[#6C52EE] transition-colors">
+                      Embarking on Korean: A Beginner's Guide to Kickstart Your Language Learning
+                    </h4>
+                    <div className="flex items-center gap-2 text-[10px] text-stone-500 font-medium">
+                      <FileText className="w-3 h-3 text-stone-400" />
+                      <span>Technique</span>
+                      <span>•</span>
+                      <span>5 min</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT PANEL COLUMN (lg:col-span-4) */}
+          <div className="lg:col-span-4 space-y-6">
+
+            {/* 1. CALENDAR WIDGET */}
+            <div className="bg-white rounded-3xl p-5 border border-stone-200/90 shadow-2xs space-y-4">
+              {/* Month Navigation */}
+              <div className="flex items-center justify-between">
+                <button 
+                  type="button" 
+                  onClick={() => setSelectedCalendarDate(prev => Math.max(23, prev - 1))}
+                  className="w-7 h-7 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-500 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="font-bold text-sm text-[#1E1B4B]">
+                  {currentCalendarMonth}
+                </span>
+                <button 
+                  type="button" 
+                  onClick={() => setSelectedCalendarDate(prev => Math.min(29, prev + 1))}
+                  className="w-7 h-7 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-500 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Days of Week and Dates Row */}
+              <div className="grid grid-cols-7 gap-1 text-center">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
+                  const dateNum = 23 + idx;
+                  const isSelected = selectedCalendarDate === dateNum;
+                  return (
+                    <div 
+                      key={day}
+                      onClick={() => setSelectedCalendarDate(dateNum)}
+                      className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all ${
+                        isSelected 
+                          ? 'bg-[#DDD6FE] text-[#2C1E6D] font-bold shadow-2xs' 
+                          : 'hover:bg-stone-50 text-stone-500 font-medium'
+                      }`}
+                    >
+                      <span className="text-[10px]">{day}</span>
+                      <span className="text-xs font-bold font-mono">{dateNum}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Selected Day Info */}
+              <div className="p-2.5 rounded-2xl bg-purple-50/60 border border-purple-100 flex items-center justify-between text-xs">
+                <span className="text-stone-600 font-medium text-[11px]">
+                  Daily Study Goal:
+                </span>
+                <span className="font-bold text-[#6C52EE] font-mono">
+                  {currentUser.dailyStudyMinutes} Mins Commitment
+                </span>
+              </div>
+            </div>
+
+            {/* 2. UPCOMING COURSES */}
+            <div className="space-y-4">
+              <h3 className="text-base font-extrabold text-[#1E1B4B] tracking-tight">
+                Upcoming courses
+              </h3>
+
+              {/* Course Card 1 */}
+              <div className="bg-white rounded-3xl p-5 border border-stone-200/90 shadow-2xs space-y-3 hover:shadow-md transition-all">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[10px] font-bold">
+                    Beginner
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#CCFBF1] text-[#0F766E] text-[10px] font-bold">
+                    Grammar
                   </span>
                 </div>
-              ))}
+
+                <div className="flex items-baseline justify-between">
+                  <h4 className="font-extrabold text-sm text-[#1E1B4B]">
+                    Korean Grammar
+                  </h4>
+                  <span className="font-bold text-xs text-stone-700 font-mono">
+                    $50.99
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-stone-500 leading-relaxed">
+                  Basic Korean grammar includes learning verbs, nouns, and simple sentence structure for effective communication.
+                </p>
+
+                <div className="flex items-center gap-4 text-[10px] text-stone-500 font-medium">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-stone-400" />
+                    <span>3 month</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <BookOpen className="w-3 h-3 text-stone-400" />
+                    <span>56 lessons</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+                  {/* Classmates Avatar Stack */}
+                  <div className="flex items-center -space-x-2">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-pink-400 to-purple-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
+                      D
+                    </div>
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
+                      M
+                    </div>
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
+                      K
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('courses')}
+                    className="px-5 py-2 rounded-2xl bg-[#18181B] hover:bg-black text-white text-xs font-bold transition-all shadow-xs active:scale-95"
+                  >
+                    Buy course
+                  </button>
+                </div>
+              </div>
+
+              {/* Course Card 2 */}
+              <div className="bg-white rounded-3xl p-5 border border-stone-200/90 shadow-2xs space-y-3 hover:shadow-md transition-all">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#FFEDD5] text-[#C2410C] text-[10px] font-bold">
+                    Intermediate
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#FCE7F3] text-[#BE185D] text-[10px] font-bold">
+                    Vocabulary
+                  </span>
+                </div>
+
+                <div className="flex items-baseline justify-between">
+                  <h4 className="font-extrabold text-sm text-[#1E1B4B]">
+                    Idioms about friendship
+                  </h4>
+                  <span className="font-bold text-xs text-stone-700 font-mono">
+                    $25.99
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-stone-500 leading-relaxed">
+                  Friendship idioms add colorful expressions to language, like to be on the same page or to have someone's back, enhancing communication...
+                </p>
+
+                <div className="flex items-center gap-4 text-[10px] text-stone-500 font-medium">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-stone-400" />
+                    <span>2 weeks</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <BookOpen className="w-3 h-3 text-stone-400" />
+                    <span>10 lessons</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+                  {/* Classmates Avatar Stack */}
+                  <div className="flex items-center -space-x-2">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
+                      H
+                    </div>
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-400 to-pink-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
+                      S
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('vocabulary')}
+                    className="px-5 py-2 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold transition-all shadow-xs active:scale-95"
+                  >
+                    Buy course
+                  </button>
+                </div>
+              </div>
+
             </div>
+
           </div>
+
         </div>
 
-        {/* Right (1 col): Verified 9-Competency Radar */}
-        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-            <div>
-              <h3 className="font-serif font-bold text-base text-academy-navy flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-academy-sage" />
-                <span>9 Competency Radar</span>
-              </h3>
-              <p className="text-[11px] text-stone-500 mt-0.5">
-                Verified from lesson progress & quizzes.
-              </p>
+        {/* 4. EXPANDABLE ACADEMIC OVERVIEW & 9 COMPETENCY RADAR (Preserving all verified student metrics) */}
+        <div className="bg-white rounded-3xl border border-stone-200/90 shadow-2xs overflow-hidden mt-4">
+          <button
+            type="button"
+            onClick={() => setShowAcademicDrawer(prev => !prev)}
+            className="w-full p-5 flex items-center justify-between text-left hover:bg-stone-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-purple-50 text-[#6C52EE]">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-sm text-[#1E1B4B]">
+                  Academic File & 9 Competency Radar • Student {currentUser.studentId}
+                </h3>
+                <p className="text-xs text-stone-500 font-medium">
+                  Grade {currentUser.currentAcademicGrade} • {activeDaysThisWeek}/7 Active Days • Verified Progress
+                </p>
+              </div>
             </div>
-            <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-              Verified
-            </span>
-          </div>
 
-          <div className="space-y-3 pt-1">
-            <ProgressBar label="Hangul Reading (한글 읽기)" subLabel={`${competencies.hangulReading}%`} value={competencies.hangulReading} color="purple" />
-            <ProgressBar label="Hangul Writing (한글 쓰기)" subLabel={`${competencies.hangulWriting}%`} value={competencies.hangulWriting} color="pink" />
-            <ProgressBar label="Grammar (문법)" subLabel={`${competencies.grammar}%`} value={competencies.grammar} color="purple" />
-            <ProgressBar label="Vocabulary (어휘)" subLabel={`${competencies.vocabulary}%`} value={competencies.vocabulary} color="blue" />
-            <ProgressBar label="Listening (듣기)" subLabel={`${competencies.listening}%`} value={competencies.listening} color="blue" />
-            <ProgressBar label="Speaking (말하기)" subLabel={`${competencies.speaking}%`} value={competencies.speaking} color="pink" />
-            <ProgressBar label="Reading Comprehension (독해)" subLabel={`${competencies.readingComprehension}%`} value={competencies.readingComprehension} color="purple" />
-            <ProgressBar label="Writing Composition (작문)" subLabel={`${competencies.writingComposition}%`} value={competencies.writingComposition} color="pink" />
-            <ProgressBar label="Pronunciation Accuracy (발음)" subLabel={`${competencies.pronunciationAccuracy}%`} value={competencies.pronunciationAccuracy} color="purple" />
-          </div>
+            <div className="flex items-center gap-2 text-xs font-bold text-[#6C52EE]">
+              <span>{showAcademicDrawer ? 'Hide Details' : 'View Competencies & Timetable'}</span>
+              {showAcademicDrawer ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
+          </button>
+
+          {showAcademicDrawer && (
+            <div className="p-6 pt-0 border-t border-stone-100 space-y-6">
+              
+              {/* Quick Metrics Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-4">
+                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80">
+                  <span className="text-stone-500 font-semibold block text-[11px]">Academic Standing</span>
+                  <span className="text-base font-bold text-[#FF5CA8]">Grade {currentUser.currentAcademicGrade}</span>
+                  <span className="text-[10px] text-stone-400 block mt-0.5">Verified</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80">
+                  <span className="text-stone-500 font-semibold block text-[11px]">Attendance Record</span>
+                  <span className="text-base font-bold text-emerald-600">{activeDaysThisWeek} Days Active</span>
+                  <span className="text-[10px] text-stone-400 block mt-0.5">Target: {currentUser.studyDaysPerWeek} days</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80">
+                  <span className="text-stone-500 font-semibold block text-[11px]">Completed Lessons</span>
+                  <span className="text-base font-bold text-[#1E1B4B]">{completedInCourse}/{totalLessonsInCourse}</span>
+                  <span className="text-[10px] text-stone-400 block mt-0.5">{completionPercent}% Complete</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80">
+                  <span className="text-stone-500 font-semibold block text-[11px]">Weekly Target</span>
+                  <span className="text-base font-bold text-[#38BDF8]">{weeklyStudyHours} hrs</span>
+                  <span className="text-[10px] text-stone-400 block mt-0.5">Goal: {weeklyTargetHours} hrs</span>
+                </div>
+              </div>
+
+              {/* 9 Competency Radar & Timetable */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* 9 Competency Radar */}
+                <div className="space-y-3 p-4 rounded-2xl bg-stone-50/70 border border-stone-200/70">
+                  <div className="flex items-center justify-between pb-2 border-b border-stone-200">
+                    <span className="font-extrabold text-xs text-[#1E1B4B]">9 Competency Radar</span>
+                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">Verified</span>
+                  </div>
+                  <ProgressBar label="Hangul Reading (한글 읽기)" subLabel={`${competencies.hangulReading}%`} value={competencies.hangulReading} color="purple" />
+                  <ProgressBar label="Hangul Writing (한글 쓰기)" subLabel={`${competencies.hangulWriting}%`} value={competencies.hangulWriting} color="pink" />
+                  <ProgressBar label="Grammar (문법)" subLabel={`${competencies.grammar}%`} value={competencies.grammar} color="purple" />
+                  <ProgressBar label="Vocabulary (어휘)" subLabel={`${competencies.vocabulary}%`} value={competencies.vocabulary} color="blue" />
+                  <ProgressBar label="Listening (듣기)" subLabel={`${competencies.listening}%`} value={competencies.listening} color="blue" />
+                  <ProgressBar label="Speaking (말하기)" subLabel={`${competencies.speaking}%`} value={competencies.speaking} color="pink" />
+                  <ProgressBar label="Reading Comprehension (독해)" subLabel={`${competencies.readingComprehension}%`} value={competencies.readingComprehension} color="purple" />
+                  <ProgressBar label="Writing Composition (작문)" subLabel={`${competencies.writingComposition}%`} value={competencies.writingComposition} color="pink" />
+                  <ProgressBar label="Pronunciation Accuracy (발음)" subLabel={`${competencies.pronunciationAccuracy}%`} value={competencies.pronunciationAccuracy} color="purple" />
+                </div>
+
+                {/* Daily 60-Minute Timetable Breakdown */}
+                <div className="space-y-3 p-4 rounded-2xl bg-stone-50/70 border border-stone-200/70">
+                  <div className="flex items-center justify-between pb-2 border-b border-stone-200">
+                    <span className="font-extrabold text-xs text-[#1E1B4B]">Daily 60-Minute Timetable Breakdown</span>
+                    <button 
+                      type="button" 
+                      onClick={() => onNavigate('planner')}
+                      className="text-[11px] font-bold text-[#6C52EE] hover:underline"
+                    >
+                      Planner
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { slot: '08:00 - 08:20', min: '20 min', label: 'Structured Core Lesson', desc: 'Hangul Vowels & Consonant Architecture' },
+                      { slot: '08:20 - 08:30', min: '10 min', label: 'Grammar & Vocabulary', desc: 'SuperMemo SM-2 Spaced Repetition Cards' },
+                      { slot: '08:30 - 08:40', min: '10 min', label: 'Listening Practice', desc: 'Native Audio Dictation & Liaison Recognition' },
+                      { slot: '08:40 - 08:50', min: '10 min', label: 'Speaking Practice', desc: 'Speaking Lab Voice Shadowing & Mic Feedback' },
+                      { slot: '08:50 - 08:55', min: '5 min', label: 'Reading or Writing', desc: 'Syllable Block Reading & Notice Deciphering' },
+                      { slot: '08:55 - 09:00', min: '5 min', label: 'Review & Homework', desc: 'Daily Self-Introduction Exercise Submission' }
+                    ].map((item, idx) => (
+                      <div key={idx} className="p-2 rounded-xl bg-white border border-stone-200/80 flex items-center justify-between text-xs">
+                        <div>
+                          <span className="font-bold text-[#1E1B4B]">{item.label}</span>
+                          <span className="text-stone-500 text-[10px] block">{item.desc}</span>
+                        </div>
+                        <span className="font-mono text-[10px] font-bold text-[#6C52EE] px-1.5 py-0.5 rounded bg-purple-50">
+                          {item.min}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
         </div>
 
       </div>
-      </div>
+
+      {/* Article Detail Modal */}
+      {activeArticleModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-stone-200">
+            <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+              <span className="px-2.5 py-1 rounded-full bg-purple-50 text-[#6C52EE] text-[10px] font-bold uppercase tracking-wider">
+                {activeArticleModal.category} • {activeArticleModal.readTime} Read
+              </span>
+              <button 
+                type="button" 
+                onClick={() => setActiveArticleModal(null)}
+                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <h3 className="text-base font-extrabold text-[#1E1B4B] leading-snug">
+              {activeArticleModal.title}
+            </h3>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {activeArticleModal.content}
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setActiveArticleModal(null)}
+                className="px-4 py-2 rounded-xl text-stone-500 font-bold text-xs hover:bg-stone-100"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const target = activeArticleModal.tab;
+                  setActiveArticleModal(null);
+                  onNavigate(target);
+                }}
+                className="px-5 py-2 rounded-xl bg-[#6C52EE] hover:bg-[#553ACF] text-white font-bold text-xs shadow-md transition-all"
+              >
+                Open Studio
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
