@@ -16,7 +16,7 @@ import {
   Bot, 
   Sparkles, 
   Grid,
-  FileCheck,
+  FileCheck, 
   AlertCircle,
   HelpCircle,
   Lightbulb,
@@ -31,7 +31,14 @@ import {
   ChevronDown,
   ChevronUp,
   Check,
-  Users
+  Users,
+  LayoutDashboard,
+  BarChart3,
+  MessageSquare,
+  Settings,
+  LogOut,
+  Plus,
+  Flame
 } from 'lucide-react';
 import { NavItemKey } from '../common/Sidebar';
 
@@ -86,6 +93,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<number>(26);
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState('March 2026');
   const [showAcademicDrawer, setShowAcademicDrawer] = useState(false);
+  const [devicePreviewMode, setDevicePreviewMode] = useState<'auto' | 'mobile' | 'tablet' | 'desktop'>('auto');
+  const [tabletSearchQuery, setTabletSearchQuery] = useState('');
+  const [tabletPeriod, setTabletPeriod] = useState<'Today' | 'Week' | 'Month'>('Today');
+  const [showTabletPeriodMenu, setShowTabletPeriodMenu] = useState(false);
   const [activeArticleModal, setActiveArticleModal] = useState<{
     title: string;
     category: string;
@@ -148,10 +159,68 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       
+      {/* 🧭 Device View Mode Switcher Pill */}
+      <div className="flex items-center justify-between flex-wrap gap-2 pb-1 border-b border-stone-200/60">
+        <div className="flex items-center gap-1.5 bg-stone-100/90 p-1 rounded-2xl border border-stone-200/70 text-xs shadow-2xs">
+          <span className="text-[10px] font-extrabold text-stone-500 uppercase tracking-wider px-2">Preview Experience:</span>
+          <button
+            type="button"
+            onClick={() => setDevicePreviewMode('auto')}
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+              devicePreviewMode === 'auto'
+                ? 'bg-white text-[#2C1E6D] shadow-xs'
+                : 'text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            Auto Responsive
+          </button>
+          <button
+            type="button"
+            onClick={() => setDevicePreviewMode('mobile')}
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              devicePreviewMode === 'mobile'
+                ? 'bg-[#FF5CA8] text-white shadow-xs'
+                : 'text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            <span>📱</span> Mobile View
+          </button>
+          <button
+            type="button"
+            onClick={() => setDevicePreviewMode('tablet')}
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              devicePreviewMode === 'tablet'
+                ? 'bg-[#6C52EE] text-white shadow-xs'
+                : 'text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            <span>📟</span> Tablet (iPad) View
+          </button>
+          <button
+            type="button"
+            onClick={() => setDevicePreviewMode('desktop')}
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              devicePreviewMode === 'desktop'
+                ? 'bg-[#2C1E6D] text-white shadow-xs'
+                : 'text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            <span>💻</span> Desktop View
+          </button>
+        </div>
+
+        <div className="text-[11px] font-medium text-stone-400 hidden sm:block">
+          {devicePreviewMode === 'auto' && 'Screen-adaptive (Mobile < 768px • Tablet 768px-1279px • Desktop ≥ 1280px)'}
+          {devicePreviewMode === 'mobile' && 'Simulating Mobile Learning UX (Phone)'}
+          {devicePreviewMode === 'tablet' && 'Simulating Tablet Learning UX (iPad landscape)'}
+          {devicePreviewMode === 'desktop' && 'Simulating Classroom Studio UX (Desktop)'}
+        </div>
+      </div>
+
       {/* 📱 1. DEDICATED MOBILE LEARNING APP DASHBOARD VIEW (< 768px) - MATCHING CHINGUPOP UX */}
-      <div className="md:hidden space-y-4">
+      <div className={`${devicePreviewMode === 'mobile' ? 'block' : devicePreviewMode === 'auto' ? 'md:hidden' : 'hidden'} space-y-4`}>
         
         {/* Top Header: User Avatar + Greeting + Notification Bell */}
         <div className="flex items-center justify-between pt-1 pb-1">
@@ -517,8 +586,622 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
       </div>
 
-      {/* 💻 2. DESKTOP & TABLET CLASSROOM VIEW (Visible on screens >= 768px) - MATCHING CHINGUPOP DESKTOP UX */}
-      <div className="hidden md:block space-y-6">
+      {/* 📟 2. DEDICATED TABLET (iPAD) LEARNING DASHBOARD VIEW (768px - 1279px) - MATCHING CHINGUPOP TABLET UX */}
+      <div className={`${devicePreviewMode === 'tablet' ? 'block' : devicePreviewMode === 'auto' ? 'hidden md:block xl:hidden' : 'hidden'} space-y-4`}>
+        <div className="bg-white rounded-[32px] p-5 lg:p-6 shadow-sm border border-stone-200/80">
+          <div className="flex gap-5 items-stretch">
+            
+            {/* Left Nav Rail */}
+            <div className="w-48 shrink-0 flex flex-col justify-between pr-3 border-r border-stone-100">
+              <div className="space-y-6">
+                {/* Logo Header */}
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#6C52EE] via-[#FF5CA8] to-[#FF8A00] flex items-center justify-center text-white shadow-2xs p-1.5">
+                    <BookOpen className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-sm text-[#1E1B4B] tracking-tight">Lang Lab.</h2>
+                    <span className="text-[9px] font-bold text-[#6C52EE] uppercase tracking-wider block -mt-0.5">ChinguPop</span>
+                  </div>
+                </div>
+
+                {/* Navigation Rail Links */}
+                <div className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('dashboard')}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-[#F4F1FE] text-[#6C52EE] font-bold text-xs relative text-left"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <LayoutDashboard className="w-4 h-4 text-[#6C52EE]" />
+                      <span>Dashboard</span>
+                    </div>
+                    <div className="w-1 h-5 bg-[#6C52EE] rounded-l-full absolute right-0" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('classroom')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
+                  >
+                    <GraduationCap className="w-4 h-4 text-stone-400" />
+                    <span>Classes</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('materials')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
+                  >
+                    <BookOpen className="w-4 h-4 text-stone-400" />
+                    <span>Resources</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('assignments')}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Grid className="w-4 h-4 text-stone-400" />
+                      <span>Homework</span>
+                    </div>
+                    {pendingAssignments.length > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-[#FF5CA8]" />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('records')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
+                  >
+                    <BarChart3 className="w-4 h-4 text-stone-400" />
+                    <span>Analysis</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('academy-overview')}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
+                  >
+                    <Users className="w-4 h-4 text-stone-400" />
+                    <span>Friends</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('ai-tutor')}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <MessageSquare className="w-4 h-4 text-stone-400" />
+                      <span>Messages</span>
+                    </div>
+                    <span className="w-4.5 h-4.5 rounded-full bg-purple-100 text-[#6C52EE] font-extrabold text-[9px] flex items-center justify-center">
+                      3
+                    </span>
+                  </button>
+                </div>
+
+                {/* Ready for exams? Countdown Card */}
+                <div
+                  onClick={() => onNavigate('examinations')}
+                  className="p-3 rounded-2xl bg-gradient-to-br from-[#FF9CAE] via-[#A18BFF] to-[#6C52EE] text-white shadow-xs cursor-pointer hover:shadow-md transition-all active:scale-98"
+                >
+                  <p className="text-[11px] font-bold mb-2 flex items-center gap-1 text-white">
+                    <Sparkles className="w-3 h-3 text-yellow-200" />
+                    <span>Ready for exams?</span>
+                  </p>
+                  <div className="grid grid-cols-3 gap-1 text-center">
+                    <div className="bg-white/95 rounded-lg py-1 shadow-2xs">
+                      <div className="text-[11px] font-black font-mono text-[#2C1E6D]">10</div>
+                      <div className="text-[7.5px] font-bold text-stone-400 uppercase">days</div>
+                    </div>
+                    <div className="bg-white/95 rounded-lg py-1 shadow-2xs">
+                      <div className="text-[11px] font-black font-mono text-[#2C1E6D]">16</div>
+                      <div className="text-[7.5px] font-bold text-stone-400 uppercase">hours</div>
+                    </div>
+                    <div className="bg-white/95 rounded-lg py-1 shadow-2xs">
+                      <div className="text-[11px] font-black font-mono text-[#2C1E6D]">42</div>
+                      <div className="text-[7.5px] font-bold text-stone-400 uppercase">min</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Nav Settings & Logout */}
+              <div className="space-y-0.5 pt-4 border-t border-stone-100">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('settings')}
+                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors"
+                >
+                  <Settings className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Settings</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-stone-500 hover:text-rose-600 hover:bg-rose-50 font-semibold text-xs transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Center Main Workspace */}
+            <div className="flex-1 min-w-0 space-y-4">
+              
+              {/* Buddies Stories Row */}
+              <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
+                <div className="flex flex-col items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('academy-overview')}
+                    className="w-11 h-11 rounded-full border-2 border-dashed border-[#8E77F7] flex items-center justify-center text-[#6C52EE] hover:bg-purple-50 transition-colors"
+                    title="Add Chingu"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                  <span className="text-[9px] font-medium text-transparent">Add</span>
+                </div>
+
+                {[
+                  { name: 'Thomas', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' },
+                  { name: 'Kate', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80' },
+                  { name: 'Sabine', img: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80' },
+                  { name: 'Jessica', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80' },
+                  { name: 'Matthew', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80' },
+                ].map((buddy, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => onNavigate('academy-overview')}
+                    className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group"
+                  >
+                    <div className="w-11 h-11 rounded-full p-0.5 border-2 border-purple-200 group-hover:border-[#6C52EE] transition-all overflow-hidden bg-stone-100 shadow-2xs">
+                      <img src={buddy.img} alt={buddy.name} className="w-full h-full object-cover rounded-full" />
+                    </div>
+                    <span className="text-[10px] font-medium text-stone-600 group-hover:text-[#6C52EE]">
+                      {buddy.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Welcome Hero Card */}
+              <div className="bg-[#FAF9FF] border border-purple-100/90 rounded-3xl p-4 lg:p-5 relative overflow-hidden flex items-center justify-between shadow-xs">
+                <div className="space-y-1.5 z-10 max-w-[62%]">
+                  <h2 className="text-lg lg:text-xl font-black text-[#1E1B4B] tracking-tight">
+                    Welcome back, <span className="text-[#6C52EE]">{currentUser.name.split(' ')[0]}!</span>
+                  </h2>
+                  <p className="text-[11px] text-stone-500 font-medium leading-relaxed">
+                    Upgrade your account to unlock all features.
+                  </p>
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('classroom')}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF7DA0] to-[#7C5CF6] hover:from-[#FF6B93] hover:to-[#6C52EE] text-white font-extrabold text-xs shadow-xs transition-all active:scale-98"
+                    >
+                      Upgrade Now
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3D Scholar Graphic */}
+                <div className="relative z-10 w-28 h-24 lg:w-32 lg:h-28 flex items-center justify-center shrink-0">
+                  <svg viewBox="0 0 160 140" className="w-full h-full drop-shadow-md select-none">
+                    <path d="M 25 110 L 95 125 L 145 105 L 75 92 Z" fill="#22C55E" />
+                    <path d="M 25 110 L 25 118 L 95 133 L 95 125 Z" fill="#16A34A" />
+                    <path d="M 95 125 L 95 133 L 145 113 L 145 105 Z" fill="#15803D" />
+                    <path d="M 27 114 L 93 128 L 93 130 L 27 116 Z" fill="#FEF08A" />
+
+                    <path d="M 32 94 L 98 108 L 140 90 L 74 78 Z" fill="#FFFFFF" />
+                    <path d="M 32 94 L 32 101 L 98 115 L 98 108 Z" fill="#E2E8F0" />
+                    <path d="M 98 108 L 98 115 L 140 97 L 140 90 Z" fill="#CBD5E1" />
+
+                    <path d="M 38 78 L 96 90 L 135 74 L 77 64 Z" fill="#7C5CF6" />
+                    <path d="M 38 78 L 38 84 L 96 96 L 96 90 Z" fill="#6C52EE" />
+                    <path d="M 96 90 L 96 96 L 135 80 L 135 74 Z" fill="#5B21B6" />
+
+                    <ellipse cx="65" cy="62" rx="14" ry="7" fill="#1E293B" />
+                    <ellipse cx="95" cy="62" rx="14" ry="7" fill="#1E293B" />
+
+                    <rect x="68" y="32" width="24" height="28" rx="6" fill="#FB923C" />
+                    <path d="M 74 32 L 80 40 L 86 32 Z" fill="white" />
+
+                    <path d="M 64 40 L 56 48 L 74 54" stroke="#EA580C" strokeWidth="4" strokeLinecap="round" fill="none" />
+                    <path d="M 96 40 L 104 48 L 86 54" stroke="#EA580C" strokeWidth="4" strokeLinecap="round" fill="none" />
+                    <polygon points="68,46 92,46 88,58 72,58" fill="#F8FAFC" stroke="#64748B" strokeWidth="1" />
+
+                    <circle cx="80" cy="22" r="11" fill="#FED7AA" />
+                    <path d="M 69 19 Q 80 11 91 19 Q 85 10 75 12 Z" fill="#FFFFFF" />
+                    <ellipse cx="80" cy="14" rx="12" ry="4" fill="#E2E8F0" />
+                    <circle cx="80" cy="10" r="2" fill="#F59E0B" />
+                    <path d="M 98 12 L 102 7 L 106 12 L 111 16 L 106 20 L 102 25 L 98 20 L 93 16 Z" fill="#FBBF24" opacity="0.8" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Middle 2 Cards (Last Results & Work Hours) */}
+              <div className="grid grid-cols-2 gap-3.5">
+                {/* Last Results */}
+                <div className="bg-white rounded-2xl p-3.5 border border-stone-200/90 shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <h3 className="font-extrabold text-xs text-[#1E1B4B]">Last Results</h3>
+                    <button 
+                      type="button"
+                      onClick={() => onNavigate('records')}
+                      className="text-[10px] font-bold text-[#6C52EE] hover:underline bg-purple-50 px-2 py-0.5 rounded-md"
+                    >
+                      More &gt;
+                    </button>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <div className="space-y-1">
+                      <div className="text-[9.5px] font-semibold text-stone-600 truncate">
+                        Unit 30 • may and might 2
+                      </div>
+                      <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#6C52EE] rounded-full" style={{ width: '75%' }} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-[9.5px] font-semibold text-stone-600 truncate">
+                        Unit 48 • question tags
+                      </div>
+                      <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#B4A0FF] rounded-full" style={{ width: '48%' }} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-[9.5px] font-semibold text-stone-600 truncate">
+                        Unit 51 • if I do ... and if I did
+                      </div>
+                      <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#F59E0B] rounded-full" style={{ width: '32%' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Work Hours Donut */}
+                <div className="bg-white rounded-2xl p-3.5 border border-stone-200/90 shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="font-extrabold text-xs text-[#1E1B4B]">Work Hours</h3>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowTabletPeriodMenu(!showTabletPeriodMenu)}
+                        className="text-[9.5px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-md flex items-center gap-1"
+                      >
+                        <span>{tabletPeriod}</span>
+                        <ChevronDown className="w-3 h-3 text-stone-400" />
+                      </button>
+                      {showTabletPeriodMenu && (
+                        <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-stone-200 p-1 z-30 min-w-20">
+                          {(['Today', 'Week', 'Month'] as const).map(p => (
+                            <div
+                              key={p}
+                              onClick={() => {
+                                setTabletPeriod(p);
+                                setShowTabletPeriodMenu(false);
+                              }}
+                              className="px-2 py-1 text-[10px] font-bold hover:bg-purple-50 text-stone-700 cursor-pointer rounded-md"
+                            >
+                              {p}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Donut graphic */}
+                  <div className="flex items-center justify-center relative py-1">
+                    <svg viewBox="0 0 100 100" className="w-20 h-20">
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="#F1F5F9" strokeWidth="9" />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="38"
+                        fill="none"
+                        stroke="#6C52EE"
+                        strokeWidth="9"
+                        strokeDasharray="238.76"
+                        strokeDashoffset="100"
+                        strokeLinecap="round"
+                        transform="rotate(-90 50 50)"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="38"
+                        fill="none"
+                        stroke="#F59E0B"
+                        strokeWidth="9"
+                        strokeDasharray="238.76"
+                        strokeDashoffset="195"
+                        strokeLinecap="round"
+                        transform="rotate(120 50 50)"
+                      />
+                    </svg>
+
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-sm font-black text-[#1E1B4B]">58%</span>
+                    </div>
+
+                    <div className="absolute top-0.5 right-3 text-amber-500">
+                      <Flame className="w-3.5 h-3.5 fill-amber-500" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-3 text-[9px] font-semibold text-stone-500">
+                    <div className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#6C52EE]" />
+                      <span>Done</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+                      <span>Progress</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Your Courses */}
+              <div className="space-y-2 pt-1">
+                <h3 className="font-extrabold text-xs text-[#1E1B4B]">Your Courses</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div
+                    onClick={() => onNavigate('classroom')}
+                    className="bg-white rounded-2xl p-3 border border-stone-200/90 shadow-2xs cursor-pointer hover:border-[#6C52EE]/50 transition-all group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-bold text-xs text-[#1E1B4B] group-hover:text-[#6C52EE] transition-colors truncate">
+                          Introduction to German
+                        </h4>
+                        <MoreHorizontal className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[9.5px] text-stone-500 mb-2.5">
+                        <img
+                          src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&auto=format&fit=crop&q=80"
+                          alt="Teacher"
+                          className="w-4 h-4 rounded-full object-cover"
+                        />
+                        <span className="truncate">Andreas Ackermann</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[9px] text-stone-500 border-t border-stone-100 pt-2 font-medium">
+                      <span className="flex items-center gap-1">
+                        <BookOpen className="w-3 h-3 text-stone-400" />
+                        9 lessons
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-stone-400" />
+                        11 hours
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => onNavigate('courses')}
+                    className="bg-white rounded-2xl p-3 border border-stone-200/90 shadow-2xs cursor-pointer hover:border-[#6C52EE]/50 transition-all group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-bold text-xs text-[#1E1B4B] group-hover:text-[#6C52EE] transition-colors truncate">
+                          Business English
+                        </h4>
+                        <MoreHorizontal className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[9.5px] text-stone-500 mb-2.5">
+                        <img
+                          src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&auto=format&fit=crop&q=80"
+                          alt="Teacher"
+                          className="w-4 h-4 rounded-full object-cover"
+                        />
+                        <span className="truncate">Emilia Smith</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[9px] text-stone-500 border-t border-stone-100 pt-2 font-medium">
+                      <span className="flex items-center gap-1">
+                        <BookOpen className="w-3 h-3 text-stone-400" />
+                        11 lessons
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-stone-400" />
+                        13 hours
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Right Panel */}
+            <div className="w-56 shrink-0 space-y-4 pl-3 border-l border-stone-100">
+              
+              {/* Search anything */}
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={tabletSearchQuery}
+                  onChange={(e) => setTabletSearchQuery(e.target.value)}
+                  placeholder="Search anything..."
+                  className="w-full bg-[#F8F9FD] rounded-xl pl-8 pr-3 py-1.5 text-xs border border-stone-200/80 focus:outline-none focus:ring-1 focus:ring-[#6C52EE] text-stone-800 placeholder-stone-400 font-medium"
+                />
+              </div>
+
+              {/* Student Profile Snapshot */}
+              <div className="text-center pt-1 pb-2">
+                <div className="w-14 h-14 rounded-full mx-auto p-0.5 bg-gradient-to-tr from-[#6C52EE] via-[#EC4899] to-[#38BDF8] shadow-md mb-2">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white">
+                    <img
+                      src={currentUser.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"}
+                      alt={currentUser.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <h3 className="font-extrabold text-xs text-[#1E1B4B]">{currentUser.name}</h3>
+
+                {/* Competency levels */}
+                <div className="mt-3.5 space-y-2 text-left">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono font-bold text-[11px] text-[#1E1B4B] w-5 shrink-0">C1</span>
+                    <div className="flex-1">
+                      <div className="text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
+                        French
+                        <span className="text-[8.5px] text-stone-400 font-normal ml-1">Advanced</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#4F35C8] rounded-full" style={{ width: '85%' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono font-bold text-[11px] text-[#1E1B4B] w-5 shrink-0">B2</span>
+                    <div className="flex-1">
+                      <div className="text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
+                        English
+                        <span className="text-[8.5px] text-stone-400 font-normal ml-1">Upper Inter.</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#7C5CF6] rounded-full" style={{ width: '65%' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono font-bold text-[11px] text-[#1E1B4B] w-5 shrink-0">A1</span>
+                    <div className="flex-1">
+                      <div className="text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
+                        German
+                        <span className="text-[8.5px] text-stone-400 font-normal ml-1">Elementary</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#A088FF] rounded-full" style={{ width: '35%' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* My Classes */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-extrabold text-[11px] text-[#1E1B4B]">My Classes</h4>
+                  <button 
+                    type="button"
+                    onClick={() => onNavigate('classroom')}
+                    className="text-[9.5px] font-bold text-stone-400 hover:text-[#6C52EE]"
+                  >
+                    View All
+                  </button>
+                </div>
+
+                <div
+                  onClick={() => onNavigate('classroom')}
+                  className="bg-white rounded-xl p-2.5 border border-stone-200/90 shadow-2xs border-l-4 border-l-[#FF8A00] cursor-pointer hover:shadow-xs transition-all"
+                >
+                  <div className="flex items-center justify-between mb-0.5">
+                    <h5 className="font-bold text-[11px] text-[#1E1B4B] truncate">Speaking club (English)</h5>
+                    <MoreHorizontal className="w-3 h-3 text-stone-400 shrink-0" />
+                  </div>
+                  <p className="text-[9.5px] text-stone-500 font-medium mb-2">
+                    Mon 13 PM - 15 PM
+                  </p>
+
+                  <div className="flex items-center -space-x-1.5">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&auto=format&fit=crop&q=80"
+                      alt="Student"
+                      className="w-4.5 h-4.5 rounded-full border border-white object-cover"
+                    />
+                    <img
+                      src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=60&auto=format&fit=crop&q=80"
+                      alt="Student"
+                      className="w-4.5 h-4.5 rounded-full border border-white object-cover"
+                    />
+                    <img
+                      src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=60&auto=format&fit=crop&q=80"
+                      alt="Student"
+                      className="w-4.5 h-4.5 rounded-full border border-white object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Completed Tasks */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-extrabold text-[11px] text-[#1E1B4B]">Completed Tasks</h4>
+                  <button 
+                    type="button"
+                    onClick={() => onNavigate('assignments')}
+                    className="text-[9.5px] font-bold text-stone-400 hover:text-[#6C52EE]"
+                  >
+                    View All
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div
+                    onClick={() => onNavigate('examinations')}
+                    className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-stone-50 cursor-pointer transition-colors"
+                  >
+                    <div className="w-6 h-6 rounded-lg bg-red-50 flex items-center justify-center shrink-0 text-xs shadow-2xs">
+                      🇬🇧
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] font-bold text-[#1E1B4B] truncate">
+                        English Grammar Test
+                      </div>
+                      <div className="text-[8.5px] text-stone-400 font-medium">
+                        08 Feb 2026, Friday
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => onNavigate('assignments')}
+                    className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-stone-50 cursor-pointer transition-colors"
+                  >
+                    <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 text-xs shadow-2xs">
+                      🇫🇷
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] font-bold text-[#1E1B4B] truncate">
+                        French - Essay
+                      </div>
+                      <div className="text-[8.5px] text-stone-400 font-medium">
+                        13 Feb 2026, Thursday
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* 💻 3. DESKTOP CLASSROOM VIEW (Visible on screens >= 1280px) - MATCHING CHINGUPOP DESKTOP UX */}
+      <div className={`${devicePreviewMode === 'desktop' ? 'block' : devicePreviewMode === 'auto' ? 'hidden xl:block' : 'hidden'} space-y-6`}>
         
         {/* TOP BAR: Search Input + Quick Actions (Folder, Notifications, Profile) */}
         <div className="flex items-center justify-between gap-4">
