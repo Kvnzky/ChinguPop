@@ -439,6 +439,14 @@ class StorageService {
       throw new Error('Invalid email address or password. Please check your credentials and try again.');
     }
 
+    // If this is a legacy student account created before passwords were required, bind their password on first sign-in
+    if (targetUser.role === 'student' && !this.hasPassword(targetUser.id)) {
+      if (password.length < 6) {
+        throw new Error('This account does not have a password set yet. Please enter a new password (at least 6 characters) to secure and sign in to your account.');
+      }
+      this.setPassword(targetUser.id, password);
+    }
+
     // Verify password
     const isPasswordValid = this.verifyPassword(targetUser.id, password) || (
       targetUser.id === ADMIN_USER.id &&

@@ -163,30 +163,38 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Show Sign In & Free Sign Up buttons when not authenticated */}
-          {!isAuthenticated && (
-            <>
-              <button
-                type="button"
-                onClick={() => triggerAuthModal('signin')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
-                title="Sign In to Existing Account"
-              >
-                <LogIn className="w-3.5 h-3.5 text-[#55C8F5]" />
-                <span>Sign In</span>
-              </button>
+          {/* Top-level Sign In / Free Sign Up / Sign Out Buttons (Always Visible in Header) */}
+          <button
+            type="button"
+            onClick={() => triggerAuthModal('signin')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white text-[#2C1E6D] hover:bg-purple-50 border border-white text-xs font-extrabold transition-all shadow-sm active:scale-95"
+            title="Sign In to Existing Account"
+          >
+            <LogIn className="w-3.5 h-3.5 text-[#6C52EE]" />
+            <span>Sign In</span>
+          </button>
 
-              <button
-                type="button"
-                onClick={() => triggerAuthModal('register')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
-                title="Create Free Student Account"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Free Sign Up</span>
-                <span className="xs:hidden">Join</span>
-              </button>
-            </>
+          <button
+            type="button"
+            onClick={() => triggerAuthModal('register')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+            title="Create Free Student Account"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline">Free Sign Up</span>
+            <span className="xs:hidden">Sign Up</span>
+          </button>
+
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={handleLogoutClick}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-300/40 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+              title="Sign Out of Current Session"
+            >
+              <LogOut className="w-3.5 h-3.5 text-rose-200" />
+              <span>Sign Out</span>
+            </button>
           )}
 
           {/* Authenticated User Account Menu */}

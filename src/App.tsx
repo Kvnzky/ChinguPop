@@ -115,10 +115,12 @@ export function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Register PWA Service Worker
+  // Register & update PWA Service Worker
   useEffect(() => {
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      navigator.serviceWorker.register('/sw.js').catch((err) => {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        reg.update().catch(() => {});
+      }).catch((err) => {
         console.log('SW registration error:', err);
       });
     }

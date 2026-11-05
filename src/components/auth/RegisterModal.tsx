@@ -501,24 +501,43 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
               </button>
             </div>
 
-            {/* Starter Demo Account Helper */}
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 flex items-center justify-between text-[11px] text-stone-600">
-              <div>
-                <span className="font-bold text-[#1E1B4B] block">Starter Scholar Demo Account:</span>
-                <span className="font-mono text-[10px]">learner@chingupop.com</span>
+            {/* Saved Accounts on This Browser Quick-Select */}
+            {storage.getStudents().length > 0 && (
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 space-y-2">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-bold text-[#1E1B4B]">Registered Scholar Accounts on This Device:</span>
+                  <span className="text-[10px] text-stone-500">Click to fill email</span>
+                </div>
+                <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                  {storage.getStudents().map((st) => {
+                    const hasPwd = storage.hasPassword(st.id);
+                    const isDemo = st.email === 'learner@chingupop.com';
+                    return (
+                      <button
+                        key={st.id}
+                        type="button"
+                        onClick={() => {
+                          setSignInEmail(st.email);
+                          if (isDemo) {
+                            setSignInPassword(STARTER_STUDENT_DEFAULT_PASSWORD);
+                          }
+                          setError(null);
+                        }}
+                        className="w-full text-left px-2.5 py-1.5 rounded-lg bg-white hover:bg-purple-50 border border-stone-200 hover:border-purple-300 flex items-center justify-between text-[11px] transition-colors"
+                      >
+                        <div className="truncate">
+                          <span className="font-bold text-[#1E1B4B]">{st.name}</span>
+                          <span className="text-stone-500 font-mono text-[10px] ml-1.5">({st.email})</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-[#6C52EE] shrink-0 ml-2">
+                          {isDemo ? 'Fill Demo' : hasPwd ? 'Select' : 'Set Password'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setSignInEmail('learner@chingupop.com');
-                  setSignInPassword(STARTER_STUDENT_DEFAULT_PASSWORD);
-                  setError(null);
-                }}
-                className="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-[#2C1E6D] font-bold text-[10px] transition-colors"
-              >
-                Fill Demo Login
-              </button>
-            </div>
+            )}
 
             <div className="text-center pt-1">
               <button
