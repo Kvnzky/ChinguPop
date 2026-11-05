@@ -1,0 +1,17 @@
+{
+  "name": "ChinguPop - Korean Language Learning Academy",
+  "short_name": "ChinguPop",
+  "description": "Learn Korean. Find Your Chingu. Modern, fun, interactive Korean language learning academy inspired by K-pop, K-drama, and Korean culture.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#252343",
+  "theme_color": "#7955E8",
+  "icons": [
+    {
+      "src": "/chingupop-logo.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
