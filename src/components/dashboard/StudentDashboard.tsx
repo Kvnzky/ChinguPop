@@ -38,7 +38,10 @@ import {
   Settings,
   LogOut,
   Plus,
-  Flame
+  Flame,
+  Gamepad2,
+  RotateCcw,
+  Trophy
 } from 'lucide-react';
 import { NavItemKey } from '../common/Sidebar';
 
@@ -66,6 +69,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
   const totalLessonsInCourse = currentCourse?.totalLessons || 12;
   const completedInCourse = completedLessons.length;
+  const gamification = storage.getGamificationState(currentUser.id);
+  const levelInfo = storage.getLevel(currentUser.id);
+  const streakInfo = storage.getStreak(currentUser.id);
+  const reviewQueue = storage.getReviewQueue(currentUser.id);
+  const dueReviewCount = reviewQueue.filter(r => r.nextReviewDate <= new Date().toISOString().split('T')[0]).length;
+  const achievementsList = storage.getAchievements(currentUser.id);
   const completionPercent = Math.min(100, Math.round((completedInCourse / totalLessonsInCourse) * 100));
 
   // Compute 9 authentic competencies based strictly on actual completed activity
@@ -100,6 +109,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const [tabletSearchQuery, setTabletSearchQuery] = useState('');
   const [tabletPeriod, setTabletPeriod] = useState<'Today' | 'Week' | 'Month'>('Today');
   const [showTabletPeriodMenu, setShowTabletPeriodMenu] = useState(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
   const [activeArticleModal, setActiveArticleModal] = useState<{
     title: string;
     category: string;
@@ -255,6 +265,74 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           )}
         </div>
       )}
+
+      {/* 🌟 Gamified Quest Bar: Level, XP Progress, Streak Flame, Arcade & Review Room Shortcuts */}
+      <div className="bg-white rounded-3xl p-4 lg:p-5 border border-stone-200/90 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#6C52EE] to-[#FF5CA8] p-0.5 shadow-xs shrink-0 flex items-center justify-center">
+            <div className="w-full h-full rounded-2xl bg-white flex flex-col items-center justify-center text-[#2C1E6D] font-black text-xs">
+              <span>Lv.{levelInfo.level}</span>
+            </div>
+          </div>
+          <div className="space-y-1 flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-xs text-[#1E1B4B] truncate">
+                {levelInfo.title}
+              </span>
+              <span className="text-[10px] font-bold text-stone-400">
+                {levelInfo.currentLevelXP} / {levelInfo.nextLevelXP} XP
+              </span>
+            </div>
+            <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden max-w-xs">
+              <div 
+                className="h-full bg-gradient-to-r from-[#6C52EE] to-[#FF5CA8] rounded-full transition-all duration-500" 
+                style={{ width: `${levelInfo.progressPercent}%` }} 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Shortcuts: Streak, Arcade & Review Room */}
+        <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 border border-orange-200/80 text-orange-600 font-extrabold text-xs">
+            <Flame className="w-4 h-4 fill-orange-500 text-orange-500" />
+            <span>{streakInfo.currentStreak} Day Streak</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onNavigate('arcade')}
+            className="px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200/80 text-[#6C52EE] font-extrabold text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <Gamepad2 className="w-4 h-4 text-[#6C52EE]" />
+            <span>Arcade Games (9)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigate('review-room')}
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 text-emerald-700 font-extrabold text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs relative"
+          >
+            <RotateCcw className="w-4 h-4 text-emerald-600" />
+            <span>Review Room</span>
+            {dueReviewCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-emerald-600 text-white font-extrabold text-[9px] flex items-center justify-center">
+                {dueReviewCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowAchievementsModal(true)}
+            className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200/80 text-amber-700 font-extrabold text-xs transition-colors flex items-center gap-1 cursor-pointer"
+            title="View Achievements"
+          >
+            <Trophy className="w-4 h-4 text-amber-500" />
+            <span>Badges</span>
+          </button>
+        </div>
+      </div>
 
       {/* 📱 1. DEDICATED MOBILE LEARNING APP DASHBOARD VIEW (< 768px) - MATCHING CHINGUPOP UX */}
       <div className={`${devicePreviewMode === 'mobile' ? 'block' : devicePreviewMode === 'auto' ? 'md:hidden' : 'hidden'} space-y-4`}>
@@ -1981,6 +2059,51 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
         </div>
 
       </div>
+
+
+      {/* Achievements Modal */}
+      {showAchievementsModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl border border-stone-200 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-amber-500" />
+                <h3 className="font-extrabold text-base text-[#1E1B4B]">Your Korean Learning Badges</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAchievementsModal(false)}
+                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {achievementsList.map((ach) => {
+                const isUnlocked = Boolean(ach.unlockedAt);
+                return (
+                  <div
+                    key={ach.id}
+                    className={`p-3.5 rounded-2xl border transition-all text-center space-y-1 ${
+                      isUnlocked 
+                        ? 'bg-amber-50/70 border-amber-300 shadow-xs' 
+                        : 'bg-stone-50 border-stone-200/70 opacity-60'
+                    }`}
+                  >
+                    <div className="text-3xl">{ach.icon}</div>
+                    <div className="font-extrabold text-xs text-[#1E1B4B]">{ach.title}</div>
+                    <div className="text-[10px] text-stone-500 leading-tight">{ach.description}</div>
+                    <div className="text-[9px] font-black text-amber-600 pt-1">
+                      {isUnlocked ? '✓ Unlocked' : `+${ach.xpReward} XP`}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Article Detail Modal */}
       {activeArticleModal && (

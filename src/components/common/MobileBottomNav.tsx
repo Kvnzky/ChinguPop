@@ -3,7 +3,7 @@ import { NavItemKey } from './Sidebar';
 import { 
   LayoutDashboard, 
   GraduationCap, 
-  Sparkles, 
+  Gamepad2, 
   Bot, 
   Menu
 } from 'lucide-react';
@@ -31,7 +31,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   }[] = [
     { key: 'dashboard', label: 'Home', korean: '홈', icon: LayoutDashboard },
     { key: 'classroom', label: 'Learn', korean: '수업', icon: GraduationCap },
-    { key: 'hangul-lab', label: 'Practice', korean: '연습', icon: Sparkles },
+    { key: 'arcade', label: 'Arcade', korean: '게임', icon: Gamepad2 },
     { key: 'ai-tutor', label: 'AI Tutor', korean: 'AI튜터', icon: Bot },
     { key: 'menu', label: 'Menu', korean: '전체', icon: Menu, isAction: true, badge: pendingAssignmentsCount }
   ];

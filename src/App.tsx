@@ -24,6 +24,8 @@ import { CertificateView } from './components/certificates/CertificateView';
 import { SettingsView } from './components/settings/SettingsView';
 import { AdminPanel } from './components/admin/AdminPanel';
 import { RegisterModal, AuthModalTab } from './components/auth/RegisterModal';
+import { ChinguPopArcade } from './components/arcade/ChinguPopArcade';
+import { ReviewRoom } from './components/review/ReviewRoom';
 
 export function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => storage.getCurrentUser());
@@ -295,6 +297,26 @@ export function App() {
                 />
               )}
             </>
+          )}
+
+          {currentTab === 'arcade' && (
+            <ChinguPopArcade
+              currentUser={currentUser}
+              onNavigateTab={(tab) => {
+                setCurrentTab(tab as any);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          )}
+
+          {currentTab === 'review-room' && (
+            <ReviewRoom
+              currentUser={currentUser}
+              onNavigateTab={(tab) => {
+                setCurrentTab(tab as any);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
           )}
 
           {currentTab === 'courses' && (

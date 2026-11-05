@@ -354,3 +354,104 @@ export type AIMode =
   | 'Listening Practice Tutor'
   | 'TOPIK Preparation Tutor'
   | 'Real-Life Conversation Simulator';
+
+// ==========================================
+// GAMIFICATION, ARCADE & SPACED REPETITION
+// ==========================================
+
+export interface StudentGamificationState {
+  xp: number;
+  level: number;
+  streak: number;
+  lastActiveDate: string;
+  activeDates: string[];
+  awardedActivities: { [activityKey: string]: boolean };
+  unlockedAchievements: string[];
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  koreanTitle: string;
+  description: string;
+  icon: string;
+  category: 'learning' | 'arcade' | 'streak' | 'mastery';
+  xpReward: number;
+  unlockedAt?: string;
+  progress?: number;
+  maxProgress?: number;
+}
+
+export interface ReviewItem {
+  id: string;
+  studentId: string;
+  type: 'vocabulary' | 'grammar' | 'pronunciation' | 'listening';
+  korean: string;
+  english: string;
+  romanization?: string;
+  hint?: string;
+  intervalDays: number; // 0, 1, 3, 7, 14, 30 (SuperMemo SM-2)
+  easeFactor: number;
+  consecutiveCorrect: number;
+  nextReviewDate: string; // ISO string YYYY-MM-DD
+  lastReviewedDate?: string;
+  mistakeCount: number;
+}
+
+export type ArcadeGameId = 
+  | 'hangul-match'
+  | 'syllable-builder'
+  | 'listen-pick'
+  | 'word-hunter'
+  | 'sentence-scramble'
+  | 'memory-flip'
+  | 'pronunciation-challenge'
+  | 'korean-life-simulator'
+  | 'boss-challenge';
+
+export interface ArcadeGameMetadata {
+  id: ArcadeGameId;
+  title: string;
+  koreanTitle: string;
+  description: string;
+  category: 'Alphabet' | 'Syllables' | 'Listening' | 'Vocabulary' | 'Grammar' | 'Speaking' | 'Culture' | 'Mastery';
+  icon: string;
+  color: string;
+  badge: string;
+  durationMinutes: number;
+  learningGoal: string;
+}
+
+export interface ArcadeScoreRecord {
+  id: string;
+  studentId: string;
+  gameId: ArcadeGameId;
+  score: number;
+  maxScore: number;
+  accuracy: number;
+  xpEarned: number;
+  playedAt: string;
+  won: boolean;
+}
+
+export interface LifeScenarioNode {
+  id: string;
+  characterName: string;
+  characterKorean: string;
+  avatar: string;
+  koreanText: string;
+  englishTranslation: string;
+  romanization?: string;
+  audioPrompt?: string;
+  culturalNote?: string;
+  options: {
+    id: string;
+    textKorean: string;
+    textEnglish: string;
+    isPolite: boolean;
+    isNatural: boolean;
+    feedback: string;
+    xp: number;
+    nextNodeId?: string;
+  }[];
+}

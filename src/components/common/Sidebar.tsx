@@ -19,11 +19,15 @@ import {
   Grid,
   Users,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Gamepad2,
+  RotateCcw
 } from 'lucide-react';
 
 export type NavItemKey = 
   | 'dashboard'
+  | 'arcade'
+  | 'review-room'
   | 'academy-overview'
   | 'courses'
   | 'hangul-lab'
@@ -69,10 +73,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const primaryNavItems: { key: NavItemKey; label: string; korean: string; icon: React.ComponentType<{ className?: string }>; badge?: number }[] = [
     { key: 'dashboard', label: 'My Dashboard', korean: '개인 대시보드', icon: LayoutDashboard },
-    { key: 'academy-overview', label: 'Academy Overview', korean: '학원 종합 현황', icon: Users },
+    { key: 'arcade', label: 'ChinguPop Arcade', korean: '칭구팝 아케이드', icon: Gamepad2 },
+    { key: 'review-room', label: 'My Review Room', korean: '나의 복습실', icon: RotateCcw },
     { key: 'courses', label: 'My Courses', korean: '내 강좌', icon: BookOpen },
     { key: 'hangul-lab', label: 'Hangul Lab', korean: '한글 연구소', icon: Grid },
     { key: 'classroom', label: 'Virtual Classroom', korean: '가상 강의실', icon: GraduationCap },
+    { key: 'academy-overview', label: 'Academy Overview', korean: '학원 종합 현황', icon: Users },
     { key: 'ai-tutor', label: 'AI Korean Teacher', korean: 'AI 튜터', icon: Bot },
     { key: 'speaking-lab', label: 'Speaking Lab', korean: '말하기 연습실', icon: Mic },
     { key: 'vocabulary', label: 'Vocabulary (SRS)', korean: '어휘 학습', icon: Sparkles },

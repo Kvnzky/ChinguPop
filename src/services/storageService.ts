@@ -11,9 +11,14 @@ import {
   ExamAttempt, 
   Certificate, 
   AIMessage, 
-  StudyPlanItem 
+  StudyPlanItem,
+  StudentGamificationState,
+  Achievement,
+  ReviewItem,
+  ArcadeGameId,
+  ArcadeScoreRecord
 } from '../types';
-import { INITIAL_USERS, ADMIN_USER, DEFAULT_STARTER_STUDENT, PUBLIC_GUEST_USER } from '../data/initialMockUsers';
+import { INITIAL_USERS, ADMIN_USER, DEFAULT_STARTER_STUDENT, PUBLIC_GUEST_USER, DHIE_USER, MHIE_USER } from '../data/initialMockUsers';
 import { COURSES_DATA } from '../data/curriculumData';
 import { INITIAL_VOCABULARY } from '../data/vocabularyData';
 import { INITIAL_ASSIGNMENTS, INITIAL_SUBMISSIONS } from '../data/assessmentData';
@@ -37,11 +42,209 @@ const STORAGE_KEYS = {
   PASSWORDS: 'ha_passwords', // map: { [userId]: string (salted hash) }
   RESET_CODES: 'ha_reset_codes', // map: { [email]: { code: string; expiresAt: number } }
   AUDIT_LOGS: 'ha_audit_logs', // AuditLogEntry[]
-  TOUR_COMPLETED: 'ha_tour_completed' // map: { [studentId]: boolean }
+  TOUR_COMPLETED: 'ha_tour_completed', // map: { [studentId]: boolean }
+  GAMIFICATION: 'ha_gamification',
+  ACHIEVEMENTS: 'ha_achievements',
+  REVIEW_QUEUE: 'ha_review_queue',
+  ARCADE_SCORES: 'ha_arcade_scores',
+  BOSS_RESULTS: 'ha_boss_results'
 };
 
 export const ADMIN_DEFAULT_USERNAME = 'admin123';
 export const ADMIN_DEFAULT_PASSWORD = 'Bunny_016';
+
+export const LEVEL_TIERS = [
+  { level: 1, title: 'Chingu Seed (새싹)', minXP: 0, maxXP: 99 },
+  { level: 2, title: 'Hangul Sprout (한글 새싹)', minXP: 100, maxXP: 249 },
+  { level: 3, title: 'Word Explorer (단어 탐험가)', minXP: 250, maxXP: 499 },
+  { level: 4, title: 'Sentence Builder (문장 건축가)', minXP: 500, maxXP: 849 },
+  { level: 5, title: 'Conversation Scout (회화 스카우트)', minXP: 850, maxXP: 1299 },
+  { level: 6, title: 'Grammar Master (문법 마스터)', minXP: 1300, maxXP: 1849 },
+  { level: 7, title: 'Fluency Scholar (유창한 학자)', minXP: 1850, maxXP: 2499 },
+  { level: 8, title: 'K-Culture Sage (문화 현자)', minXP: 2500, maxXP: 3299 },
+  { level: 9, title: 'Hangul Champion (한글 챔피언)', minXP: 3300, maxXP: 4499 },
+  { level: 10, title: 'ChinguPop Master (칭구팝 마스터)', minXP: 4500, maxXP: 100000 }
+];
+
+export const INITIAL_ACHIEVEMENTS: Achievement[] = [
+  {
+    id: 'first-steps',
+    title: 'First Steps',
+    koreanTitle: '첫 걸음',
+    description: 'Complete your very first Korean lesson in ChinguPop.',
+    icon: '🌱',
+    category: 'learning',
+    xpReward: 25
+  },
+  {
+    id: 'hangul-hero',
+    title: 'Hangul Hero',
+    koreanTitle: '한글 영웅',
+    description: 'Master the 10 basic vowels and 14 consonants.',
+    icon: '👑',
+    category: 'learning',
+    xpReward: 50
+  },
+  {
+    id: 'word-collector',
+    title: 'Word Collector',
+    koreanTitle: '단어 수집가',
+    description: 'Master 50 Korean vocabulary words.',
+    icon: '📚',
+    category: 'learning',
+    xpReward: 50
+  },
+  {
+    id: 'listening-star',
+    title: 'Listening Star',
+    koreanTitle: '청취 스타',
+    description: 'Complete 10 Korean listening exercises.',
+    icon: '🎧',
+    category: 'learning',
+    xpReward: 40
+  },
+  {
+    id: 'grammar-explorer',
+    title: 'Grammar Explorer',
+    koreanTitle: '문법 탐험가',
+    description: 'Conjugate Korean present, past, and future tense sentences.',
+    icon: '🧩',
+    category: 'learning',
+    xpReward: 40
+  },
+  {
+    id: 'conversation-starter',
+    title: 'Conversation Starter',
+    koreanTitle: '대화의 시작',
+    description: 'Complete your first interactive Life Simulator scenario.',
+    icon: '💬',
+    category: 'arcade',
+    xpReward: 50
+  },
+  {
+    id: 'arcade-champ',
+    title: 'Arcade Champion',
+    koreanTitle: '아케이드 챔피언',
+    description: 'Achieve victory in 5 ChinguPop Arcade learning games.',
+    icon: '🕹️',
+    category: 'arcade',
+    xpReward: 60
+  },
+  {
+    id: 'perfect-score',
+    title: 'Perfect Score',
+    koreanTitle: '백점 만점',
+    description: 'Score 100% on any assessment or challenge.',
+    icon: '🎯',
+    category: 'mastery',
+    xpReward: 50
+  },
+  {
+    id: 'consistent-chingu',
+    title: 'Consistent Chingu',
+    koreanTitle: '꾸준한 친구',
+    description: 'Reach a 7-day Korean learning streak.',
+    icon: '🔥',
+    category: 'streak',
+    xpReward: 100
+  },
+  {
+    id: 'boss-slayer',
+    title: 'Boss Slayer',
+    koreanTitle: '보스 정복자',
+    description: 'Pass an end-of-unit Boss Challenge with 80% or higher.',
+    icon: '⚔️',
+    category: 'mastery',
+    xpReward: 75
+  },
+  {
+    id: 'review-master',
+    title: 'Spaced Repetition Master',
+    koreanTitle: '복습의 달인',
+    description: 'Clear 15 queued items in My Review Room.',
+    icon: '🔄',
+    category: 'mastery',
+    xpReward: 50
+  },
+  {
+    id: 'syllable-architect',
+    title: 'Syllable Architect',
+    koreanTitle: '음절 건축가',
+    description: 'Build 10 valid Korean syllables in Syllable Builder.',
+    icon: '🧱',
+    category: 'arcade',
+    xpReward: 45
+  }
+];
+
+export const INITIAL_REVIEW_ITEMS: Omit<ReviewItem, 'studentId'>[] = [
+  {
+    id: 'rev-vowel-vertical-horizontal',
+    type: 'pronunciation',
+    korean: 'ㅏ vs ㅓ (Vertical Vowels)',
+    english: 'Mouth aperture: ㅏ is open and relaxed ("ah"), ㅓ is deeper ("uh")',
+    romanization: 'a vs eo',
+    hint: 'ㅏ opens wide; ㅓ pulls tongue slightly back and drops jaw.',
+    intervalDays: 1,
+    easeFactor: 2.5,
+    consecutiveCorrect: 1,
+    nextReviewDate: new Date().toISOString().split('T')[0],
+    mistakeCount: 1
+  },
+  {
+    id: 'rev-batchim-rules',
+    type: 'grammar',
+    korean: '받침 (Batchim Representative Sounds)',
+    english: 'The 7 final sounds: ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅇ',
+    romanization: 'Batchim',
+    hint: 'ㅅ, ㅆ, ㅈ, ㅊ, ㅌ, ㅎ all sound like "ㄷ" [t] when in Batchim without following vowel.',
+    intervalDays: 1,
+    easeFactor: 2.5,
+    consecutiveCorrect: 1,
+    nextReviewDate: new Date().toISOString().split('T')[0],
+    mistakeCount: 2
+  },
+  {
+    id: 'rev-word-hello',
+    type: 'vocabulary',
+    korean: '안녕하세요',
+    english: 'Hello / Good morning / Peace be with you',
+    romanization: 'an-nyeong-ha-se-yo',
+    hint: 'Polite formal greeting used every day.',
+    intervalDays: 0,
+    easeFactor: 2.5,
+    consecutiveCorrect: 2,
+    nextReviewDate: new Date().toISOString().split('T')[0],
+    mistakeCount: 0
+  },
+  {
+    id: 'rev-word-water',
+    type: 'vocabulary',
+    korean: '물',
+    english: 'Water',
+    romanization: 'mul',
+    hint: 'Essential drink: 물 좀 주세요 (Please give me water).',
+    intervalDays: 1,
+    easeFactor: 2.5,
+    consecutiveCorrect: 1,
+    nextReviewDate: new Date().toISOString().split('T')[0],
+    mistakeCount: 1
+  },
+  {
+    id: 'rev-topic-marker',
+    type: 'grammar',
+    korean: '은 / 는 (Topic Particle)',
+    english: 'Marks the topic of conversation ("as for...")',
+    romanization: 'eun / neun',
+    hint: 'Use 은 after a consonant Batchim (선생님은), 는 after a vowel (저는).',
+    intervalDays: 0,
+    easeFactor: 2.5,
+    consecutiveCorrect: 0,
+    nextReviewDate: new Date().toISOString().split('T')[0],
+    mistakeCount: 3
+  }
+];
+
 export const STARTER_STUDENT_DEFAULT_PASSWORD = 'Chingu2026!';
 
 // Deterministic salted hash function (PBKDF-style multi-round 256-bit hex digest)
@@ -1509,6 +1712,370 @@ class StorageService {
 
   saveSettings(settings: any): void {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  }
+
+
+  // ==========================================
+  // GAMIFICATION SYSTEM (XP, LEVELS, STREAKS, ACHIEVEMENTS)
+  // ==========================================
+
+  getGamificationState(studentId: string): StudentGamificationState {
+    const raw = localStorage.getItem(STORAGE_KEYS.GAMIFICATION);
+    const map = raw ? JSON.parse(raw) : {};
+    if (!map[studentId]) {
+      map[studentId] = {
+        xp: 120, // initial base XP for established students
+        level: 2,
+        streak: 3,
+        lastActiveDate: new Date().toISOString().split('T')[0],
+        activeDates: [new Date().toISOString().split('T')[0]],
+        awardedActivities: {},
+        unlockedAchievements: ['first-steps']
+      };
+      localStorage.setItem(STORAGE_KEYS.GAMIFICATION, JSON.stringify(map));
+    }
+    return map[studentId];
+  }
+
+  saveGamificationState(studentId: string, state: StudentGamificationState): void {
+    const raw = localStorage.getItem(STORAGE_KEYS.GAMIFICATION);
+    const map = raw ? JSON.parse(raw) : {};
+    map[studentId] = state;
+    localStorage.setItem(STORAGE_KEYS.GAMIFICATION, JSON.stringify(map));
+  }
+
+  getXP(studentId: string): number {
+    return this.getGamificationState(studentId).xp || 0;
+  }
+
+  getLevel(studentId: string): { 
+    level: number; 
+    title: string; 
+    currentLevelXP: number; 
+    nextLevelXP: number; 
+    progressPercent: number 
+  } {
+    const xp = this.getXP(studentId);
+    let currentTier = LEVEL_TIERS[0];
+    for (let i = LEVEL_TIERS.length - 1; i >= 0; i--) {
+      if (xp >= LEVEL_TIERS[i].minXP) {
+        currentTier = LEVEL_TIERS[i];
+        break;
+      }
+    }
+    const xpInLevel = xp - currentTier.minXP;
+    const levelSpan = currentTier.maxXP - currentTier.minXP;
+    const progressPercent = Math.min(100, Math.max(0, Math.round((xpInLevel / levelSpan) * 100)));
+
+    return {
+      level: currentTier.level,
+      title: currentTier.title,
+      currentLevelXP: xp,
+      nextLevelXP: currentTier.maxXP + 1,
+      progressPercent
+    };
+  }
+
+  addXP(studentId: string, amount: number, reason: string, activityKey?: string): { 
+    totalXP: number; 
+    earnedXP: number; 
+    levelUp: boolean; 
+    newLevel: number 
+  } {
+    const state = this.getGamificationState(studentId);
+    
+    // Anti-farming check: If an activity key is provided, prevent duplicate award
+    if (activityKey && state.awardedActivities[activityKey]) {
+      const currentLevelInfo = this.getLevel(studentId);
+      return { totalXP: state.xp, earnedXP: 0, levelUp: false, newLevel: currentLevelInfo.level };
+    }
+
+    const previousLevel = this.getLevel(studentId).level;
+    state.xp += amount;
+    if (activityKey) {
+      state.awardedActivities[activityKey] = true;
+    }
+
+    const newLevelInfo = this.getLevel(studentId);
+    state.level = newLevelInfo.level;
+    const levelUp = newLevelInfo.level > previousLevel;
+
+    this.saveGamificationState(studentId, state);
+    this.recordDailyActivity(studentId);
+
+    // Auto-check XP-based achievements
+    if (state.xp >= 500) {
+      this.unlockAchievement(studentId, 'word-collector');
+    }
+
+    return {
+      totalXP: state.xp,
+      earnedXP: amount,
+      levelUp,
+      newLevel: newLevelInfo.level
+    };
+  }
+
+  getStreak(studentId: string): { 
+    currentStreak: number; 
+    maxStreak: number; 
+    lastActiveDate: string; 
+    activeDaysThisWeek: number;
+    activeDates: string[] 
+  } {
+    const state = this.getGamificationState(studentId);
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Count active days in the current calendar week
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0 is Sunday
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - dayOfWeek);
+    const startIso = startOfWeek.toISOString().split('T')[0];
+
+    const activeThisWeek = (state.activeDates || []).filter((d: string) => d >= startIso).length;
+
+    return {
+      currentStreak: state.streak || 1,
+      maxStreak: Math.max(state.streak || 1, 7),
+      lastActiveDate: state.lastActiveDate || today,
+      activeDaysThisWeek: Math.max(1, activeThisWeek),
+      activeDates: state.activeDates || [today]
+    };
+  }
+
+  recordDailyActivity(studentId: string): void {
+    const today = new Date().toISOString().split('T')[0];
+    const state = this.getGamificationState(studentId);
+
+    if (!state.activeDates) state.activeDates = [];
+    if (!state.activeDates.includes(today)) {
+      state.activeDates.push(today);
+
+      // Streak calculation
+      if (state.lastActiveDate) {
+        const last = new Date(state.lastActiveDate);
+        const curr = new Date(today);
+        const diffDays = Math.round((curr.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          state.streak = (state.streak || 0) + 1;
+        } else if (diffDays > 1) {
+          state.streak = 1;
+        }
+      } else {
+        state.streak = 1;
+      }
+      state.lastActiveDate = today;
+      this.saveGamificationState(studentId, state);
+
+      if (state.streak >= 7) {
+        this.unlockAchievement(studentId, 'consistent-chingu');
+      }
+    }
+  }
+
+  getAchievements(studentId: string): Achievement[] {
+    const state = this.getGamificationState(studentId);
+    const raw = localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS);
+    const map = raw ? JSON.parse(raw) : {};
+    const studentAchievements: Achievement[] = map[studentId] || INITIAL_ACHIEVEMENTS;
+
+    return studentAchievements.map(ach => ({
+      ...ach,
+      unlockedAt: state.unlockedAchievements?.includes(ach.id) ? (ach.unlockedAt || '2026-11-05') : undefined
+    }));
+  }
+
+  unlockAchievement(studentId: string, achievementId: string): Achievement | null {
+    const state = this.getGamificationState(studentId);
+    if (!state.unlockedAchievements) state.unlockedAchievements = [];
+
+    if (state.unlockedAchievements.includes(achievementId)) {
+      return null; // Already unlocked
+    }
+
+    state.unlockedAchievements.push(achievementId);
+    this.saveGamificationState(studentId, state);
+
+    const achievements = this.getAchievements(studentId);
+    const target = achievements.find(a => a.id === achievementId);
+    if (target) {
+      target.unlockedAt = new Date().toISOString();
+      const raw = localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS);
+      const map = raw ? JSON.parse(raw) : {};
+      map[studentId] = achievements;
+      localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(map));
+
+      // Award XP for achievement
+      this.addXP(studentId, target.xpReward, `Unlocked achievement: ${target.title}`);
+      return target;
+    }
+    return null;
+  }
+
+  // ==========================================
+  // SPACED REPETITION ("MY REVIEW ROOM")
+  // ==========================================
+
+  getReviewQueue(studentId: string): ReviewItem[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.REVIEW_QUEUE);
+    const map = raw ? JSON.parse(raw) : {};
+    if (!map[studentId]) {
+      map[studentId] = INITIAL_REVIEW_ITEMS.map((item, idx) => ({
+        ...item,
+        id: `${item.id}-${studentId}`,
+        studentId
+      }));
+      localStorage.setItem(STORAGE_KEYS.REVIEW_QUEUE, JSON.stringify(map));
+    }
+    return map[studentId];
+  }
+
+  addReviewItem(studentId: string, item: Omit<ReviewItem, 'id' | 'studentId' | 'intervalDays' | 'easeFactor' | 'consecutiveCorrect' | 'nextReviewDate' | 'mistakeCount'>): void {
+    const queue = this.getReviewQueue(studentId);
+    const existing = queue.find(q => q.korean === item.korean && q.type === item.type);
+    const today = new Date().toISOString().split('T')[0];
+
+    if (existing) {
+      existing.mistakeCount = (existing.mistakeCount || 0) + 1;
+      existing.intervalDays = 0; // Reset SuperMemo interval on mistake
+      existing.nextReviewDate = today;
+    } else {
+      queue.push({
+        ...item,
+        id: `rev-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        studentId,
+        intervalDays: 0,
+        easeFactor: 2.5,
+        consecutiveCorrect: 0,
+        nextReviewDate: today,
+        mistakeCount: 1
+      });
+    }
+
+    const raw = localStorage.getItem(STORAGE_KEYS.REVIEW_QUEUE);
+    const map = raw ? JSON.parse(raw) : {};
+    map[studentId] = queue;
+    localStorage.setItem(STORAGE_KEYS.REVIEW_QUEUE, JSON.stringify(map));
+  }
+
+  resolveReviewItem(studentId: string, itemId: string, success: boolean): ReviewItem | undefined {
+    const queue = this.getReviewQueue(studentId);
+    const item = queue.find(q => q.id === itemId);
+    if (!item) return undefined;
+
+    const today = new Date();
+    const intervals = [1, 3, 7, 14, 30, 60];
+
+    if (success) {
+      item.consecutiveCorrect = (item.consecutiveCorrect || 0) + 1;
+      const nextIntervalIndex = Math.min(intervals.length - 1, item.consecutiveCorrect - 1);
+      item.intervalDays = intervals[nextIntervalIndex];
+
+      const nextDate = new Date(today);
+      nextDate.setDate(today.getDate() + item.intervalDays);
+      item.nextReviewDate = nextDate.toISOString().split('T')[0];
+      item.lastReviewedDate = today.toISOString().split('T')[0];
+
+      // Award review XP
+      this.addXP(studentId, 5, 'Completed Spaced Repetition Flashcard');
+    } else {
+      item.consecutiveCorrect = 0;
+      item.intervalDays = 0;
+      item.nextReviewDate = today.toISOString().split('T')[0];
+      item.mistakeCount = (item.mistakeCount || 0) + 1;
+    }
+
+    const raw = localStorage.getItem(STORAGE_KEYS.REVIEW_QUEUE);
+    const map = raw ? JSON.parse(raw) : {};
+    map[studentId] = queue;
+    localStorage.setItem(STORAGE_KEYS.REVIEW_QUEUE, JSON.stringify(map));
+
+    return item;
+  }
+
+  // ==========================================
+  // CHINGUPOP ARCADE SCORES & BOSS RESULTS
+  // ==========================================
+
+  getArcadeScores(studentId: string): ArcadeScoreRecord[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.ARCADE_SCORES);
+    const map = raw ? JSON.parse(raw) : {};
+    return map[studentId] || [];
+  }
+
+  recordArcadeScore(studentId: string, gameId: ArcadeGameId, score: number, maxScore: number, accuracy: number): { xpEarned: number; newHighScore: boolean } {
+    const scores = this.getArcadeScores(studentId);
+    const previousBest = Math.max(...scores.filter(s => s.gameId === gameId).map(s => s.score), 0);
+    const newHighScore = score > previousBest;
+
+    const won = accuracy >= 70;
+    const baseXP = won ? 10 : 5;
+    const bonusXP = newHighScore ? 5 : 0;
+    const totalEarned = baseXP + bonusXP;
+
+    const record: ArcadeScoreRecord = {
+      id: `arc-${Date.now()}`,
+      studentId,
+      gameId,
+      score,
+      maxScore,
+      accuracy,
+      xpEarned: totalEarned,
+      playedAt: new Date().toISOString(),
+      won
+    };
+
+    scores.unshift(record);
+    const raw = localStorage.getItem(STORAGE_KEYS.ARCADE_SCORES);
+    const map = raw ? JSON.parse(raw) : {};
+    map[studentId] = scores.slice(0, 50); // Keep last 50 games
+    localStorage.setItem(STORAGE_KEYS.ARCADE_SCORES, JSON.stringify(map));
+
+    this.addXP(studentId, totalEarned, `Arcade Game: ${gameId}`);
+
+    // Check Arcade Champion achievement
+    const winCount = scores.filter(s => s.won).length;
+    if (winCount >= 5) {
+      this.unlockAchievement(studentId, 'arcade-champ');
+    }
+    if (accuracy === 100) {
+      this.unlockAchievement(studentId, 'perfect-score');
+    }
+
+    return { xpEarned: totalEarned, newHighScore };
+  }
+
+  getBossResults(studentId: string): { [unitId: string]: { passed: boolean; score: number; date: string } } {
+    const raw = localStorage.getItem(STORAGE_KEYS.BOSS_RESULTS);
+    const map = raw ? JSON.parse(raw) : {};
+    return map[studentId] || {};
+  }
+
+  recordBossResult(studentId: string, unitId: string, score: number, passed: boolean): { xpEarned: number } {
+    const results = this.getBossResults(studentId);
+    results[unitId] = {
+      passed,
+      score,
+      date: new Date().toISOString()
+    };
+
+    const raw = localStorage.getItem(STORAGE_KEYS.BOSS_RESULTS);
+    const map = raw ? JSON.parse(raw) : {};
+    map[studentId] = results;
+    localStorage.setItem(STORAGE_KEYS.BOSS_RESULTS, JSON.stringify(map));
+
+    let xpEarned = 0;
+    if (passed) {
+      xpEarned = 30;
+      this.addXP(studentId, xpEarned, `Defeated Boss Challenge for Unit: ${unitId}`, `boss-${unitId}`);
+      this.unlockAchievement(studentId, 'boss-slayer');
+    } else {
+      xpEarned = 5;
+      this.addXP(studentId, xpEarned, `Attempted Boss Challenge for Unit: ${unitId}`);
+    }
+
+    return { xpEarned };
   }
 
   // --- Database Export (Sanitizes password hashes & reset codes) ---

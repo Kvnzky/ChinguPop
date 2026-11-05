@@ -187,3 +187,4 @@ class SpeechService {
 }
 
 export const speech = new SpeechService();
+export const speechService = speech;

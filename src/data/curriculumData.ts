@@ -1,3 +1,4 @@
+import { LEVEL_3_UNITS, LEVEL_4_UNITS, LEVEL_5_UNITS, LEVEL_6_UNITS, LEVEL_7_UNITS } from './extendedCurriculumData';
 import { Course } from '../types';
 
 export const COURSES_DATA: Course[] = [
@@ -1092,88 +1093,87 @@ Take the dictionary verb stem (drop '다'):
   },
   {
     id: 'course-topik-2',
-    title: 'Elementary Korean & TOPIK I Level 2',
-    koreanTitle: '초급 2 및 토픽 I 2급 완벽 대비',
+    title: 'Sentence Construction & Grammar',
+    koreanTitle: '한국어 문장 구성 및 기초 문법 (TOPIK I 2급)',
     level: 'Level 2',
     topikLevel: 'TOPIK I (Level 2)',
-    description: 'Past and future tenses, negation (안 / 못), location direction (으로/로), counters, polite honorifics (-시-), connecting clauses (-고, -지만), reasons (-아서/어서), travel, and restaurant ordering.',
+    description: 'Past and future tenses, negation (안 / 못), topic marker 은/는 vs subject marker 이/가, object marker 을/를, and polite honorifics.',
     objectives: [
+      'Master Korean SOV word order and particle distinction (은/는 vs 이/가)',
       'Conjugate past tense (-았/었어요) and future intention (-을 거예요)',
-      'Use proper counters for people (명), bottles (병), animals (마리), and items (개)',
-      'Construct complex sentences connecting clauses with -고 (and) and -지만 (but)',
-      'Use honorific verb forms with teachers and elders (-으세요)'
+      'Construct grammatically correct Korean compound sentences'
     ],
-    unitsCount: 4,
-    totalLessons: 12,
+    unitsCount: LEVEL_3_UNITS.length,
+    totalLessons: LEVEL_3_UNITS.reduce((acc, u) => acc + u.lessons.length, 0),
     status: 'published',
-    units: []
+    units: LEVEL_3_UNITS
   },
   {
     id: 'course-topik-3',
-    title: 'Intermediate Korean & TOPIK II Level 3',
-    koreanTitle: '중급 한국어 및 토픽 II 3급',
+    title: 'Everyday Conversation & Seoul Life',
+    koreanTitle: '일상 실전 회화 및 여행 한국어 (TOPIK II 3급)',
     level: 'Level 3',
     topikLevel: 'TOPIK II (Level 3)',
-    description: 'Transition into immersion! Intermediate sentence connectors, indirect speech (-다고 하다), passive/causative, opinion formulation, news announcements, and workplace dialogue.',
+    description: 'Order at Seoul cafés, shop in Myeongdong, navigate the subway, ask for directions, and converse naturally in daily situations.',
     objectives: [
-      'Master indirect quotations in speech and writing',
-      'Understand intermediate listening passages from Korean news and podcasts',
-      'Write structured essays expressing personal opinions and arguments'
+      'Order food and customize requests using -아/어 주세요',
+      'Navigate public transportation and shop with native Korean counters',
+      'Hold everyday conversations with confidence'
     ],
-    unitsCount: 6,
-    totalLessons: 18,
+    unitsCount: LEVEL_4_UNITS.length,
+    totalLessons: LEVEL_4_UNITS.reduce((acc, u) => acc + u.lessons.length, 0),
     status: 'published',
-    units: []
+    units: LEVEL_4_UNITS
   },
   {
     id: 'course-topik-4',
-    title: 'Upper Intermediate & TOPIK II Level 4',
-    koreanTitle: '중고급 한국어 및 토픽 II 4급',
+    title: 'Intermediate Korean & Honorifics',
+    koreanTitle: '중고급 한국어 및 높임말 마스터 (TOPIK II 4급)',
     level: 'Level 4',
     topikLevel: 'TOPIK II (Level 4)',
-    description: 'Formal written Korean (-ㄴ/는다), social issue debates, nuance particles (-조차, -마저), professional correspondence, and advanced TOPIK II reading analysis.',
+    description: 'Complex sentence structures, indirect speech quotations (-다고 하다), honorific vs informal registers, and news comprehension.',
     objectives: [
-      'Compose formal essays with plain form endings',
-      'Analyze authentic Korean editorial articles and interviews',
-      'Communicate naturally in professional business meetings'
+      'Master indirect speech quotations across all sentence types',
+      'Navigate Korean honorifics and polite vs casual speech registers',
+      'Express opinions and explain experiences with clarity'
     ],
-    unitsCount: 6,
-    totalLessons: 18,
+    unitsCount: LEVEL_5_UNITS.length,
+    totalLessons: LEVEL_5_UNITS.reduce((acc, u) => acc + u.lessons.length, 0),
     status: 'published',
-    units: []
+    units: LEVEL_5_UNITS
   },
   {
     id: 'course-topik-5',
-    title: 'Advanced Korean & TOPIK II Level 5',
-    koreanTitle: '고급 한국어 및 토픽 II 5급',
+    title: 'Advanced Korean & Cultural Idioms',
+    koreanTitle: '고급 한국어 및 사자성어 (TOPIK II 5급)',
     level: 'Level 5',
     topikLevel: 'TOPIK II (Level 5)',
-    description: 'Sino-Korean academic idioms (사자성어), university lectures, government policy comprehension, formal debates, and professional report writing.',
+    description: 'Sino-Korean four-character idioms (사자성어), proverbs, formal written prose, and nuanced grammatical particles.',
     objectives: [
-      'Master four-character idioms (사자성어) and their cultural applications',
-      'Understand academic university lectures with zero English scaffolding',
-      'Draft persuasive analytical papers on socioeconomic topics'
+      'Master classical four-character idioms like 일석이조, 작심삼일, and 고진감래',
+      'Understand written formal Korean and native media broadcasts',
+      'Communicate with depth and cultural sophistication'
     ],
-    unitsCount: 8,
-    totalLessons: 24,
+    unitsCount: LEVEL_6_UNITS.length,
+    totalLessons: LEVEL_6_UNITS.reduce((acc, u) => acc + u.lessons.length, 0),
     status: 'published',
-    units: []
+    units: LEVEL_6_UNITS
   },
   {
     id: 'course-topik-6',
-    title: 'Mastery & TOPIK II Level 6 Professional',
-    koreanTitle: '최고급 한국어 및 토픽 II 6급 마스터',
+    title: 'Korean Fluency & Professional Mastery',
+    koreanTitle: '최고급 한국어 및 비즈니스 실무 (TOPIK II 6급)',
     level: 'Level 6',
     topikLevel: 'TOPIK II (Level 6)',
-    description: 'Native-level fluency, literary Korean, academic research publications, specialized legal and business communication, and subtle socio-cultural linguistic nuances.',
+    description: 'Corporate business communication, formal debate, advanced essay composition, and native-level fluency in professional settings.',
     objectives: [
-      'Achieve top-tier TOPIK II Level 6 score (230+ points)',
-      'Conduct professional negotiations and academic defenses in Korean',
-      'Interpret classical references and contemporary cultural registers effortlessly'
+      'Draft executive-level Korean business emails and project proposals',
+      'Engage in persuasive academic debates with sophisticated registers',
+      'Achieve near-native fluency in professional communication'
     ],
-    unitsCount: 8,
-    totalLessons: 24,
+    unitsCount: LEVEL_7_UNITS.length,
+    totalLessons: LEVEL_7_UNITS.reduce((acc, u) => acc + u.lessons.length, 0),
     status: 'published',
-    units: []
+    units: LEVEL_7_UNITS
   }
 ];
