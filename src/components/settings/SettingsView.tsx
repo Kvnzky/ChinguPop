@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile, KoreanProficiency, ImmersionStage } from '../../types';
 import { storage } from '../../services/storageService';
-import { Settings, Save, Check, Globe, Clock, Calendar, Sparkles } from 'lucide-react';
+import { Settings, Save, Check, Globe, Clock, Calendar, Sparkles, Lock, ShieldCheck, Key } from 'lucide-react';
 
 interface SettingsViewProps {
   currentUser: UserProfile;
@@ -16,6 +16,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
   const [filipinoSupport, setFilipinoSupport] = useState(currentUser.filipinoSupport);
   const [explanationLang, setExplanationLang] = useState(currentUser.explanationLanguage);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
+
+  // Password Setup / Reset State
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwdMsg, setPwdMsg] = useState<string | null>(null);
+  const [pwdError, setPwdError] = useState<string | null>(null);
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwdMsg(null);
+    setPwdError(null);
+
+    if (newPassword.length < 6) {
+      setPwdError('Password must be at least 6 characters long.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwdError('Passwords do not match.');
+      return;
+    }
+
+    storage.setPassword(currentUser.id, newPassword);
+    setNewPassword('');
+    setConfirmPassword('');
+    setPwdMsg('Academic account password updated securely!');
+    setTimeout(() => setPwdMsg(null), 4000);
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,6 +193,80 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
           >
             <Save className="w-4 h-4" />
             <span>Save Profile Settings</span>
+          </button>
+        </div>
+      </form>
+
+      {/* Account Security & Password Setup/Reset */}
+      <form onSubmit={handlePasswordSubmit} className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-stone-200">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-academy-navy" />
+            <div>
+              <h3 className="font-serif font-bold text-base text-academy-navy">
+                Private Account Security & Password
+              </h3>
+              <p className="text-xs text-stone-500">
+                Setup or reset your private student login credentials.
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono uppercase bg-stone-100 text-stone-600 px-2 py-0.5 rounded border border-stone-200">
+            SHA-256 Hashed
+          </span>
+        </div>
+
+        {pwdMsg && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 font-semibold flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-600" />
+            <span>{pwdMsg}</span>
+          </div>
+        )}
+
+        {pwdError && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-800 font-semibold flex items-center gap-2">
+            <Lock className="w-4 h-4 text-rose-600" />
+            <span>{pwdError}</span>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Key className="w-3.5 h-3.5" />
+              <span>New Password</span>
+            </label>
+            <input
+              type="password"
+              placeholder="Minimum 6 characters"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full p-2.5 border border-stone-300 rounded-lg text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Key className="w-3.5 h-3.5" />
+              <span>Confirm Password</span>
+            </label>
+            <input
+              type="password"
+              placeholder="Re-enter password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full p-2.5 border border-stone-300 rounded-lg text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="pt-3 border-t border-stone-100 flex justify-end">
+          <button
+            type="submit"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-academy-navy-light hover:bg-academy-navy text-academy-ivory font-bold text-xs uppercase tracking-wider transition-all shadow-sm"
+          >
+            <Lock className="w-3.5 h-3.5 text-academy-gold" />
+            <span>Update Password</span>
           </button>
         </div>
       </form>

@@ -6,6 +6,8 @@ import { Sidebar, NavItemKey } from './components/common/Sidebar';
 
 // Screen Components
 import { StudentDashboard } from './components/dashboard/StudentDashboard';
+import { AcademyProgressOverview } from './components/overview/AcademyProgressOverview';
+import { GuidedOnboardingTour } from './components/tour/GuidedOnboardingTour';
 import { CoursesView } from './components/courses/CoursesView';
 import { HangulLabPage } from './components/hangul/HangulLabPage';
 import { VirtualClassroom } from './components/classroom/VirtualClassroom';
@@ -27,6 +29,9 @@ export function App() {
   const [currentTab, setCurrentTab] = useState<NavItemKey>('dashboard');
   const [courses, setCourses] = useState<Course[]>(storage.getCourses());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(() => {
+    return !storage.isTourCompleted(currentUser.id);
+  });
 
   // Active lesson selected for Classroom
   const [activeLesson, setActiveLesson] = useState<Lesson>(() => {
@@ -77,6 +82,7 @@ export function App() {
         currentUser={currentUser}
         onUserChange={handleUserChange}
         onOpenMobileMenu={() => setMobileMenuOpen(true)}
+        onOpenTour={() => setIsTourOpen(true)}
       />
 
       {/* Main LMS Grid Layout */}
@@ -140,6 +146,21 @@ export function App() {
             />
           )}
 
+          {currentTab === 'academy-overview' && (
+            <AcademyProgressOverview
+              currentUser={currentUser}
+              courses={courses}
+              onSelectStudent={(id) => {
+                const u = storage.getUserById(id);
+                if (u) handleUserChange(u);
+              }}
+              onNavigateTab={(tab) => {
+                setCurrentTab(tab);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          )}
+
           {currentTab === 'courses' && (
             <CoursesView
               courses={courses}
@@ -191,6 +212,18 @@ export function App() {
         </main>
 
       </div>
+
+      {/* Guided Walkthrough Tour Modal */}
+      <GuidedOnboardingTour
+        currentUser={currentUser}
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        onNavigateTab={(tab) => {
+          setCurrentTab(tab);
+          setIsTourOpen(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </div>
   );
 }

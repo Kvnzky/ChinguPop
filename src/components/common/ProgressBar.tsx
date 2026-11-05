@@ -4,7 +4,8 @@ interface ProgressBarProps {
   value: number; // 0 - 100
   label?: string;
   subLabel?: string;
-  color?: 'gold' | 'sage' | 'navy';
+  color?: 'gold' | 'sage' | 'navy' | 'wine';
+  height?: string;
   className?: string;
 }
 
@@ -13,6 +14,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   label,
   subLabel,
   color = 'gold',
+  height = 'h-2.5',
   className = ''
 }) => {
   const clampedValue = Math.min(100, Math.max(0, value));
@@ -20,7 +22,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const barColors = {
     gold: 'bg-academy-gold',
     sage: 'bg-academy-sage',
-    navy: 'bg-academy-navy'
+    navy: 'bg-academy-navy',
+    wine: 'bg-academy-wine'
   };
 
   return (
@@ -31,7 +34,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
           {subLabel && <span className="text-academy-charcoal-muted font-mono">{subLabel}</span>}
         </div>
       )}
-      <div className="w-full h-2.5 bg-stone-200 rounded-full overflow-hidden border border-stone-300/50">
+      <div className={`w-full ${height} bg-stone-200 rounded-full overflow-hidden border border-stone-300/50`}>
         <div
           className={`h-full transition-all duration-500 rounded-full ${barColors[color]}`}
           style={{ width: `${clampedValue}%` }}

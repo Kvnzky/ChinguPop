@@ -17,12 +17,21 @@ interface NavbarProps {
   currentUser: UserProfile;
   onUserChange: (user: UserProfile) => void;
   onOpenMobileMenu?: () => void;
+  onOpenTour?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentUser, onUserChange, onOpenMobileMenu }) => {
+export const Navbar: React.FC<NavbarProps> = ({ 
+  currentUser, 
+  onUserChange, 
+  onOpenMobileMenu,
+  onOpenTour 
+}) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const allUsers = storage.getUsers();
+
+  const students = allUsers.filter(u => u.role === 'student');
+  const faculty = allUsers.filter(u => u.role !== 'student');
 
   React.useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -113,6 +122,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onUserChange, onOpe
             </div>
           )}
 
+          {/* Guided Onboarding Tour Button */}
+          {onOpenTour && (
+            <button
+              type="button"
+              onClick={onOpenTour}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-academy-navy-light hover:bg-academy-navy-light/80 border border-academy-gold/40 text-academy-gold text-xs font-semibold transition-all shadow-sm active:scale-95"
+              title="Launch Guided Academy Walkthrough"
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Guided Tour</span>
+            </button>
+          )}
+
           {/* Multi-Student Role Switcher Dropdown */}
           <div className="relative">
             <button
@@ -141,17 +163,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onUserChange, onOpe
             {showUserMenu && (
               <div className="absolute right-0 mt-2 w-72 bg-white text-academy-charcoal rounded-xl shadow-2xl border border-stone-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="px-3 py-2 border-b border-stone-100">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-academy-charcoal-muted flex items-center gap-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-academy-navy flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-academy-gold-dark" />
-                    Switch Academy Role / Student
+                    Private Academy Directory
                   </p>
                   <p className="text-[11px] text-stone-500 mt-0.5">
-                    Test role-based permissions and independent student academic records.
+                    Switch between authorized scholars & faculty
                   </p>
                 </div>
 
-                <div className="divide-y divide-stone-100 max-h-80 overflow-y-auto">
-                  {allUsers.map((u) => {
+                <div className="max-h-80 overflow-y-auto">
+                  {/* Authorized Students */}
+                  <div className="px-3 pt-2 pb-1 text-[10px] font-mono uppercase text-stone-400 font-bold">
+                    Enrolled Scholars (Dhie & Mhie)
+                  </div>
+                  {students.map((u) => {
                     const isSelected = u.id === currentUser.id;
                     return (
                       <button
@@ -159,25 +185,53 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onUserChange, onOpe
                         type="button"
                         onClick={() => handleSelectUser(u)}
                         className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between hover:bg-stone-50 transition-colors ${
-                          isSelected ? 'bg-amber-50/60 font-semibold' : ''
+                          isSelected ? 'bg-amber-50/70 font-semibold' : ''
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${
-                            u.role === 'admin' ? 'bg-purple-100 text-purple-800' :
-                            u.role === 'teacher' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
-                          }`}>
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-amber-100 text-amber-900 border border-amber-300">
                             {u.name.charAt(0)}
                           </div>
                           <div>
-                            <div className="text-academy-charcoal font-medium">{u.name}</div>
+                            <div className="text-academy-navy font-bold">{u.name}</div>
                             <div className="text-[11px] text-stone-500 flex items-center gap-1.5">
-                              <span className="capitalize font-mono text-[10px] px-1 bg-stone-100 rounded">{u.role}</span>
+                              <span className="font-mono text-[10px] text-academy-gold-dark font-semibold">{u.studentId}</span>
                               <span>• {u.proficiency}</span>
                             </div>
                           </div>
                         </div>
                         {isSelected && <Check className="w-4 h-4 text-academy-gold-dark font-bold" />}
+                      </button>
+                    );
+                  })}
+
+                  {/* Academic Faculty */}
+                  <div className="px-3 pt-3 pb-1 text-[10px] font-mono uppercase text-stone-400 font-bold border-t border-stone-100 mt-1">
+                    Faculty & Administration
+                  </div>
+                  {faculty.map((u) => {
+                    const isSelected = u.id === currentUser.id;
+                    return (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={() => handleSelectUser(u)}
+                        className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-stone-50 transition-colors ${
+                          isSelected ? 'bg-stone-100 font-semibold' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${
+                            u.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {u.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="text-academy-charcoal font-medium">{u.name}</div>
+                            <div className="text-[10px] text-stone-500 capitalize">{u.role}</div>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-academy-navy font-bold" />}
                       </button>
                     );
                   })}

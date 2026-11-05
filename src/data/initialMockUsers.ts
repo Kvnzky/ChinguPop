@@ -1,12 +1,15 @@
 import { UserProfile } from '../types';
 
+export const AUTHORIZED_STUDENT_IDS = ['student-dhie', 'student-mhie'] as const;
+export const AUTHORIZED_STUDENT_EMAILS = ['dhie@hangul.academy', 'mhie@hangul.academy'] as const;
+
 export const INITIAL_USERS: UserProfile[] = [
   {
-    id: 'student-default',
-    name: 'Min-ji Dela Cruz',
-    email: 'minji.delacruz@hangul.academy',
+    id: 'student-dhie',
+    name: 'Dhie',
+    email: 'dhie@hangul.academy',
     role: 'student',
-    studentId: 'HA-2026-0801',
+    studentId: 'HA-2026-DHIE',
     enrolledDate: '2026-11-01',
     proficiency: 'Pre-A1',
     immersionStage: 'beginner',
@@ -16,28 +19,28 @@ export const INITIAL_USERS: UserProfile[] = [
     studyDaysPerWeek: 7,
     assignedTeacherId: 'teacher-kim',
     currentCourseId: 'course-pre-a1',
-    bio: 'Aspiring university exchange student to Seoul. Starting from absolute zero with Hangul and eager to master conversational Korean and TOPIK I.',
+    bio: "Dhie's Korean Language Journey: Aiming for full fluency from Hangul foundations to TOPIK mastery.",
     attendancePercentage: 100,
     currentAcademicGrade: 'A'
   },
   {
-    id: 'student-2',
-    name: 'Alexandre Dubois',
-    email: 'alexandre.d@hangul.academy',
+    id: 'student-mhie',
+    name: 'Mhie',
+    email: 'mhie@hangul.academy',
     role: 'student',
-    studentId: 'HA-2026-0422',
-    enrolledDate: '2026-09-15',
-    proficiency: 'Level 1',
-    immersionStage: 'elementary',
+    studentId: 'HA-2026-MHIE',
+    enrolledDate: '2026-11-01',
+    proficiency: 'Pre-A1',
+    immersionStage: 'beginner',
     explanationLanguage: 'English',
-    filipinoSupport: false,
-    dailyStudyMinutes: 45,
-    studyDaysPerWeek: 5,
+    filipinoSupport: true,
+    dailyStudyMinutes: 60,
+    studyDaysPerWeek: 7,
     assignedTeacherId: 'teacher-kim',
-    currentCourseId: 'course-topik-1',
-    bio: 'Software engineer preparing for TOPIK I Level 2 examination.',
-    attendancePercentage: 94,
-    currentAcademicGrade: 'B'
+    currentCourseId: 'course-pre-a1',
+    bio: "Mhie's Korean Language Journey: Dedicated daily practice for practical conversational fluency and TOPIK.",
+    attendancePercentage: 100,
+    currentAcademicGrade: 'A'
   },
   {
     id: 'teacher-kim',

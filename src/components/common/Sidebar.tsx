@@ -16,11 +16,13 @@ import {
   Settings,
   ClipboardList,
   ShieldCheck,
-  Grid
+  Grid,
+  Users
 } from 'lucide-react';
 
 export type NavItemKey = 
   | 'dashboard'
+  | 'academy-overview'
   | 'courses'
   | 'hangul-lab'
   | 'classroom'
@@ -53,7 +55,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   className = ''
 }) => {
   const primaryNavItems: { key: NavItemKey; label: string; korean: string; icon: React.ComponentType<{ className?: string }>; badge?: number }[] = [
-    { key: 'dashboard', label: 'Dashboard', korean: '대시보드', icon: LayoutDashboard },
+    { key: 'dashboard', label: 'My Dashboard', korean: '개인 대시보드', icon: LayoutDashboard },
+    { key: 'academy-overview', label: 'Academy Overview', korean: '학원 종합 현황', icon: Users },
     { key: 'courses', label: 'My Courses', korean: '내 강좌', icon: BookOpen },
     { key: 'hangul-lab', label: 'Hangul Lab', korean: '한글 연구소', icon: Grid },
     { key: 'classroom', label: 'Virtual Classroom', korean: '가상 강의실', icon: GraduationCap },

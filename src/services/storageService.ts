@@ -9,7 +9,7 @@ import {
   AIMessage, 
   StudyPlanItem 
 } from '../types';
-import { INITIAL_USERS } from '../data/initialMockUsers';
+import { INITIAL_USERS, AUTHORIZED_STUDENT_IDS } from '../data/initialMockUsers';
 import { COURSES_DATA } from '../data/curriculumData';
 import { INITIAL_VOCABULARY } from '../data/vocabularyData';
 import { INITIAL_ASSIGNMENTS, INITIAL_SUBMISSIONS } from '../data/assessmentData';
@@ -27,7 +27,9 @@ const STORAGE_KEYS = {
   AI_CONVERSATIONS: 'ha_ai_conversations', // map: { [studentId]: AIMessage[] }
   STUDY_PLANS: 'ha_study_plans', // map: { [studentId]: StudyPlanItem[] }
   ATTENDANCE: 'ha_attendance', // map: { [studentId]: string[] (dates) }
-  SETTINGS: 'ha_settings'
+  SETTINGS: 'ha_settings',
+  PASSWORDS: 'ha_passwords', // map: { [userId]: string (hash/credential) }
+  TOUR_COMPLETED: 'ha_tour_completed' // map: { [studentId]: boolean }
 };
 
 class StorageService {
@@ -40,12 +42,15 @@ class StorageService {
   private init() {
     if (typeof window === 'undefined') return;
 
-    if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+    // Strict cleanup of legacy placeholder students from localStorage
+    const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+    if (!rawUsers || rawUsers.includes('student-default') || rawUsers.includes('Min-ji') || rawUsers.includes('Alexandre')) {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(INITIAL_USERS));
     }
 
-    if (!localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID)) {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, 'student-default');
+    const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
+    if (!currentId || currentId === 'student-default' || currentId === 'student-2') {
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, 'student-dhie');
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.COURSES)) {
@@ -56,35 +61,41 @@ class StorageService {
       localStorage.setItem(STORAGE_KEYS.ASSIGNMENTS, JSON.stringify(INITIAL_ASSIGNMENTS));
     }
 
-    if (!localStorage.getItem(STORAGE_KEYS.SUBMISSIONS)) {
+    // Sanitize submissions to Dhie & Mhie only
+    const rawSubmissions = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
+    if (!rawSubmissions || rawSubmissions.includes('student-default')) {
       localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(INITIAL_SUBMISSIONS));
     }
 
-    // Initialize default student vocabulary deck
+    // Initialize vocabulary deck for Dhie and Mhie independently
     const existingVocab = localStorage.getItem(STORAGE_KEYS.VOCABULARY);
-    if (!existingVocab) {
+    if (!existingVocab || existingVocab.includes('student-default')) {
       const vocabMap: Record<string, VocabularyWord[]> = {
-        'student-default': INITIAL_VOCABULARY,
-        'student-2': INITIAL_VOCABULARY
+        'student-dhie': INITIAL_VOCABULARY,
+        'student-mhie': INITIAL_VOCABULARY
       };
       localStorage.setItem(STORAGE_KEYS.VOCABULARY, JSON.stringify(vocabMap));
     }
 
-    // Initialize completed lessons map
-    if (!localStorage.getItem(STORAGE_KEYS.COMPLETED_LESSONS)) {
+    // Initialize completed lessons map:
+    // Dhie has completed Lesson 1 (Pre-A1) and working on Lesson 2.
+    // Mhie starts fresh at Lesson 1 with zero lessons completed.
+    const rawCompleted = localStorage.getItem(STORAGE_KEYS.COMPLETED_LESSONS);
+    if (!rawCompleted || rawCompleted.includes('student-default')) {
       const completed: Record<string, string[]> = {
-        'student-default': ['lesson-pre-a1-1', 'lesson-pre-a1-2'],
-        'student-2': ['lesson-pre-a1-1', 'lesson-pre-a1-2', 'lesson-pre-a1-3', 'lesson-pre-a1-4', 'lesson-pre-a1-5', 'lesson-pre-a1-6', 'lesson-pre-a1-7', 'lesson-pre-a1-8']
+        'student-dhie': ['lesson-pre-a1-1'],
+        'student-mhie': []
       };
       localStorage.setItem(STORAGE_KEYS.COMPLETED_LESSONS, JSON.stringify(completed));
     }
 
-    // Initialize default attendance
-    if (!localStorage.getItem(STORAGE_KEYS.ATTENDANCE)) {
+    // Initialize attendance for Dhie and Mhie
+    const rawAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
+    if (!rawAttendance || rawAttendance.includes('student-default')) {
       const today = new Date().toISOString().split('T')[0];
       const attendanceMap: Record<string, string[]> = {
-        'student-default': [today, '2026-11-04', '2026-11-03', '2026-11-02'],
-        'student-2': [today, '2026-11-04', '2026-11-02']
+        'student-dhie': [today, '2026-11-04'],
+        'student-mhie': [today]
       };
       localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceMap));
     }
@@ -95,21 +106,53 @@ class StorageService {
   // --- Users & Roles ---
   getUsers(): UserProfile[] {
     const raw = localStorage.getItem(STORAGE_KEYS.USERS);
-    return raw ? JSON.parse(raw) : INITIAL_USERS;
+    let users: UserProfile[] = raw ? JSON.parse(raw) : INITIAL_USERS;
+    
+    // Strict enforcement: filter out any unauthorized student accounts
+    users = users.filter(u => {
+      if (u.role === 'student') {
+        return AUTHORIZED_STUDENT_IDS.includes(u.id as any);
+      }
+      return true;
+    });
+
+    return users;
+  }
+
+  getUserById(userId: string): UserProfile | undefined {
+    return this.getUsers().find(u => u.id === userId);
   }
 
   getCurrentUser(): UserProfile {
     const users = this.getUsers();
-    const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID) || 'student-default';
+    let currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID) || 'student-dhie';
+    
+    // Fallback if legacy ID was present
+    if (currentId === 'student-default' || currentId === 'student-2') {
+      currentId = 'student-dhie';
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, currentId);
+    }
+
     return users.find(u => u.id === currentId) || users[0];
   }
 
   setCurrentUser(userId: string): UserProfile {
+    // Validate if student is in allowlist
+    if (userId.startsWith('student-') && !AUTHORIZED_STUDENT_IDS.includes(userId as any)) {
+      console.warn(`Unauthorized student access attempt: ${userId}`);
+      userId = 'student-dhie';
+    }
+
     localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, userId);
     return this.getCurrentUser();
   }
 
   saveUser(updatedUser: UserProfile): void {
+    // If student, strictly prevent creating non-allowlisted accounts
+    if (updatedUser.role === 'student' && !AUTHORIZED_STUDENT_IDS.includes(updatedUser.id as any)) {
+      throw new Error('Public registration is disabled. This is a private academy for Dhie and Mhie only.');
+    }
+
     const users = this.getUsers();
     const index = users.findIndex(u => u.id === updatedUser.id);
     if (index >= 0) {
@@ -118,6 +161,52 @@ class StorageService {
       users.push(updatedUser);
     }
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+  }
+
+  // Password / Security Management (Mock Secure Storage)
+  setPassword(userId: string, newPass: string): void {
+    const raw = localStorage.getItem(STORAGE_KEYS.PASSWORDS);
+    const map = raw ? JSON.parse(raw) : {};
+    // Store simple hash/encoded string
+    map[userId] = btoa(newPass);
+    localStorage.setItem(STORAGE_KEYS.PASSWORDS, JSON.stringify(map));
+  }
+
+  hasPassword(userId: string): boolean {
+    const raw = localStorage.getItem(STORAGE_KEYS.PASSWORDS);
+    const map = raw ? JSON.parse(raw) : {};
+    return Boolean(map[userId]);
+  }
+
+  verifyPassword(userId: string, pass: string): boolean {
+    const raw = localStorage.getItem(STORAGE_KEYS.PASSWORDS);
+    const map = raw ? JSON.parse(raw) : {};
+    if (!map[userId]) return true; // Default no password set yet
+    return map[userId] === btoa(pass);
+  }
+
+  // --- Tour Status ---
+  isTourCompleted(studentId: string): boolean {
+    const raw = localStorage.getItem(STORAGE_KEYS.TOUR_COMPLETED);
+    const map = raw ? JSON.parse(raw) : {};
+    return Boolean(map[studentId]);
+  }
+
+  setTourCompleted(studentId: string, completed: boolean): void {
+    const raw = localStorage.getItem(STORAGE_KEYS.TOUR_COMPLETED);
+    const map = raw ? JSON.parse(raw) : {};
+    map[studentId] = completed;
+    localStorage.setItem(STORAGE_KEYS.TOUR_COMPLETED, JSON.stringify(map));
+  }
+
+  // --- Strict Course & Lesson Progression ---
+  isLessonUnlocked(studentId: string, lessonNumber: number, previousLessonId?: string): boolean {
+    // First lesson in course is always unlocked
+    if (lessonNumber === 1 || !previousLessonId) return true;
+
+    // Subsequent lessons require previous lesson completed
+    const completed = this.getCompletedLessons(studentId);
+    return completed.includes(previousLessonId);
   }
 
   // --- Courses & Curriculum ---

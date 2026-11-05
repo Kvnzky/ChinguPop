@@ -167,12 +167,18 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                 {/* Lessons in Unit */}
                 {isExpanded && (
                   <div className="divide-y divide-stone-100 p-2">
-                    {unit.lessons.map((lesson) => {
+                    {unit.lessons.map((lesson, lessonIdx) => {
                       const isDone = completedLessons.includes(lesson.id);
+                      const previousLessonId = lessonIdx > 0 ? unit.lessons[lessonIdx - 1].id : undefined;
+                      const isFaculty = currentUser.role === 'teacher' || currentUser.role === 'admin';
+                      const isUnlocked = isFaculty || storage.isLessonUnlocked(currentUser.id, lesson.lessonNumber, previousLessonId);
+
                       return (
                         <div
                           key={lesson.id}
-                          className="p-3 sm:p-4 rounded-lg hover:bg-stone-50/80 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                          className={`p-3 sm:p-4 rounded-lg transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                            !isUnlocked ? 'bg-stone-50/50 opacity-80' : 'hover:bg-stone-50/80'
+                          }`}
                         >
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
@@ -184,26 +190,48 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                                   <CheckCircle2 className="w-3 h-3 text-emerald-700" />
                                   Completed
                                 </span>
+                              ) : isUnlocked ? (
+                                <span className="text-[10px] text-stone-500 font-mono bg-stone-100 px-1.5 py-0.2 rounded border border-stone-200">
+                                  Available
+                                </span>
                               ) : (
-                                <span className="text-[10px] text-stone-400 font-mono">Available</span>
+                                <span className="inline-flex items-center gap-1 text-[10px] font-mono text-amber-800 bg-amber-50 px-2 py-0.2 rounded border border-amber-200">
+                                  <Lock className="w-3 h-3 text-amber-700" />
+                                  Prerequisite Locked (Complete Lesson {lesson.lessonNumber - 1})
+                                </span>
                               )}
                             </div>
-                            <div className="font-serif font-bold text-sm text-academy-navy">
-                              {lesson.title}
+                            <div className="font-serif font-bold text-sm text-academy-navy flex items-center gap-2">
+                              <span>{lesson.title}</span>
+                              {!isUnlocked && (
+                                <Lock className="w-3.5 h-3.5 text-stone-400" />
+                              )}
                             </div>
                             <div className="text-xs text-stone-500 font-korean">
                               {lesson.koreanTitle}
                             </div>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => onSelectLesson(lesson)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-academy-navy hover:bg-academy-navy-light text-academy-ivory text-xs font-semibold uppercase tracking-wider transition-all shrink-0 self-start sm:self-center"
-                          >
-                            <span>Enter Classroom</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </button>
+                          {isUnlocked ? (
+                            <button
+                              type="button"
+                              onClick={() => onSelectLesson(lesson)}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-academy-navy hover:bg-academy-navy-light text-academy-ivory text-xs font-semibold uppercase tracking-wider transition-all shrink-0 self-start sm:self-center shadow-sm"
+                            >
+                              <span>Enter Classroom</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled
+                              title={`Prerequisite required: Complete Lesson ${lesson.lessonNumber - 1} to unlock this lecture`}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-stone-200 text-stone-400 text-xs font-semibold uppercase tracking-wider cursor-not-allowed shrink-0 self-start sm:self-center"
+                            >
+                              <Lock className="w-3.5 h-3.5 text-stone-400" />
+                              <span>Locked</span>
+                            </button>
+                          )}
                         </div>
                       );
                     })}

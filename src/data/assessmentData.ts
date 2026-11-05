@@ -40,22 +40,21 @@ export const INITIAL_SUBMISSIONS: AssignmentSubmission[] = [
   {
     id: 'sub-1',
     assignmentId: 'asg-1',
-    studentId: 'student-default',
-    studentName: 'Min-ji Dela Cruz',
+    studentId: 'student-dhie',
+    studentName: 'Dhie',
     submittedAt: '2026-11-04 18:30',
     content: `안녕하세요?
-저는 민지예요.
-필리핀 사람이에요.
-대학교 학생이에요.
+저는 Dhie예요.
+한국어 아카데미 학생이에요.
 만나서 반갑습니다!`,
     status: 'graded',
     grade: 98,
-    teacherFeedback: '훌륭합니다! (Excellent!) Your particle choices and copula conjugations (민지예요, 사람이에요, 학생이에요) are 100% accurate. Your punctuation and polite tone are commendable.',
+    teacherFeedback: '훌륭합니다! (Excellent!) Your particle choices and copula conjugations are 100% accurate. Your polite tone and dedication are commendable.',
     aiGrammarFeedback: [
       {
-        original: '저는 민지예요.',
-        corrected: '저는 민지예요.',
-        explanation: 'Perfect conjugation. 민지 ends in vowel ㅣ, so 예요 is the exact correct copula.',
+        original: '저는 Dhie예요.',
+        corrected: '저는 Dhie예요.',
+        explanation: 'Perfect conjugation. Polite self-introduction formula.',
         mistakeType: 'None'
       }
     ]
