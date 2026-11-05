@@ -21,7 +21,6 @@ import { MaterialsLibrary } from './components/materials/MaterialsLibrary';
 import { AcademicRecords } from './components/records/AcademicRecords';
 import { CertificateView } from './components/certificates/CertificateView';
 import { SettingsView } from './components/settings/SettingsView';
-import { TeacherGrading } from './components/admin/TeacherGrading';
 import { AdminPanel } from './components/admin/AdminPanel';
 
 export function App() {
@@ -55,14 +54,7 @@ export function App() {
 
   const handleUserChange = (user: UserProfile) => {
     setCurrentUser(user);
-    // Route to appropriate initial dashboard if teacher or admin
-    if (user.role === 'teacher') {
-      setCurrentTab('teacher-grading');
-    } else if (user.role === 'admin') {
-      setCurrentTab('admin-portal');
-    } else {
-      setCurrentTab('dashboard');
-    }
+    setCurrentTab('dashboard');
   };
 
   // Register PWA Service Worker
@@ -83,6 +75,10 @@ export function App() {
         onUserChange={handleUserChange}
         onOpenMobileMenu={() => setMobileMenuOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
+        onOpenAdmin={() => {
+          setCurrentTab('admin-portal');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       {/* Main LMS Grid Layout */}
@@ -204,11 +200,9 @@ export function App() {
             />
           )}
 
-          {currentTab === 'teacher-grading' && (
-            <TeacherGrading currentUser={currentUser} />
+          {currentTab === 'admin-portal' && (
+            <AdminPanel onSwitchUser={handleUserChange} />
           )}
-
-          {currentTab === 'admin-portal' && <AdminPanel />}
         </main>
 
       </div>

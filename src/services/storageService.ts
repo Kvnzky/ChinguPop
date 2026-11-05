@@ -42,14 +42,14 @@ class StorageService {
   private init() {
     if (typeof window === 'undefined') return;
 
-    // Strict cleanup of legacy placeholder students from localStorage
+    // Strict cleanup of legacy placeholder students or faculty accounts from localStorage
     const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
-    if (!rawUsers || rawUsers.includes('student-default') || rawUsers.includes('Min-ji') || rawUsers.includes('Alexandre')) {
+    if (!rawUsers || rawUsers.includes('teacher-kim') || rawUsers.includes('admin-dean') || rawUsers.includes('student-default') || rawUsers.includes('Min-ji') || rawUsers.includes('Alexandre')) {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(INITIAL_USERS));
     }
 
     const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
-    if (!currentId || currentId === 'student-default' || currentId === 'student-2') {
+    if (!currentId || currentId === 'teacher-kim' || currentId === 'admin-dean' || currentId === 'student-default' || currentId === 'student-2') {
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, 'student-dhie');
     }
 
@@ -108,13 +108,13 @@ class StorageService {
     const raw = localStorage.getItem(STORAGE_KEYS.USERS);
     let users: UserProfile[] = raw ? JSON.parse(raw) : INITIAL_USERS;
     
-    // Strict enforcement: filter out any unauthorized student accounts
-    users = users.filter(u => {
-      if (u.role === 'student') {
-        return AUTHORIZED_STUDENT_IDS.includes(u.id as any);
-      }
-      return true;
-    });
+    // Strict enforcement: Dhie and Mhie only
+    users = users.filter(u => AUTHORIZED_STUDENT_IDS.includes(u.id as any));
+
+    if (users.length === 0) {
+      users = INITIAL_USERS;
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    }
 
     return users;
   }
@@ -128,7 +128,7 @@ class StorageService {
     let currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID) || 'student-dhie';
     
     // Fallback if legacy ID was present
-    if (currentId === 'student-default' || currentId === 'student-2') {
+    if (!AUTHORIZED_STUDENT_IDS.includes(currentId as any)) {
       currentId = 'student-dhie';
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, currentId);
     }
@@ -138,7 +138,7 @@ class StorageService {
 
   setCurrentUser(userId: string): UserProfile {
     // Validate if student is in allowlist
-    if (userId.startsWith('student-') && !AUTHORIZED_STUDENT_IDS.includes(userId as any)) {
+    if (!AUTHORIZED_STUDENT_IDS.includes(userId as any)) {
       console.warn(`Unauthorized student access attempt: ${userId}`);
       userId = 'student-dhie';
     }
@@ -201,12 +201,22 @@ class StorageService {
 
   // --- Strict Course & Lesson Progression ---
   isLessonUnlocked(studentId: string, lessonNumber: number, previousLessonId?: string): boolean {
+    if (this.isAdminUnlockAll()) return true;
+
     // First lesson in course is always unlocked
     if (lessonNumber === 1 || !previousLessonId) return true;
 
     // Subsequent lessons require previous lesson completed
     const completed = this.getCompletedLessons(studentId);
     return completed.includes(previousLessonId);
+  }
+
+  isAdminUnlockAll(): boolean {
+    return localStorage.getItem('ha_admin_unlock_all') === 'true';
+  }
+
+  setAdminUnlockAll(unlocked: boolean): void {
+    localStorage.setItem('ha_admin_unlock_all', unlocked ? 'true' : 'false');
   }
 
   // --- Courses & Curriculum ---

@@ -10,7 +10,8 @@ import {
   WifiOff, 
   Check, 
   ChevronDown,
-  Volume2
+  Volume2,
+  ShieldCheck
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -18,20 +19,21 @@ interface NavbarProps {
   onUserChange: (user: UserProfile) => void;
   onOpenMobileMenu?: () => void;
   onOpenTour?: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
   currentUser, 
   onUserChange, 
   onOpenMobileMenu,
-  onOpenTour 
+  onOpenTour,
+  onOpenAdmin
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const allUsers = storage.getUsers();
 
   const students = allUsers.filter(u => u.role === 'student');
-  const faculty = allUsers.filter(u => u.role !== 'student');
 
   React.useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -135,7 +137,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Multi-Student Role Switcher Dropdown */}
+          {/* Admin Portal Direct Launcher Button */}
+          {onOpenAdmin && (
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-950/70 hover:bg-purple-900 border border-purple-400/40 text-purple-200 text-xs font-semibold transition-all shadow-sm active:scale-95"
+              title="Open Academy Administrative & Faculty Portal"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden sm:inline">Admin Portal</span>
+            </button>
+          )}
+
+          {/* Student Account Switcher Dropdown (Dhie & Mhie) */}
           <div className="relative">
             <button
               type="button"
@@ -149,11 +164,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="font-semibold text-academy-ivory flex items-center gap-1.5">
                   <span>{currentUser.name}</span>
                   <span className="text-[10px] uppercase font-mono px-1 bg-academy-navy rounded text-academy-gold">
-                    {currentUser.role}
+                    Scholar
                   </span>
                 </div>
                 <div className="text-[10px] text-stone-300">
-                  {currentUser.role === 'student' ? currentUser.studentId : currentUser.email}
+                  {currentUser.studentId}
                 </div>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-stone-300 ml-1" />
@@ -165,18 +180,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="px-3 py-2 border-b border-stone-100">
                   <p className="text-xs font-semibold uppercase tracking-wider text-academy-navy flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-academy-gold-dark" />
-                    Private Academy Directory
+                    Private Academy Scholars
                   </p>
                   <p className="text-[11px] text-stone-500 mt-0.5">
-                    Switch between authorized scholars & faculty
+                    Switch between authorized accounts: Dhie & Mhie
                   </p>
                 </div>
 
                 <div className="max-h-80 overflow-y-auto">
-                  {/* Authorized Students */}
-                  <div className="px-3 pt-2 pb-1 text-[10px] font-mono uppercase text-stone-400 font-bold">
-                    Enrolled Scholars (Dhie & Mhie)
-                  </div>
                   {students.map((u) => {
                     const isSelected = u.id === currentUser.id;
                     return (
@@ -204,38 +215,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </button>
                     );
                   })}
-
-                  {/* Academic Faculty */}
-                  <div className="px-3 pt-3 pb-1 text-[10px] font-mono uppercase text-stone-400 font-bold border-t border-stone-100 mt-1">
-                    Faculty & Administration
-                  </div>
-                  {faculty.map((u) => {
-                    const isSelected = u.id === currentUser.id;
-                    return (
-                      <button
-                        key={u.id}
-                        type="button"
-                        onClick={() => handleSelectUser(u)}
-                        className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-stone-50 transition-colors ${
-                          isSelected ? 'bg-stone-100 font-semibold' : ''
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${
-                            u.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {u.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="text-academy-charcoal font-medium">{u.name}</div>
-                            <div className="text-[10px] text-stone-500 capitalize">{u.role}</div>
-                          </div>
-                        </div>
-                        {isSelected && <Check className="w-4 h-4 text-academy-navy font-bold" />}
-                      </button>
-                    );
-                  })}
                 </div>
+
+                {onOpenAdmin && (
+                  <div className="p-2 border-t border-stone-100 bg-stone-50/70 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        onOpenAdmin();
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 font-semibold text-xs transition-colors"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
+                      <span>Open Admin & Faculty Portal</span>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

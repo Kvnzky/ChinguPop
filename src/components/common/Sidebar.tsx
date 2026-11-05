@@ -36,7 +36,6 @@ export type NavItemKey =
   | 'records'
   | 'certificates'
   | 'settings'
-  | 'teacher-grading'
   | 'admin-portal';
 
 interface SidebarProps {
@@ -133,50 +132,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
 
-        {/* Teacher Specific Management Link */}
-        {(userRole === 'teacher' || userRole === 'admin') && (
-          <div className="pt-3 mt-3 border-t border-stone-200 space-y-1">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 px-3 py-1">
-              Faculty Management
+        {/* Direct Admin & Faculty Portal Link */}
+        <div className="pt-3 mt-3 border-t border-stone-200 space-y-1">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 px-3 py-1 flex items-center justify-between">
+            <span>Administration</span>
+            <span className="text-[9px] font-mono bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded font-bold">Portal</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => onSelectTab('admin-portal')}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+              currentTab === 'admin-portal'
+                ? 'bg-purple-950 text-white shadow-sm'
+                : 'text-stone-700 hover:bg-stone-100/80 hover:text-academy-navy'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className={`w-4 h-4 ${currentTab === 'admin-portal' ? 'text-academy-gold' : 'text-purple-700'}`} />
+              <span className="font-semibold">Admin Portal</span>
             </div>
-            <button
-              type="button"
-              onClick={() => onSelectTab('teacher-grading')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                currentTab === 'teacher-grading'
-                  ? 'bg-blue-900 text-white shadow-sm'
-                  : 'text-academy-charcoal hover:bg-stone-100'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <ClipboardList className="w-4 h-4 text-blue-500" />
-                <span>Grading & Feedback</span>
-              </div>
-              <span className="text-[10px] font-korean text-stone-500">채점 및 피드백</span>
-            </button>
-          </div>
-        )}
-
-        {/* Administrator Specific Portal Link */}
-        {userRole === 'admin' && (
-          <div className="pt-2 space-y-1">
-            <button
-              type="button"
-              onClick={() => onSelectTab('admin-portal')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                currentTab === 'admin-portal'
-                  ? 'bg-purple-950 text-white shadow-sm'
-                  : 'text-academy-charcoal hover:bg-stone-100'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-purple-400" />
-                <span>Admin & Curriculum</span>
-              </div>
-              <span className="text-[10px] font-korean text-stone-500">학사 행정</span>
-            </button>
-          </div>
-        )}
+            <span className={`text-[10px] font-korean ${currentTab === 'admin-portal' ? 'text-purple-300' : 'text-stone-500'}`}>
+              관리자 포털
+            </span>
+          </button>
+        </div>
 
       </div>
 
