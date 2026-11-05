@@ -1,6 +1,6 @@
 import { VocabularyWord } from '../types';
 
-export const INITIAL_VOCABULARY: VocabularyWord[] = [
+const RAW_VOCABULARY: VocabularyWord[] = [
   // Core Pre-A1 Hangul & Foundations
   {
     id: 'voc-1',
@@ -425,3 +425,15 @@ export const INITIAL_VOCABULARY: VocabularyWord[] = [
     timesIncorrect: 0
   }
 ];
+
+// All enrolled students start with an unstudied fresh deck: status 'new', 0 times reviewed
+export const INITIAL_VOCABULARY: VocabularyWord[] = RAW_VOCABULARY.map(w => ({
+  ...w,
+  repetitionNumber: 0,
+  intervalDays: 1,
+  easeFactor: 2.5,
+  status: 'new' as const,
+  timesCorrect: 0,
+  timesIncorrect: 0,
+  nextReviewDate: new Date().toISOString().split('T')[0]
+}));

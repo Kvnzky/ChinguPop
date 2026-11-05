@@ -67,9 +67,16 @@ class StorageService {
       localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify([]));
     }
 
-    // Initialize vocabulary deck for Dhie and Mhie independently
+    // Initialize unstudied vocabulary deck for Dhie and Mhie independently (clean zero-progress baseline)
     const existingVocab = localStorage.getItem(STORAGE_KEYS.VOCABULARY);
-    if (!existingVocab || existingVocab.includes('student-default')) {
+    if (
+      !existingVocab || 
+      existingVocab.includes('student-default') || 
+      existingVocab.includes('"status":"learning"') || 
+      existingVocab.includes('"status":"review"') || 
+      existingVocab.includes('"timesCorrect":1') || 
+      existingVocab.includes('"timesCorrect":2')
+    ) {
       const vocabMap: Record<string, VocabularyWord[]> = {
         'student-dhie': INITIAL_VOCABULARY,
         'student-mhie': INITIAL_VOCABULARY

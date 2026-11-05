@@ -48,8 +48,9 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
   const mhieCompletionRate = Math.min(100, Math.round((mhieCompletedLessons.length / (mhieCourse?.totalLessons || 12)) * 100));
 
   // Collaborative metrics
+  const isWordLearned = (w: any) => w.status === 'mastered' || (w.status !== 'new' && w.timesCorrect > 0);
   const combinedLessonsCompleted = dhieCompletedLessons.length + mhieCompletedLessons.length;
-  const combinedVocabLearned = dhieVocabulary.filter(w => w.status !== 'new').length + mhieVocabulary.filter(w => w.status !== 'new').length;
+  const combinedVocabLearned = dhieVocabulary.filter(isWordLearned).length + mhieVocabulary.filter(isWordLearned).length;
   const combinedSubmissions = dhieSubmissions.length + mhieSubmissions.length;
   const combinedStudyHours = (
     dhieCompletedLessons.length * 1.0 +
@@ -245,7 +246,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
                   <div className="flex items-center justify-between p-2 rounded-lg bg-stone-50/70 border border-stone-100">
                     <span className="text-stone-600">Vocabulary Mastered (SRS)</span>
                     <span className="font-mono font-bold text-academy-navy">
-                      {student.vocabulary.filter(w => w.status !== 'new').length} words
+                      {student.vocabulary.filter(isWordLearned).length} words
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-lg bg-stone-50/70 border border-stone-100">

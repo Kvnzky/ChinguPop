@@ -48,14 +48,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const completionPercent = Math.min(100, Math.round((completedInCourse / totalLessonsInCourse) * 100));
 
   // Compute 9 authentic competencies based strictly on actual completed activity
-  const vocabLearnedCount = vocabulary.filter(w => w.status !== 'new').length;
+  const vocabLearnedCount = vocabulary.filter(w => w.status === 'mastered' || (w.status !== 'new' && w.timesCorrect > 0)).length;
   const isVowelsDone = completedLessons.includes('lesson-pre-a1-1');
 
   const competencies = {
     hangulReading: Math.min(100, completedInCourse * 15),
     hangulWriting: Math.min(100, submissions.length * 25),
     grammar: Math.min(100, completedInCourse * 12),
-    vocabulary: Math.min(100, vocabLearnedCount * 8),
+    vocabulary: Math.min(100, Math.round((vocabLearnedCount / 20) * 100)),
     listening: Math.min(100, completedInCourse * 14),
     speaking: Math.min(100, completedInCourse * 10),
     readingComprehension: Math.min(100, completedInCourse * 11),
