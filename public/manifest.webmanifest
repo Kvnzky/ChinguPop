@@ -1,0 +1,17 @@
+{
+  "name": "Hangul Academy - Korean Language LMS",
+  "short_name": "Hangul Academy",
+  "description": "Structured University-Style Korean Language Academy and AI Tutor",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1B3D",
+  "theme_color": "#0B1B3D",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
