@@ -42,6 +42,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const assignments = storage.getAssignments();
   const attendanceDates = storage.getAttendance(currentUser.id);
   const currentCourse = courses.find(c => c.id === currentUser.currentCourseId) || courses[0];
+  const nextLesson = currentCourse?.units[0]?.lessons.find(l => !completedLessons.includes(l.id)) || currentCourse?.units[0]?.lessons[0];
 
   const totalLessonsInCourse = currentCourse?.totalLessons || 12;
   const completedInCourse = completedLessons.length;
@@ -126,7 +127,199 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   return (
     <div className="space-y-6">
       
-      {/* Welcome Banner */}
+      {/* 📱 1. DEDICATED MOBILE DASHBOARD VIEW (< 768px) */}
+      <div className="md:hidden space-y-4">
+        {/* A. Compact Welcome Header */}
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-white border border-purple-200/80 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] text-white font-extrabold text-base flex items-center justify-center shadow-sm shrink-0">
+              {currentUser.name.charAt(0)}
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-base font-bold text-[#2C1E6D]">
+                  안녕하세요, {currentUser.name}!
+                </h1>
+                <span className="text-xs">👋</span>
+              </div>
+              <p className="text-[11px] text-stone-600 font-medium">
+                {currentUser.proficiency} • <span className="font-mono text-purple-700 font-bold">{currentUser.studentId}</span>
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onNavigate('records')}
+            className="px-2.5 py-1.5 rounded-xl bg-purple-50 text-[#6C52EE] border border-purple-200 text-xs font-bold"
+            title="View Academic Standing"
+          >
+            {completedInCourse > 0 || submissions.length > 0 ? `Grade ${currentUser.currentAcademicGrade}` : 'Enrolled'}
+          </button>
+        </div>
+
+        {/* B. Primary "Continue Learning" Card (Most Prominent Feature on Mobile) */}
+        <div className="bg-gradient-to-br from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-5 shadow-lg border border-purple-400/30 relative overflow-hidden space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono tracking-wider uppercase font-bold text-[#55C8F5] bg-white/10 px-2 py-0.5 rounded border border-cyan-400/30">
+              Continue Learning
+            </span>
+            <span className="text-[11px] text-purple-200 font-mono font-medium">
+              ~20 min session
+            </span>
+          </div>
+
+          <div>
+            <span className="text-xs text-purple-200 font-medium block">
+              {currentCourse?.title}
+            </span>
+            <h2 className="text-lg font-bold text-white tracking-tight mt-0.5">
+              {nextLesson?.title || 'Lesson 1: Basic Vowels (기본 모음)'}
+            </h2>
+          </div>
+
+          {/* Compact Course Progress Bar */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs text-purple-200 font-medium">
+              <span>Course Progress</span>
+              <span className="font-mono text-white font-bold">{completionPercent}%</span>
+            </div>
+            <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-[#FF5CA8] to-[#44C5F5] rounded-full transition-all"
+                style={{ width: `${completionPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Big Touch-Friendly Button (Min 48px height) */}
+          <button
+            type="button"
+            onClick={() => onNavigate('classroom')}
+            className="w-full h-12 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-98 flex items-center justify-center gap-2"
+          >
+            <span>{completedInCourse === 0 ? 'Start Lesson 1: Basic Vowels' : 'Resume Korean Lesson'}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* C. Daily Learning Progress (Compact Metrics Grid) */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="p-3 rounded-xl bg-white border border-stone-200 shadow-2xs text-center space-y-0.5">
+            <span className="text-[10px] text-stone-600 font-bold uppercase tracking-wider block">Streak / Days</span>
+            <div className="text-sm font-bold text-[#6C52EE] font-mono flex items-center justify-center gap-1">
+              <span>🔥</span>
+              <span>{activeDaysThisWeek} / 7d</span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-white border border-stone-200 shadow-2xs text-center space-y-0.5">
+            <span className="text-[10px] text-stone-600 font-bold uppercase tracking-wider block">Study Time</span>
+            <div className="text-sm font-bold text-[#2C1E6D] font-mono">
+              {weeklyStudyHours}h
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-white border border-stone-200 shadow-2xs text-center space-y-0.5">
+            <span className="text-[10px] text-stone-600 font-bold uppercase tracking-wider block">Mastered</span>
+            <div className="text-sm font-bold text-emerald-600 font-mono">
+              {completedInCourse}/{totalLessonsInCourse}
+            </div>
+          </div>
+        </div>
+
+        {/* D. Quick Learning Access Grid (6 large touch items) */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold text-[#2C1E6D] uppercase tracking-wider px-1">
+            Learning Activities
+          </h3>
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { key: 'classroom', label: 'Classroom', desc: 'Interactive lessons', icon: GraduationCap, color: 'text-[#6C52EE]', bg: 'bg-purple-50' },
+              { key: 'hangul-lab', label: 'Hangul Lab', desc: 'Alphabet & writing', icon: Grid, color: 'text-[#FF5CA8]', bg: 'bg-pink-50' },
+              { key: 'ai-tutor', label: 'AI Teacher', desc: 'Chat & tutoring', icon: Bot, color: 'text-[#44C5F5]', bg: 'bg-cyan-50' },
+              { key: 'vocabulary', label: 'Vocabulary', desc: `${vocabLearnedCount} words (SRS)`, icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50' },
+              { key: 'speaking-lab', label: 'Speaking Lab', desc: 'Mic & shadowing', icon: Mic, color: 'text-rose-500', bg: 'bg-rose-50' },
+              { key: 'assignments', label: 'Assignments', desc: `${pendingAssignments.length} pending`, icon: FileCheck, color: 'text-emerald-500', bg: 'bg-emerald-50' }
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => onNavigate(item.key as any)}
+                  className="p-3 rounded-xl bg-white border border-stone-200 hover:border-[#6C52EE] active:scale-95 transition-all text-left flex items-center gap-3 min-h-[56px] shadow-2xs"
+                >
+                  <div className={`p-2 rounded-lg ${item.bg} ${item.color} shrink-0`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-[#2C1E6D] truncate">
+                      {item.label}
+                    </div>
+                    <div className="text-[10px] text-stone-600 truncate">
+                      {item.desc}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* E. Recommended Next Learning Card */}
+        {recommendations.length > 0 && (
+          <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-200 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6C52EE] flex items-center gap-1">
+                <Lightbulb className="w-3.5 h-3.5" />
+                Recommended for You
+              </span>
+              <span className="text-[10px] font-mono text-purple-700 bg-white px-2 py-0.5 rounded font-bold">
+                {recommendations[0].type.toUpperCase()}
+              </span>
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-[#2C1E6D]">
+                {recommendations[0].title}
+              </h4>
+              <p className="text-[11px] text-stone-600 mt-0.5 leading-snug">
+                {recommendations[0].description}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate(recommendations[0].targetTab)}
+              className="w-full py-2.5 rounded-lg bg-white border border-[#6C52EE]/40 text-[#6C52EE] hover:bg-[#6C52EE] hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-2xs"
+            >
+              <span>{recommendations[0].actionLabel}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
+        {/* F. 9 Competency Radar on Mobile */}
+        <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+            <h3 className="font-bold text-xs text-[#2C1E6D] flex items-center gap-1.5">
+              <GraduationCap className="w-4 h-4 text-[#6C52EE]" />
+              <span>9 Competency Radar</span>
+            </h3>
+            <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
+              Verified
+            </span>
+          </div>
+          <div className="space-y-2.5">
+            <ProgressBar label="Hangul Reading" subLabel={`${competencies.hangulReading}%`} value={competencies.hangulReading} color="purple" height="h-2" />
+            <ProgressBar label="Hangul Writing" subLabel={`${competencies.hangulWriting}%`} value={competencies.hangulWriting} color="pink" height="h-2" />
+            <ProgressBar label="Grammar" subLabel={`${competencies.grammar}%`} value={competencies.grammar} color="purple" height="h-2" />
+            <ProgressBar label="Vocabulary" subLabel={`${competencies.vocabulary}%`} value={competencies.vocabulary} color="blue" height="h-2" />
+            <ProgressBar label="Pronunciation" subLabel={`${competencies.pronunciationAccuracy}%`} value={competencies.pronunciationAccuracy} color="pink" height="h-2" />
+          </div>
+        </div>
+      </div>
+
+      {/* 💻 2. DESKTOP & TABLET CLASSROOM VIEW (Visible on screens >= 768px) */}
+      <div className="hidden md:block space-y-6">
       <div className="bg-gradient-to-br from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-purple-400/20">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
@@ -396,6 +589,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           </div>
         </div>
 
+      </div>
       </div>
 
     </div>
