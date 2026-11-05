@@ -111,22 +111,22 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
     <div className="bg-white rounded-2xl border border-stone-200 shadow-sm flex flex-col h-[calc(100vh-10rem)] max-h-[850px] overflow-hidden">
       
       {/* AI Tutor Chat Header */}
-      <div className="bg-academy-navy text-academy-ivory px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-academy-navy-light shrink-0">
+      <div className="bg-gradient-to-r from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-purple-400/20 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-academy-gold/20 border border-academy-gold/40 flex items-center justify-center text-academy-gold font-bold">
-            <Bot className="w-5 h-5 text-academy-gold" />
+          <div className="w-10 h-10 rounded-xl bg-white/10 border border-pink-400/40 flex items-center justify-center text-[#FF5CA8] font-bold shadow-inner">
+            <Bot className="w-5 h-5 text-[#FF5CA8]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="font-serif font-bold text-base text-academy-ivory">
+              <h2 className="font-serif font-bold text-base text-white">
                 Personal AI Korean Teacher
               </h2>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-academy-navy-light text-academy-gold border border-academy-gold/30">
-                Seoul Pedagogy Engine
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-[#55C8F5] border border-cyan-400/30 font-bold">
+                ChinguPop AI Pedagogy
               </span>
             </div>
-            <p className="text-xs text-stone-300">
-              Interactive Tutoring • Immersion: <span className="capitalize text-academy-gold">{currentUser.immersionStage}</span>
+            <p className="text-xs text-purple-200">
+              Interactive Tutoring • Immersion: <span className="capitalize text-[#FF5CA8] font-semibold">{currentUser.immersionStage}</span>
             </p>
           </div>
         </div>
@@ -136,10 +136,10 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
           <select
             value={currentMode}
             onChange={(e) => setCurrentMode(e.target.value as AIMode)}
-            className="text-xs bg-academy-navy-light text-academy-ivory border border-academy-gold/40 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-academy-gold cursor-pointer"
+            className="text-xs bg-[#2C1E6D] text-white border border-purple-400/40 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#FF5CA8] cursor-pointer"
           >
             {AI_MODES.map((mode) => (
-              <option key={mode} value={mode} className="bg-academy-navy text-white">
+              <option key={mode} value={mode} className="bg-[#2C1E6D] text-white">
                 Mode: {mode}
               </option>
             ))}
@@ -149,7 +149,7 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
             type="button"
             onClick={handleResetConversation}
             title="Reset conversation"
-            className="p-1.5 rounded-lg bg-academy-navy-light text-stone-300 hover:text-white border border-stone-700 hover:bg-stone-800 transition-colors"
+            className="p-1.5 rounded-lg bg-white/10 text-purple-200 hover:text-white border border-purple-400/30 hover:bg-white/20 transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -166,7 +166,7 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
               className={`flex items-start gap-3 ${isTutor ? 'justify-start' : 'justify-end'}`}
             >
               {isTutor && (
-                <div className="w-8 h-8 rounded-full bg-academy-navy text-academy-gold flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6C52EE] to-[#8E77F7] text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-sm">
                   한
                 </div>
               )}
@@ -174,13 +174,15 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
               <div
                 className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-xs leading-relaxed shadow-sm ${
                   isTutor
-                    ? 'bg-white text-academy-charcoal border border-stone-200'
-                    : 'bg-academy-navy text-academy-ivory'
+                    ? 'bg-white text-stone-800 border border-purple-100 shadow-sm'
+                    : 'bg-gradient-to-r from-[#6C52EE] to-[#7955E8] text-white shadow-md'
                 }`}
               >
                 {/* Message Header */}
-                <div className="flex items-center justify-between text-[10px] text-stone-400 mb-1.5 pb-1 border-b border-stone-100">
-                  <span className="font-semibold text-academy-gold-dark">
+                <div className={`flex items-center justify-between text-[10px] mb-1.5 pb-1 border-b ${
+                  isTutor ? 'text-stone-400 border-stone-100' : 'text-purple-200 border-purple-400/30'
+                }`}>
+                  <span className={`font-semibold ${isTutor ? 'text-[#6C52EE]' : 'text-[#FF5CA8]'}`}>
                     {isTutor ? 'Professor Kim (AI Tutor)' : currentUser.name}
                   </span>
                   <span>{msg.timestamp}</span>
@@ -275,7 +277,7 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
         <button
           type="submit"
           disabled={!inputText.trim() || isLoading}
-          className="px-4 py-3 rounded-xl bg-academy-navy hover:bg-academy-navy-light text-academy-ivory disabled:opacity-50 transition-colors flex items-center gap-1.5 text-xs font-semibold"
+          className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white disabled:opacity-50 transition-all shadow-md shadow-pink-500/20 active:scale-95 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
         >
           <span>Send</span>
           <Send className="w-3.5 h-3.5" />

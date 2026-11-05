@@ -78,22 +78,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="overflow-y-auto px-3 py-4 space-y-1">
         
         {/* Academic Role Badge */}
-        <div className="px-3 py-2 mb-2 bg-stone-100 rounded-lg border border-stone-200">
-          <p className="text-[10px] font-semibold text-academy-charcoal-muted uppercase tracking-wider">
+        <div className="px-3 py-2 mb-2 bg-purple-50/60 rounded-xl border border-purple-200/60">
+          <p className="text-[10px] font-semibold text-[#6C52EE] uppercase tracking-wider">
             Portal Access
           </p>
           <div className="flex items-center justify-between mt-0.5">
-            <span className="text-xs font-serif font-bold text-academy-navy capitalize">
+            <span className="text-xs font-bold text-[#2C1E6D] capitalize">
               {userRole} Portal
             </span>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white text-academy-gold-dark border border-stone-200">
-              Seoul Univ Standard
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white text-[#FF5CA8] font-bold border border-pink-200 shadow-xs">
+              ChinguPop Standard
             </span>
           </div>
         </div>
 
         {/* Primary Academic Sections */}
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 px-3 py-1">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-purple-900/60 px-3 py-1">
           Academic Curriculum
         </div>
 
@@ -105,24 +105,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
               key={item.key}
               type="button"
               onClick={() => onSelectTab(item.key)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 ${
                 isActive
-                  ? 'bg-academy-navy text-academy-ivory shadow-sm'
-                  : 'text-academy-charcoal hover:bg-stone-100/80 hover:text-academy-navy'
+                  ? 'bg-gradient-to-r from-[#6C52EE] to-[#7955E8] text-white shadow-md shadow-purple-500/20'
+                  : 'text-[#2C1E6D]/80 hover:bg-purple-50 hover:text-[#6C52EE]'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-academy-gold' : 'text-stone-500'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF5CA8]' : 'text-purple-400'}`} />
                 <span className="truncate">{item.label}</span>
               </div>
               
               <div className="flex items-center gap-1.5">
-                <span className={`text-[10px] font-korean hidden sm:inline ${isActive ? 'text-stone-300' : 'text-stone-500'}`}>
+                <span className={`text-[10px] font-korean hidden sm:inline ${isActive ? 'text-purple-200' : 'text-stone-400'}`}>
                   {item.korean}
                 </span>
                 {item.badge !== undefined && item.badge > 0 && (
                   <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                    isActive ? 'bg-academy-gold text-academy-navy' : 'bg-amber-100 text-amber-800'
+                    isActive ? 'bg-[#FF5CA8] text-white' : 'bg-pink-100 text-pink-700'
                   }`}>
                     {item.badge}
                   </span>
@@ -134,24 +134,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Direct Admin & Faculty Portal Link */}
         <div className="pt-3 mt-3 border-t border-stone-200 space-y-1">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 px-3 py-1 flex items-center justify-between">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-purple-900/60 px-3 py-1 flex items-center justify-between">
             <span>Administration</span>
-            <span className="text-[9px] font-mono bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded font-bold">Portal</span>
+            <span className="text-[9px] font-mono bg-purple-100 text-[#6C52EE] px-1.5 py-0.2 rounded font-bold">Portal</span>
           </div>
           <button
             type="button"
             onClick={() => onSelectTab('admin-portal')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
               currentTab === 'admin-portal'
-                ? 'bg-purple-950 text-white shadow-sm'
-                : 'text-stone-700 hover:bg-stone-100/80 hover:text-academy-navy'
+                ? 'bg-[#2C1E6D] text-white shadow-md ring-2 ring-purple-400/40'
+                : 'text-stone-700 hover:bg-purple-50 hover:text-[#6C52EE]'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <ShieldCheck className={`w-4 h-4 ${currentTab === 'admin-portal' ? 'text-academy-gold' : 'text-purple-700'}`} />
+              <ShieldCheck className={`w-4 h-4 ${currentTab === 'admin-portal' ? 'text-[#FF5CA8]' : 'text-[#6C52EE]'}`} />
               <span className="font-semibold">Admin Portal</span>
             </div>
-            <span className={`text-[10px] font-korean ${currentTab === 'admin-portal' ? 'text-purple-300' : 'text-stone-500'}`}>
+            <span className={`text-[10px] font-korean ${currentTab === 'admin-portal' ? 'text-purple-300' : 'text-stone-400'}`}>
               관리자 포털
             </span>
           </button>
@@ -160,13 +160,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer Info */}
-      <div className="p-3 border-t border-stone-200 bg-stone-50/80 text-[11px] text-stone-500">
+      <div className="p-3 border-t border-purple-100 bg-purple-50/40 text-[11px] text-stone-500">
         <div className="flex items-center justify-between">
-          <span className="font-bold text-academy-navy flex items-center">
-            <span className="text-[#7955E8]">Chingu</span>
+          <span className="font-bold text-[#2C1E6D] flex items-center">
+            <span className="text-[#6C52EE]">Chingu</span>
             <span className="text-[#FF5CA8]">Pop</span>
           </span>
-          <span className="font-mono text-[10px]">v1.0.0 PWA</span>
+          <span className="font-mono text-[10px] text-purple-400 font-semibold">v1.0.0 PWA</span>
         </div>
         <p className="text-[10px] mt-0.5 text-stone-500">Korean Language Learning Academy</p>
       </div>

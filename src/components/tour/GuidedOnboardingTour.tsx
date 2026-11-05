@@ -132,28 +132,28 @@ export const GuidedOnboardingTour: React.FC<GuidedOnboardingTourProps> = ({
       <div className="bg-white rounded-2xl shadow-2xl border border-academy-gold/40 max-w-xl w-full overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Top Header */}
-        <div className="bg-academy-navy text-academy-ivory p-6 relative">
+        <div className="bg-gradient-to-r from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white p-6 relative">
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-lg text-stone-300 hover:text-white hover:bg-academy-navy-light transition-colors"
+            className="absolute top-4 right-4 p-1.5 rounded-lg text-purple-200 hover:text-white hover:bg-white/10 transition-colors"
             aria-label="Close tour"
           >
             <X className="w-5 h-5" />
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-academy-navy-light border border-academy-gold/40 flex items-center justify-center text-academy-gold shadow-inner">
+            <div className="w-12 h-12 rounded-xl bg-white/10 border border-pink-400/40 flex items-center justify-center text-[#FF5CA8] shadow-inner">
               <StepIcon className="w-6 h-6" />
             </div>
             <div>
-              <div className="inline-block text-[10px] font-mono uppercase tracking-wider text-academy-gold bg-academy-navy-light px-2 py-0.5 rounded border border-academy-gold/30 mb-1">
+              <div className="inline-block text-[10px] font-mono uppercase tracking-wider text-[#55C8F5] bg-white/10 px-2 py-0.5 rounded border border-cyan-400/30 mb-1 font-bold">
                 {currentStep.badge}
               </div>
-              <h2 className="font-serif font-bold text-lg sm:text-xl text-academy-ivory leading-tight">
+              <h2 className="font-serif font-bold text-lg sm:text-xl text-white leading-tight">
                 {currentStep.title}
               </h2>
-              <p className="text-xs font-korean text-stone-300 mt-0.5">
+              <p className="text-xs font-korean text-purple-200 mt-0.5">
                 {currentStep.koreanTitle}
               </p>
             </div>
@@ -168,10 +168,10 @@ export const GuidedOnboardingTour: React.FC<GuidedOnboardingTourProps> = ({
                 onClick={() => setCurrentStepIndex(idx)}
                 className={`h-1.5 rounded-full transition-all ${
                   idx === currentStepIndex
-                    ? 'w-8 bg-academy-gold'
+                    ? 'w-8 bg-[#FF5CA8]'
                     : idx < currentStepIndex
-                    ? 'w-4 bg-academy-gold/60'
-                    : 'w-2 bg-stone-600'
+                    ? 'w-4 bg-[#6C52EE]'
+                    : 'w-2 bg-purple-400/40 hover:bg-purple-300'
                 }`}
                 aria-label={`Jump to step ${idx + 1}`}
               />
@@ -233,7 +233,7 @@ export const GuidedOnboardingTour: React.FC<GuidedOnboardingTourProps> = ({
               <button
                 type="button"
                 onClick={() => setCurrentStepIndex(prev => prev + 1)}
-                className="px-4 py-2 rounded-lg bg-academy-navy hover:bg-academy-navy-light text-academy-ivory font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md shadow-pink-500/25 active:scale-95"
               >
                 <span>Next Step</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -242,7 +242,7 @@ export const GuidedOnboardingTour: React.FC<GuidedOnboardingTourProps> = ({
               <button
                 type="button"
                 onClick={handleFinish}
-                className="px-5 py-2 rounded-lg bg-academy-gold hover:bg-academy-gold-light text-academy-navy font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-lg shadow-pink-500/30 active:scale-95"
               >
                 <span>Enter Academy</span>
                 <CheckCircle2 className="w-4 h-4" />

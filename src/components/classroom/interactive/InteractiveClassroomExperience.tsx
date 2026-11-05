@@ -183,7 +183,7 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
       </div>
 
       {/* 3. STEP-BY-STEP INTERACTIVE STUDIO NAVIGATION BAR */}
-      <div className="bg-academy-navy text-academy-ivory rounded-2xl p-2.5 shadow-md flex flex-wrap items-center gap-1.5 sm:gap-2 no-scrollbar scrollbar-none">
+      <div className="bg-gradient-to-r from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-2.5 shadow-md flex flex-wrap items-center gap-1.5 sm:gap-2 no-scrollbar scrollbar-none border border-purple-400/20">
         {[
           { key: 'vowels-studio', label: '1. Vowels & Pronunciation', icon: BookOpen },
           { key: 'listen-identify', label: '2. Listen & Identify', icon: Headphones },
@@ -201,8 +201,8 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
               onClick={() => setActiveStudioTab(tab.key as any)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 isActive
-                  ? 'bg-academy-gold text-academy-navy shadow-md ring-2 ring-academy-gold/40'
-                  : 'text-stone-300 hover:text-white hover:bg-academy-navy-light'
+                  ? 'bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] text-white shadow-md ring-2 ring-pink-400/40'
+                  : 'text-purple-200 hover:text-white hover:bg-white/10'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -248,7 +248,7 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
           <div className="rounded-2xl border-2 border-stone-200 bg-stone-50/70 p-5 sm:p-6 shadow-sm space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-14 h-14 rounded-2xl bg-academy-navy text-academy-gold font-serif font-black text-3xl flex items-center justify-center shadow-md border-2 border-academy-gold/40 shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#6C52EE] to-[#8E77F7] text-white font-serif font-black text-3xl flex items-center justify-center shadow-md border-2 border-purple-300/40 shrink-0">
                   {selectedCharItem.char}
                 </div>
                 <div className="min-w-0">
@@ -256,7 +256,7 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
                     <h4 className="font-serif font-bold text-lg text-academy-navy truncate">
                       Vowel Studio: {selectedCharItem.name}
                     </h4>
-                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-pink-50 text-pink-700 border border-pink-200 shrink-0">
                       [{selectedCharItem.romanization}]
                     </span>
                   </div>
@@ -276,8 +276,8 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
                     onClick={() => handleSelectChar(item)}
                     className={`w-8 h-8 rounded-lg font-serif font-bold text-sm transition-all border ${
                       selectedCharItem.char === item.char
-                        ? 'bg-academy-navy text-academy-gold border-academy-navy shadow-sm ring-1 ring-academy-gold'
-                        : 'bg-white hover:bg-stone-100 text-stone-700 border-stone-200'
+                        ? 'bg-[#6C52EE] text-white border-[#6C52EE] shadow-sm ring-2 ring-purple-400/40'
+                        : 'bg-white hover:bg-purple-50 text-stone-700 border-stone-200 hover:border-purple-300'
                     }`}
                     title={`Switch to ${item.char} (${item.name})`}
                   >

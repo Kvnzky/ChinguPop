@@ -53,7 +53,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-academy-navy text-academy-ivory border-b border-academy-navy-light shadow-md">
+    <header className="sticky top-0 z-30 bg-gradient-to-r from-[#2C1E6D] via-[#4F35C8] to-[#6C52EE] text-white border-b border-purple-300/20 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Left: Academy Brand */}
@@ -132,10 +132,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onOpenTour}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-academy-navy-light hover:bg-academy-navy-light/80 border border-academy-gold/40 text-academy-gold text-xs font-semibold transition-all shadow-sm active:scale-95"
-              title="Launch Guided Academy Walkthrough"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
+              title="Launch Guided ChinguPop Walkthrough"
             >
-              <GraduationCap className="w-3.5 h-3.5" />
+              <GraduationCap className="w-3.5 h-3.5 text-[#55C8F5]" />
               <span className="hidden sm:inline">Guided Tour</span>
             </button>
           )}
@@ -145,10 +145,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onOpenAdmin}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-950/70 hover:bg-purple-900 border border-purple-400/40 text-purple-200 text-xs font-semibold transition-all shadow-sm active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2C1E6D]/80 hover:bg-[#2C1E6D] border border-purple-400/40 text-purple-200 text-xs font-semibold transition-all shadow-sm active:scale-95"
               title="Open Academy Administrative & Faculty Portal"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#FF5CA8]" />
               <span className="hidden sm:inline">Admin Portal</span>
             </button>
           )}
@@ -158,23 +158,23 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2.5 bg-academy-navy-light hover:bg-academy-navy-light/80 border border-academy-gold/30 hover:border-academy-gold/60 py-1.5 px-3 rounded-lg text-left transition-colors"
+              className="flex items-center gap-2.5 bg-white/10 hover:bg-white/20 border border-white/20 py-1.5 px-3 rounded-xl text-left transition-colors"
             >
-              <div className="w-7 h-7 rounded-full bg-academy-gold text-academy-navy font-bold text-xs flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] text-white font-bold text-xs flex items-center justify-center shadow-sm">
                 {currentUser.name.charAt(0)}
               </div>
               <div className="hidden sm:block text-xs">
-                <div className="font-semibold text-academy-ivory flex items-center gap-1.5">
+                <div className="font-semibold text-white flex items-center gap-1.5">
                   <span>{currentUser.name}</span>
-                  <span className="text-[10px] uppercase font-mono px-1 bg-academy-navy rounded text-academy-gold">
+                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 bg-white/20 rounded text-[#55C8F5] font-bold">
                     Scholar
                   </span>
                 </div>
-                <div className="text-[10px] text-stone-300">
+                <div className="text-[10px] text-purple-200">
                   {currentUser.studentId}
                 </div>
               </div>
-              <ChevronDown className="w-3.5 h-3.5 text-stone-300 ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-purple-200 ml-1" />
             </button>
 
             {/* Switch User Dropdown */}

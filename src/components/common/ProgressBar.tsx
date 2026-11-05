@@ -4,7 +4,7 @@ interface ProgressBarProps {
   value: number; // 0 - 100
   label?: string;
   subLabel?: string;
-  color?: 'gold' | 'sage' | 'navy' | 'wine';
+  color?: 'gold' | 'sage' | 'navy' | 'wine' | 'purple' | 'pink' | 'blue';
   height?: string;
   className?: string;
 }
@@ -13,17 +13,20 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   value,
   label,
   subLabel,
-  color = 'gold',
+  color = 'purple',
   height = 'h-2.5',
   className = ''
 }) => {
   const clampedValue = Math.min(100, Math.max(0, value));
 
-  const barColors = {
-    gold: 'bg-academy-gold',
-    sage: 'bg-academy-sage',
-    navy: 'bg-academy-navy',
-    wine: 'bg-academy-wine'
+  const barColors: Record<string, string> = {
+    purple: 'bg-[#6C52EE]',
+    pink: 'bg-[#FF5CA8]',
+    blue: 'bg-[#44C5F5]',
+    gold: 'bg-[#FF5CA8]',
+    sage: 'bg-emerald-500',
+    navy: 'bg-[#6C52EE]',
+    wine: 'bg-[#FF5CA8]'
   };
 
   return (

@@ -127,24 +127,24 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
     <div className="space-y-6">
       
       {/* Welcome Banner */}
-      <div className="bg-academy-navy text-academy-ivory rounded-2xl p-6 sm:p-8 shadow-md relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-purple-400/20">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono tracking-widest text-[#8FE0FA] uppercase">
+              <span className="text-xs font-mono tracking-widest text-[#55C8F5] uppercase font-bold">
                 ChinguPop Dashboard • Student ID
               </span>
-              <span className="text-[10px] bg-academy-navy-light border border-academy-gold/40 text-academy-gold px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-white/10 border border-purple-300/40 text-purple-200 px-2 py-0.5 rounded font-mono">
                 {currentUser.studentId}
               </span>
             </div>
             
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-academy-ivory">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Welcome back, {currentUser.name}
             </h1>
             
-            <p className="text-xs sm:text-sm text-stone-300 max-w-xl leading-relaxed">
-              Enrolled in <strong className="text-academy-gold">{currentCourse?.title}</strong> ({currentUser.proficiency}, {currentUser.immersionStage} immersion). Daily commitment: {currentUser.dailyStudyMinutes} min/day, {currentUser.studyDaysPerWeek} days/week.
+            <p className="text-xs sm:text-sm text-purple-100/90 max-w-xl leading-relaxed">
+              Enrolled in <strong className="text-[#FF5CA8] font-semibold">{currentCourse?.title}</strong> ({currentUser.proficiency}, {currentUser.immersionStage} immersion). Daily commitment: {currentUser.dailyStudyMinutes} min/day, {currentUser.studyDaysPerWeek} days/week.
             </p>
           </div>
 
@@ -152,7 +152,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <button
               type="button"
               onClick={() => onNavigate('classroom')}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-academy-gold hover:bg-academy-gold-light text-academy-navy font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-pink-500/25 active:scale-95"
             >
               <span>{completedInCourse === 0 ? 'Start Lesson 1: Basic Vowels' : 'Resume Study Session'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -161,30 +161,30 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
         </div>
 
         {/* Academic Overview Quick Metrics */}
-        <div className="mt-8 pt-6 border-t border-academy-navy-light grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+        <div className="mt-8 pt-6 border-t border-purple-400/30 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
           <div className="space-y-1">
-            <span className="text-stone-400 block text-[11px]">Academic Standing</span>
-            <div className="text-xl font-serif font-bold text-academy-gold">
+            <span className="text-purple-200 block text-[11px]">Academic Standing</span>
+            <div className="text-xl font-bold text-[#FF5CA8]">
               {completedInCourse > 0 || submissions.length > 0
                 ? `Grade ${currentUser.currentAcademicGrade}`
                 : 'Enrolled (Not Started)'}
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-stone-400 block text-[11px]">Attendance Record</span>
-            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-emerald-400' : 'text-stone-400'}`}>
+            <span className="text-purple-200 block text-[11px]">Attendance Record</span>
+            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-emerald-400' : 'text-purple-300'}`}>
               {activeDaysThisWeek > 0 ? `${activeDaysThisWeek} Days Active` : '0 Days (Ready)'}
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-stone-400 block text-[11px]">Course Progress</span>
-            <div className="text-xl font-mono font-bold text-academy-ivory">
+            <span className="text-purple-200 block text-[11px]">Course Progress</span>
+            <div className="text-xl font-mono font-bold text-white">
               {completionPercent}% ({completedInCourse}/{totalLessonsInCourse} Lessons)
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-stone-400 block text-[11px]">Weekly Target</span>
-            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-amber-300' : 'text-stone-400'}`}>
+            <span className="text-purple-200 block text-[11px]">Weekly Target</span>
+            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-[#55C8F5]' : 'text-purple-300'}`}>
               {activeDaysThisWeek} / {currentUser.studyDaysPerWeek} Days Active
             </div>
           </div>
@@ -194,10 +194,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
       {/* Quick Launchpad Buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { key: 'hangul-lab', label: 'Hangul Lab', sub: 'Interactive Vowels & Consonants', icon: Grid, color: 'text-academy-gold-dark' },
-          { key: 'classroom', label: 'Virtual Classroom', sub: 'Structured Lectures & Audio', icon: GraduationCap, color: 'text-academy-navy' },
-          { key: 'ai-tutor', label: 'AI Korean Teacher', sub: 'Personalized Tutoring', icon: Bot, color: 'text-purple-700' },
-          { key: 'speaking-lab', label: 'Speaking Lab', sub: 'Microphone & Shadowing', icon: Mic, color: 'text-academy-wine' }
+          { key: 'hangul-lab', label: 'Hangul Lab', sub: 'Interactive Vowels & Consonants', icon: Grid, color: 'text-[#6C52EE]' },
+          { key: 'classroom', label: 'Virtual Classroom', sub: 'Structured Lectures & Audio', icon: GraduationCap, color: 'text-[#2C1E6D]' },
+          { key: 'ai-tutor', label: 'AI Korean Teacher', sub: 'Personalized Tutoring', icon: Bot, color: 'text-[#FF5CA8]' },
+          { key: 'speaking-lab', label: 'Speaking Lab', sub: 'Microphone & Shadowing', icon: Mic, color: 'text-[#44C5F5]' }
         ].map((item) => {
           const Icon = item.icon;
           return (
@@ -205,13 +205,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               key={item.key}
               type="button"
               onClick={() => onNavigate(item.key as any)}
-              className="p-4 rounded-xl border border-stone-200 bg-white hover:border-academy-gold hover:shadow-md transition-all text-left flex items-start gap-3 group"
+              className="p-4 rounded-xl border border-stone-200 bg-white hover:border-[#6C52EE]/60 hover:shadow-md transition-all text-left flex items-start gap-3 group"
             >
-              <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200 group-hover:bg-amber-50 group-hover:border-amber-200 transition-colors">
+              <div className="p-2.5 rounded-lg bg-purple-50/50 border border-purple-100 group-hover:bg-purple-100/50 group-hover:border-purple-200 transition-colors">
                 <Icon className={`w-5 h-5 ${item.color}`} />
               </div>
               <div>
-                <div className="text-xs font-serif font-bold text-academy-navy group-hover:text-academy-gold-dark transition-colors">
+                <div className="text-xs font-serif font-bold text-academy-navy group-hover:text-[#6C52EE] transition-colors">
                   {item.label}
                 </div>
                 <div className="text-[11px] text-stone-500 mt-0.5">
@@ -384,15 +384,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           </div>
 
           <div className="space-y-3 pt-1">
-            <ProgressBar label="Hangul Reading (한글 읽기)" subLabel={`${competencies.hangulReading}%`} value={competencies.hangulReading} color="navy" />
-            <ProgressBar label="Hangul Writing (한글 쓰기)" subLabel={`${competencies.hangulWriting}%`} value={competencies.hangulWriting} color="gold" />
-            <ProgressBar label="Grammar (문법)" subLabel={`${competencies.grammar}%`} value={competencies.grammar} color="navy" />
-            <ProgressBar label="Vocabulary (어휘)" subLabel={`${competencies.vocabulary}%`} value={competencies.vocabulary} color="sage" />
-            <ProgressBar label="Listening (듣기)" subLabel={`${competencies.listening}%`} value={competencies.listening} color="sage" />
-            <ProgressBar label="Speaking (말하기)" subLabel={`${competencies.speaking}%`} value={competencies.speaking} color="gold" />
-            <ProgressBar label="Reading Comprehension (독해)" subLabel={`${competencies.readingComprehension}%`} value={competencies.readingComprehension} color="navy" />
-            <ProgressBar label="Writing Composition (작문)" subLabel={`${competencies.writingComposition}%`} value={competencies.writingComposition} color="gold" />
-            <ProgressBar label="Pronunciation Accuracy (발음)" subLabel={`${competencies.pronunciationAccuracy}%`} value={competencies.pronunciationAccuracy} color="wine" />
+            <ProgressBar label="Hangul Reading (한글 읽기)" subLabel={`${competencies.hangulReading}%`} value={competencies.hangulReading} color="purple" />
+            <ProgressBar label="Hangul Writing (한글 쓰기)" subLabel={`${competencies.hangulWriting}%`} value={competencies.hangulWriting} color="pink" />
+            <ProgressBar label="Grammar (문법)" subLabel={`${competencies.grammar}%`} value={competencies.grammar} color="purple" />
+            <ProgressBar label="Vocabulary (어휘)" subLabel={`${competencies.vocabulary}%`} value={competencies.vocabulary} color="blue" />
+            <ProgressBar label="Listening (듣기)" subLabel={`${competencies.listening}%`} value={competencies.listening} color="blue" />
+            <ProgressBar label="Speaking (말하기)" subLabel={`${competencies.speaking}%`} value={competencies.speaking} color="pink" />
+            <ProgressBar label="Reading Comprehension (독해)" subLabel={`${competencies.readingComprehension}%`} value={competencies.readingComprehension} color="purple" />
+            <ProgressBar label="Writing Composition (작문)" subLabel={`${competencies.writingComposition}%`} value={competencies.writingComposition} color="pink" />
+            <ProgressBar label="Pronunciation Accuracy (발음)" subLabel={`${competencies.pronunciationAccuracy}%`} value={competencies.pronunciationAccuracy} color="purple" />
           </div>
         </div>
 

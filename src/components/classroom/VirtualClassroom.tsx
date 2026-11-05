@@ -42,17 +42,17 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
     <div className="space-y-6">
       
       {/* Classroom Header Banner */}
-      <div className="bg-academy-navy text-academy-ivory rounded-2xl p-6 sm:p-8 shadow-md relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-purple-400/20">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-purple-300">
-              <GraduationCap className="w-4 h-4 text-purple-300" />
-              <span>CHINGUPOP KOREAN LANGUAGE ACADEMY • VIRTUAL CLASSROOM</span>
+            <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-[#55C8F5]">
+              <GraduationCap className="w-4 h-4 text-[#55C8F5]" />
+              <span className="font-bold">CHINGUPOP KOREAN LANGUAGE ACADEMY • VIRTUAL CLASSROOM</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-academy-ivory">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               {currentLesson.title}
             </h1>
-            <p className="text-sm font-korean text-stone-300">
+            <p className="text-sm font-korean text-purple-200">
               {currentLesson.koreanTitle}
             </p>
           </div>
@@ -62,7 +62,7 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
               <button
                 type="button"
                 onClick={() => onCompleteLesson(currentLesson.id)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-academy-gold hover:bg-academy-gold-light text-academy-navy font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>Mark Lesson Complete</span>

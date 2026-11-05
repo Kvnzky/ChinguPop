@@ -87,48 +87,48 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
     <div className="space-y-6">
       
       {/* Top Banner */}
-      <div className="bg-academy-navy text-academy-ivory rounded-2xl p-6 sm:p-8 shadow-md relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-purple-400/20">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono tracking-widest text-academy-gold uppercase">
+              <span className="text-xs font-mono tracking-widest text-[#55C8F5] uppercase font-bold">
                 Private Academy Cohort
               </span>
-              <span className="text-[10px] bg-academy-navy-light border border-academy-gold/40 text-academy-gold px-2 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-white/10 border border-purple-300/40 text-purple-200 px-2 py-0.5 rounded font-mono font-bold">
                 Dhie & Mhie
               </span>
             </div>
             
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-academy-ivory">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Academy Progress & Cohort Overview
             </h1>
             
-            <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-purple-100/90 max-w-2xl leading-relaxed">
               A private, non-competitive academic dashboard displaying independent progress, course completion milestones, and shared learning objectives for both enrolled students.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-academy-navy-light border border-academy-gold/30 text-center">
-              <span className="block text-xl font-serif font-bold text-academy-gold">2</span>
-              <span className="text-[10px] text-stone-300 uppercase tracking-wider">Enrolled Scholars</span>
+            <div className="p-3 rounded-xl bg-white/10 border border-purple-300/30 text-center">
+              <span className="block text-2xl font-bold text-[#FF5CA8]">2</span>
+              <span className="text-[10px] text-purple-200 uppercase tracking-wider font-semibold">Enrolled Scholars</span>
             </div>
           </div>
         </div>
 
         {/* Combined Collaborative Metrics Bar */}
-        <div className="mt-8 pt-6 border-t border-academy-navy-light grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+        <div className="mt-8 pt-6 border-t border-purple-400/30 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
           <div className="space-y-1">
-            <span className="text-stone-400 block text-[11px] flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-academy-gold" />
+            <span className="text-purple-200 block text-[11px] flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#55C8F5]" />
               <span>Combined Study Hours</span>
             </span>
-            <div className="text-xl font-mono font-bold text-academy-gold">
+            <div className="text-xl font-mono font-bold text-[#55C8F5]">
               {combinedStudyHours} hrs
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-stone-400 block text-[11px] flex items-center gap-1.5">
+            <span className="text-purple-200 block text-[11px] flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
               <span>Lessons Mastered</span>
             </span>
@@ -137,20 +137,20 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-stone-400 block text-[11px] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span className="text-purple-200 block text-[11px] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#FF5CA8]" />
               <span>Vocabulary Mastered</span>
             </span>
-            <div className="text-xl font-mono font-bold text-amber-300">
+            <div className="text-xl font-mono font-bold text-[#FF5CA8]">
               {combinedVocabLearned} Terms
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-stone-400 block text-[11px] flex items-center gap-1.5">
-              <GraduationCap className="w-3.5 h-3.5 text-cyan-300" />
+            <span className="text-purple-200 block text-[11px] flex items-center gap-1.5">
+              <GraduationCap className="w-3.5 h-3.5 text-purple-300" />
               <span>Homework & Quizzes</span>
             </span>
-            <div className="text-xl font-mono font-bold text-cyan-300">
+            <div className="text-xl font-mono font-bold text-white">
               {combinedSubmissions} Submissions
             </div>
           </div>

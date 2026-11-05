@@ -104,11 +104,11 @@ export function App() {
               onClick={() => setMobileMenuOpen(false)}
             />
             <div className="relative z-10 w-72 bg-academy-ivory h-full shadow-2xl flex flex-col">
-              <div className="p-4 bg-academy-navy text-white flex items-center justify-between border-b border-purple-500/30">
+              <div className="p-4 bg-gradient-to-r from-[#2C1E6D] via-[#4F35C8] to-[#6C52EE] text-white flex items-center justify-between border-b border-purple-400/30">
                 <div className="flex items-center gap-2">
                   <img src="/chingupop-logo.jpg" alt="ChinguPop" className="h-7 w-auto rounded-lg bg-white p-0.5" />
                   <span className="font-bold text-sm">
-                    <span className="text-[#A78BFA]">Chingu</span><span className="text-[#FF5CA8]">Pop</span>
+                    <span className="text-[#8E77F7]">Chingu</span><span className="text-[#FF5CA8]">Pop</span>
                   </span>
                 </div>
                 <button
