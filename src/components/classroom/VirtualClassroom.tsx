@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { Lesson, UserProfile } from '../../types';
-import { AudioButton } from '../common/AudioButton';
 import { storage } from '../../services/storageService';
+import { InteractiveClassroomExperience } from './interactive/InteractiveClassroomExperience';
 import { 
   GraduationCap, 
-  BookOpen, 
+  Sparkles, 
   CheckCircle, 
-  HelpCircle, 
   Video, 
   Calendar, 
   MessageSquare, 
-  Save, 
-  ExternalLink 
+  Save 
 } from 'lucide-react';
 
 interface VirtualClassroomProps {
@@ -25,9 +23,7 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
   currentUser,
   onCompleteLesson
 }) => {
-  const [activeTab, setActiveTab] = useState<'lecture' | 'grammar-board' | 'exercises' | 'notes'>('lecture');
-  const [exerciseAnswers, setExerciseAnswers] = useState<Record<string, string>>({});
-  const [submittedExercises, setSubmittedExercises] = useState(false);
+  const [activeTab, setActiveTab] = useState<'interactive-classroom' | 'grammar-board' | 'notes'>('interactive-classroom');
   const [studentNotes, setStudentNotes] = useState<string>(() => {
     return localStorage.getItem(`ha_notes_${currentUser.id}_${currentLesson.id}`) || '';
   });
@@ -35,10 +31,6 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
 
   const completedLessons = storage.getCompletedLessons(currentUser.id);
   const isLessonCompleted = completedLessons.includes(currentLesson.id);
-
-  const handleAnswerSelect = (exerciseId: string, answer: string) => {
-    setExerciseAnswers(prev => ({ ...prev, [exerciseId]: answer }));
-  };
 
   const handleSaveNotes = () => {
     localStorage.setItem(`ha_notes_${currentUser.id}_${currentLesson.id}`, studentNotes);
@@ -84,7 +76,7 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
           </div>
         </div>
 
-        {/* Professor Scaffolding Information */}
+        {/* Professor Information & Attendance */}
         <div className="mt-6 pt-4 border-t border-academy-navy-light flex flex-wrap items-center justify-between gap-4 text-xs text-stone-300">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-academy-gold/20 border border-academy-gold/50 flex items-center justify-center font-bold text-academy-gold">
@@ -112,9 +104,8 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
       {/* Classroom Tab Navigation */}
       <div className="flex border-b border-stone-200 gap-6">
         {[
-          { key: 'lecture', label: 'Structured Lecture', icon: BookOpen },
+          { key: 'interactive-classroom', label: 'Interactive Pronunciation Classroom', icon: Sparkles },
           { key: 'grammar-board', label: 'Virtual Grammar Whiteboard', icon: GraduationCap },
-          { key: 'exercises', label: 'Interactive Practice Check', icon: HelpCircle },
           { key: 'notes', label: 'Student Notebook', icon: MessageSquare }
         ].map((tab) => {
           const Icon = tab.icon;
@@ -137,158 +128,18 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
         })}
       </div>
 
-      {/* Tab 1: Lecture Content */}
-      {activeTab === 'lecture' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Main Lecture Body */}
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* Objectives Card */}
-            <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
-              <h3 className="font-serif font-bold text-base text-academy-navy mb-3">
-                Learning Objectives (학습 목표)
-              </h3>
-              <ul className="space-y-2 text-xs text-stone-700">
-                {currentLesson.objectives.map((obj, i) => (
-                  <li key={i} className="flex items-start gap-2.5">
-                    <span className="w-5 h-5 rounded-full bg-amber-50 text-academy-gold-dark border border-amber-200 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
-                      {i + 1}
-                    </span>
-                    <span>{obj}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Academic Explanation */}
-            <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-4">
-              <h3 className="font-serif font-bold text-base text-academy-navy">
-                Detailed Academic Explanation
-              </h3>
-              <div className="prose prose-stone text-xs leading-relaxed text-stone-700 whitespace-pre-line font-sans">
-                {currentLesson.explanation}
-              </div>
-
-              {/* Filipino Notes Scaffolding */}
-              {currentUser.filipinoSupport && currentLesson.filipinoNotes && (
-                <div className="mt-4 p-4 rounded-lg bg-amber-50/70 border border-amber-200/90 text-xs text-amber-950">
-                  <div className="font-bold flex items-center gap-2 text-academy-navy mb-1">
-                    <span>🇵🇭 Filipino Linguistic Note & Cultural Comparison</span>
-                  </div>
-                  <p className="leading-relaxed">{currentLesson.filipinoNotes}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Dialogue & Examples */}
-            <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-4">
-              <h3 className="font-serif font-bold text-base text-academy-navy">
-                Korean Examples in Context (예문과 발음)
-              </h3>
-              <div className="space-y-3">
-                {currentLesson.koreanExamples.map((ex, idx) => (
-                  <div key={idx} className="p-4 rounded-lg border border-stone-200 bg-stone-50/50 flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-serif font-bold text-academy-navy">
-                          {ex.korean}
-                        </span>
-                        {ex.pronunciation && (
-                          <span className="text-xs font-mono text-academy-gold-dark">
-                            [{ex.pronunciation}]
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-stone-700 font-medium">{ex.english}</div>
-                      {currentUser.filipinoSupport && ex.filipino && (
-                        <div className="text-[11px] text-amber-800 italic">🇵🇭 {ex.filipino}</div>
-                      )}
-                      {ex.explanation && (
-                        <div className="text-[11px] text-stone-500 mt-1">{ex.explanation}</div>
-                      )}
-                    </div>
-                    <AudioButton text={ex.korean} size="md" showRateToggle />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Lesson Summary */}
-            <div className="bg-stone-50 rounded-xl border border-stone-200 p-5 text-xs text-stone-700">
-              <div className="font-bold text-academy-navy uppercase tracking-wider mb-1">
-                Lesson Summary & Takeaway
-              </div>
-              <p>{currentLesson.summary}</p>
-            </div>
-
-          </div>
-
-          {/* Right Sidebar: Vocabulary Drawer & Grammar Highlights */}
-          <div className="space-y-6">
-            
-            {/* Vocabulary Card */}
-            <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-                <h4 className="font-serif font-bold text-sm text-academy-navy">
-                  Key Vocabulary (어휘 목록)
-                </h4>
-                <span className="text-xs font-mono text-stone-500">
-                  {currentLesson.vocabularyList.length} items
-                </span>
-              </div>
-
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                {currentLesson.vocabularyList.map((item, idx) => (
-                  <div key={idx} className="p-3 rounded-lg border border-stone-100 bg-stone-50/70 hover:bg-amber-50/20 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <span className="font-serif font-bold text-base text-academy-navy">
-                        {item.korean}
-                      </span>
-                      <AudioButton text={item.korean} size="sm" />
-                    </div>
-                    <div className="text-xs font-medium text-stone-700 mt-0.5">
-                      {item.english}
-                    </div>
-                    {currentUser.filipinoSupport && item.filipino && (
-                      <div className="text-[11px] text-amber-800">
-                        🇵🇭 {item.filipino}
-                      </div>
-                    )}
-                    <div className="text-[10px] text-stone-500 font-mono mt-1">
-                      {item.romanization} • {item.partOfSpeech}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Grammar Notes */}
-            <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm space-y-3">
-              <h4 className="font-serif font-bold text-sm text-academy-navy pb-2 border-b border-stone-200">
-                Grammar Blueprint
-              </h4>
-              {currentLesson.grammarNotes.map((g, idx) => (
-                <div key={idx} className="space-y-1.5 text-xs">
-                  <div className="font-bold text-academy-gold-dark font-mono">{g.pattern}</div>
-                  <div className="text-stone-700">{g.meaning}</div>
-                  <ul className="list-disc list-inside text-[11px] text-stone-600 space-y-1">
-                    {g.rules.map((r, rIdx) => (
-                      <li key={rIdx}>{r}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-          </div>
-
-        </div>
+      {/* Tab 1: The Modern Interactive Classroom (12 Integrated Activities) */}
+      {activeTab === 'interactive-classroom' && (
+        <InteractiveClassroomExperience
+          currentLesson={currentLesson}
+          currentUser={currentUser}
+          onLessonMastered={onCompleteLesson}
+        />
       )}
 
       {/* Tab 2: Virtual Grammar Whiteboard */}
       {activeTab === 'grammar-board' && (
-        <div className="bg-slate-900 text-slate-100 rounded-2xl p-8 border-4 border-stone-700 shadow-2xl relative overflow-hidden font-mono">
+        <div className="bg-slate-900 text-slate-100 rounded-2xl p-8 border-4 border-stone-700 shadow-2xl relative overflow-hidden font-mono space-y-6">
           <div className="flex items-center justify-between pb-6 border-b border-slate-700">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
@@ -299,7 +150,7 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
             <span className="text-xs text-slate-400">Department of Korean Linguistics</span>
           </div>
 
-          <div className="mt-8 space-y-8">
+          <div className="space-y-6">
             {currentLesson.grammarNotes.map((note, idx) => (
               <div key={idx} className="space-y-4 bg-slate-800/80 p-6 rounded-xl border border-slate-700">
                 <div className="flex items-center justify-between">
@@ -341,86 +192,7 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
         </div>
       )}
 
-      {/* Tab 3: Interactive Practice Check */}
-      {activeTab === 'exercises' && (
-        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-stone-200">
-            <div>
-              <h3 className="font-serif font-bold text-base text-academy-navy">
-                Lesson Knowledge Check & Exercises
-              </h3>
-              <p className="text-xs text-stone-600">
-                Test your mastery before progressing to the subsequent curriculum unit.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            {currentLesson.interactiveExercises.map((ex, idx) => {
-              const selected = exerciseAnswers[ex.id];
-              const isCorrect = selected === ex.correctAnswer;
-              return (
-                <div key={ex.id} className="p-5 rounded-xl border border-stone-200 bg-stone-50/50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold text-academy-gold-dark">
-                      QUESTION {idx + 1}
-                    </span>
-                    {submittedExercises && (
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                        {isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="text-sm font-semibold text-academy-navy">{ex.question}</p>
-                  {ex.koreanPrompt && (
-                    <div className="text-base font-serif font-bold text-academy-navy bg-white p-3 rounded border border-stone-200 inline-block">
-                      {ex.koreanPrompt}
-                    </div>
-                  )}
-
-                  {ex.options && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                      {ex.options.map((opt) => (
-                        <button
-                          key={opt}
-                          type="button"
-                          onClick={() => handleAnswerSelect(ex.id, opt)}
-                          className={`p-3 text-xs text-left rounded-lg border transition-all ${
-                            selected === opt
-                              ? 'bg-academy-navy text-academy-ivory border-academy-navy font-semibold shadow-sm'
-                              : 'bg-white hover:bg-stone-100 text-academy-charcoal border-stone-200'
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {submittedExercises && (
-                    <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-xs text-amber-950 mt-2">
-                      <span className="font-bold">Explanation:</span> {ex.explanation}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="pt-4 border-t border-stone-200 flex justify-end">
-            <button
-              type="button"
-              onClick={() => setSubmittedExercises(true)}
-              className="px-5 py-2.5 rounded-lg bg-academy-navy hover:bg-academy-navy-light text-academy-ivory font-bold text-xs uppercase tracking-wider transition-all"
-            >
-              Verify Answers & Show Explanations
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 4: Student Notebook */}
+      {/* Tab 3: Student Notebook */}
       {activeTab === 'notes' && (
         <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-stone-200">
