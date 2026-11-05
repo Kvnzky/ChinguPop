@@ -61,11 +61,11 @@ export const HangulCharacterCard: React.FC<HangulCharacterCardProps> = ({
           <span className="text-xs font-mono font-bold text-[#6C52EE] px-2 py-0.5 rounded bg-purple-50 border border-purple-200 shrink-0">
             {item.romanization}
           </span>
-          <span className="text-sm font-korean font-semibold text-stone-600 truncate">
+          <span className="text-sm font-korean font-bold text-stone-800 truncate">
             {item.name}
           </span>
           <Volume2 
-            className={`w-3.5 h-3.5 text-stone-400 group-hover:text-[#6C52EE] transition-colors shrink-0 ${
+            className={`w-3.5 h-3.5 text-stone-500 group-hover:text-[#6C52EE] transition-colors shrink-0 ${
               isPlaying ? 'text-[#FF5CA8] animate-pulse' : ''
             }`} 
           />
@@ -77,14 +77,14 @@ export const HangulCharacterCard: React.FC<HangulCharacterCardProps> = ({
             e.stopPropagation();
             onToggleComplete();
           }}
-          className="p-1 rounded-full text-stone-300 hover:text-emerald-600 transition-colors shrink-0"
+          className="p-1 rounded-full text-stone-400 hover:text-emerald-600 transition-colors shrink-0"
           title={isCompleted ? 'Marked mastered' : 'Click to mark mastered'}
           aria-label={isCompleted ? 'Marked mastered' : 'Click to mark mastered'}
         >
           {isCompleted ? (
             <CheckCircle2 className="w-5 h-5 text-emerald-600 fill-emerald-100" />
           ) : (
-            <Circle className="w-5 h-5 text-stone-300 hover:text-stone-400" />
+            <Circle className="w-5 h-5 text-stone-400 hover:text-stone-600" />
           )}
         </button>
       </div>
@@ -98,12 +98,12 @@ export const HangulCharacterCard: React.FC<HangulCharacterCardProps> = ({
 
       {/* Sound & Mouth Articulation Guidance (Clean, no buttons, no horizontal divider line) */}
       <div className="space-y-1.5 text-xs min-w-0">
-        <div className="text-[11px] sm:text-xs text-stone-700 leading-snug line-clamp-2">
+        <div className="text-[11px] sm:text-xs text-stone-800 font-medium leading-snug line-clamp-2">
           <span className="font-bold text-[#2C1E6D]">Sound: </span>
           <span>{item.approxEnglish}</span>
         </div>
-        <div className="text-[10px] sm:text-[11px] text-stone-500 leading-tight line-clamp-2">
-          <span className="font-semibold text-stone-600">Mouth: </span>
+        <div className="text-[11px] text-stone-700 leading-tight line-clamp-2 font-medium">
+          <span className="font-bold text-[#2C1E6D]">Mouth: </span>
           <span>{item.mouthSummary}</span>
         </div>
       </div>

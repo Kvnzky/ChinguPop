@@ -579,10 +579,10 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
             <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             <span>Lesson Mastery Summary</span>
           </div>
-          <p className="text-xs text-stone-700 leading-relaxed">
+          <p className="text-xs text-stone-800 leading-relaxed font-medium">
             {currentLesson.summary}
           </p>
-          <div className="pt-2 text-xs text-stone-500 font-mono">
+          <div className="pt-2 text-xs text-stone-700 font-mono font-semibold">
             Next Milestone: Compound & Diphthong Vowels (ㅐ, ㅔ, ㅘ, ㅝ, ㅢ).
           </div>
         </div>
@@ -593,11 +593,11 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
             <Sparkles className="w-5 h-5 text-academy-gold-dark" />
             <span>Homework & Academic Drill</span>
           </div>
-          <p className="text-xs text-stone-700 leading-relaxed bg-amber-50/60 p-3 rounded-xl border border-amber-200">
+          <p className="text-xs text-stone-800 leading-relaxed font-medium bg-amber-50 p-3 rounded-xl border border-amber-200">
             {currentLesson.homeworkPrompt || 'Practice writing all 10 basic vowels 5 times each in stroke order, and record yourself pronouncing 우유 (milk) and 아이 (child).'}
           </p>
-          <div className="text-[11px] text-stone-500">
-            Submit your written homework in the <strong>Assignments Portal directly below</strong> for instant AI vision evaluation and academic credit.
+          <div className="text-xs text-stone-700 font-medium leading-normal">
+            Submit your written homework in the <strong className="text-[#6C52EE]">Assignments Portal directly below</strong> for instant AI vision evaluation and academic credit.
           </div>
         </div>
 

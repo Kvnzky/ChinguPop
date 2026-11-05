@@ -350,27 +350,27 @@ export const LessonAssignmentPortal: React.FC<LessonAssignmentPortalProps> = ({
                       ChinguPop AI Calligraphy Examiner Report
                     </span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-academy-navy px-2.5 py-1 rounded bg-academy-gold text-academy-navy">
+                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-[#FF5CA8] text-white shadow-xs">
                     Score: {currentSubmission.aiVisionEvaluation.overallScore}/100
                   </span>
                 </div>
 
                 {/* Rubric Breakdown */}
                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="p-2.5 rounded-lg bg-white border border-stone-200">
-                    <span className="text-[10px] text-stone-500 block">Stroke Accuracy</span>
+                  <div className="p-2.5 rounded-lg bg-white border border-stone-200 shadow-2xs">
+                    <span className="text-[10px] text-stone-700 font-bold uppercase tracking-wider block">Stroke Accuracy</span>
                     <span className="font-mono font-bold text-emerald-700 text-sm">
                       {currentSubmission.aiVisionEvaluation.strokeAccuracyScore}%
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-white border border-stone-200">
-                    <span className="text-[10px] text-stone-500 block">ㅇ Symmetry</span>
+                  <div className="p-2.5 rounded-lg bg-white border border-stone-200 shadow-2xs">
+                    <span className="text-[10px] text-stone-700 font-bold uppercase tracking-wider block">ㅇ Symmetry</span>
                     <span className="font-mono font-bold text-emerald-700 text-sm">
                       {currentSubmission.aiVisionEvaluation.symmetryScore}%
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-white border border-stone-200">
-                    <span className="text-[10px] text-stone-500 block">Vowel Alignment</span>
+                  <div className="p-2.5 rounded-lg bg-white border border-stone-200 shadow-2xs">
+                    <span className="text-[10px] text-stone-700 font-bold uppercase tracking-wider block">Vowel Alignment</span>
                     <span className="font-mono font-bold text-emerald-700 text-sm">
                       {currentSubmission.aiVisionEvaluation.alignmentScore}%
                     </span>

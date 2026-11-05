@@ -163,7 +163,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
         {/* Academic Overview Quick Metrics */}
         <div className="mt-8 pt-6 border-t border-purple-400/30 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
           <div className="space-y-1">
-            <span className="text-purple-200 block text-[11px]">Academic Standing</span>
+            <span className="text-purple-100 font-medium block text-xs">Academic Standing</span>
             <div className="text-xl font-bold text-[#FF5CA8]">
               {completedInCourse > 0 || submissions.length > 0
                 ? `Grade ${currentUser.currentAcademicGrade}`
@@ -171,20 +171,20 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-purple-200 block text-[11px]">Attendance Record</span>
-            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-emerald-400' : 'text-purple-300'}`}>
+            <span className="text-purple-100 font-medium block text-xs">Attendance Record</span>
+            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-emerald-400' : 'text-purple-200'}`}>
               {activeDaysThisWeek > 0 ? `${activeDaysThisWeek} Days Active` : '0 Days (Ready)'}
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-purple-200 block text-[11px]">Course Progress</span>
+            <span className="text-purple-100 font-medium block text-xs">Course Progress</span>
             <div className="text-xl font-mono font-bold text-white">
               {completionPercent}% ({completedInCourse}/{totalLessonsInCourse} Lessons)
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-purple-200 block text-[11px]">Weekly Target</span>
-            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-[#55C8F5]' : 'text-purple-300'}`}>
+            <span className="text-purple-100 font-medium block text-xs">Weekly Target</span>
+            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-[#55C8F5]' : 'text-purple-200'}`}>
               {activeDaysThisWeek} / {currentUser.studyDaysPerWeek} Days Active
             </div>
           </div>
@@ -214,7 +214,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 <div className="text-xs font-serif font-bold text-academy-navy group-hover:text-[#6C52EE] transition-colors">
                   {item.label}
                 </div>
-                <div className="text-[11px] text-stone-500 mt-0.5">
+                <div className="text-[11px] text-stone-600 font-medium mt-0.5">
                   {item.sub}
                 </div>
               </div>
@@ -296,28 +296,28 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
           {/* Key Stat Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
-              <span className="text-stone-500 block text-[11px]">Total Study Time</span>
-              <span className="text-base font-serif font-bold text-academy-navy">{weeklyStudyHours} hrs</span>
-              <span className="text-[10px] text-stone-500 block mt-0.5">Target: {weeklyTargetHours} hrs</span>
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
+              <span className="text-stone-700 font-semibold block text-[11px]">Total Study Time</span>
+              <span className="text-base font-serif font-bold text-[#2C1E6D]">{weeklyStudyHours} hrs</span>
+              <span className="text-[11px] text-stone-600 font-medium block mt-0.5">Target: {weeklyTargetHours} hrs</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
-              <span className="text-stone-500 block text-[11px]">Completed Lessons</span>
-              <span className="text-base font-serif font-bold text-academy-navy">{completedInCourse} Finished</span>
-              <span className="text-[10px] text-stone-400 block mt-0.5">{pendingLessonsCount} pending</span>
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
+              <span className="text-stone-700 font-semibold block text-[11px]">Completed Lessons</span>
+              <span className="text-base font-serif font-bold text-[#2C1E6D]">{completedInCourse} Finished</span>
+              <span className="text-[11px] text-stone-600 font-medium block mt-0.5">{pendingLessonsCount} pending</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
-              <span className="text-stone-500 block text-[11px]">SRS Flashcards</span>
-              <span className="text-base font-serif font-bold text-academy-navy">{vocabLearnedCount} Terms</span>
-              <span className="text-[10px] text-stone-400 block mt-0.5">{vocabLearnedCount > 0 ? 'In Review' : '0 Reviewed'}</span>
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
+              <span className="text-stone-700 font-semibold block text-[11px]">SRS Flashcards</span>
+              <span className="text-base font-serif font-bold text-[#2C1E6D]">{vocabLearnedCount} Terms</span>
+              <span className="text-[11px] text-stone-600 font-medium block mt-0.5">{vocabLearnedCount > 0 ? 'In Review' : '0 Reviewed'}</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
-              <span className="text-stone-500 block text-[11px]">Homework Submissions</span>
-              <span className="text-base font-serif font-bold text-academy-navy">{submissions.length} Completed</span>
-              <span className="text-[10px] text-stone-400 block mt-0.5">{pendingAssignments.length} pending</span>
+            <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
+              <span className="text-stone-700 font-semibold block text-[11px]">Homework Submissions</span>
+              <span className="text-base font-serif font-bold text-[#2C1E6D]">{submissions.length} Completed</span>
+              <span className="text-[11px] text-stone-600 font-medium block mt-0.5">{pendingAssignments.length} pending</span>
             </div>
           </div>
 
@@ -347,14 +347,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 { slot: '08:50 - 08:55', min: '5 min', label: 'Reading or Writing', desc: 'Syllable Block Reading & Notice Deciphering' },
                 { slot: '08:55 - 09:00', min: '5 min', label: 'Review & Homework', desc: 'Daily Self-Introduction Exercise Submission' }
               ].map((item, idx) => (
-                <div key={idx} className="p-2.5 rounded-lg border border-stone-100 bg-stone-50/60 flex items-center justify-between gap-3 text-xs">
+                <div key={idx} className="p-2.5 rounded-lg border border-stone-200 bg-stone-50 flex items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-stone-400 font-semibold text-[11px] w-24">
+                    <span className="font-mono text-stone-600 font-bold text-[11px] w-24">
                       {item.slot}
                     </span>
                     <div>
                       <span className="font-bold text-academy-navy">{item.label}</span>
-                      <span className="text-stone-500 text-[11px] block">{item.desc}</span>
+                      <span className="text-stone-600 font-medium text-[11px] block">{item.desc}</span>
                     </div>
                   </div>
                   <span className="font-mono text-[11px] text-academy-gold-dark font-semibold px-2 py-0.5 rounded bg-white border border-stone-200">

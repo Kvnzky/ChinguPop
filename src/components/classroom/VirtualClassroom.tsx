@@ -77,24 +77,24 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
         </div>
 
         {/* Professor Information & Attendance */}
-        <div className="mt-6 pt-4 border-t border-academy-navy-light flex flex-wrap items-center justify-between gap-4 text-xs text-stone-300">
+        <div className="mt-6 pt-4 border-t border-purple-400/30 flex flex-wrap items-center justify-between gap-4 text-xs text-purple-100">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-academy-gold/20 border border-academy-gold/50 flex items-center justify-center font-bold text-academy-gold">
+            <div className="w-8 h-8 rounded-full bg-white/10 border border-pink-400/50 flex items-center justify-center font-bold text-[#FF5CA8]">
               김
             </div>
             <div>
-              <span className="font-semibold text-academy-ivory">Lead Professor:</span> Prof. Min-jun Kim (김민준 교수)
-              <span className="text-stone-400 block text-[11px]">Applied Korean Linguistics Dept.</span>
+              <span className="font-semibold text-white">Lead Professor:</span> Prof. Min-jun Kim (김민준 교수)
+              <span className="text-purple-200 block text-[11px] font-medium">Applied Korean Linguistics Dept.</span>
             </div>
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1.5 text-stone-300">
-              <Calendar className="w-3.5 h-3.5 text-academy-gold" />
+            <span className="flex items-center gap-1.5 text-purple-100 font-medium">
+              <Calendar className="w-3.5 h-3.5 text-[#55C8F5]" />
               Attendance: 100% (Logged)
             </span>
-            <div className="flex items-center gap-1.5 text-stone-400">
-              <Video className="w-3.5 h-3.5 text-stone-500" />
+            <div className="flex items-center gap-1.5 text-purple-200 font-medium">
+              <Video className="w-3.5 h-3.5 text-[#FF5CA8]" />
               <span>Live Conferencing Ready (Zoom/Meet WebRTC Bridge)</span>
             </div>
           </div>
@@ -117,11 +117,11 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
               onClick={() => setActiveTab(tab.key as any)}
               className={`flex items-center gap-2 pb-3 text-sm font-semibold border-b-2 transition-all ${
                 isActive
-                  ? 'border-academy-navy text-academy-navy'
-                  : 'border-transparent text-stone-500 hover:text-academy-navy'
+                  ? 'border-[#6C52EE] text-[#6C52EE]'
+                  : 'border-transparent text-stone-600 hover:text-[#6C52EE]'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-academy-gold-dark' : 'text-stone-400'}`} />
+              <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF5CA8]' : 'text-stone-500'}`} />
               <span>{tab.label}</span>
             </button>
           );

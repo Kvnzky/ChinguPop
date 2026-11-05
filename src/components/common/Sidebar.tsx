@@ -117,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               
               <div className="flex items-center gap-1.5">
-                <span className={`text-[10px] font-korean hidden sm:inline ${isActive ? 'text-purple-200' : 'text-stone-400'}`}>
+                <span className={`text-[10px] font-korean hidden sm:inline ${isActive ? 'text-purple-100 font-semibold' : 'text-stone-600 font-medium'}`}>
                   {item.korean}
                 </span>
                 {item.badge !== undefined && item.badge > 0 && (
@@ -151,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <ShieldCheck className={`w-4 h-4 ${currentTab === 'admin-portal' ? 'text-[#FF5CA8]' : 'text-[#6C52EE]'}`} />
               <span className="font-semibold">Admin Portal</span>
             </div>
-            <span className={`text-[10px] font-korean ${currentTab === 'admin-portal' ? 'text-purple-300' : 'text-stone-400'}`}>
+            <span className={`text-[10px] font-korean ${currentTab === 'admin-portal' ? 'text-purple-200 font-semibold' : 'text-stone-600 font-medium'}`}>
               관리자 포털
             </span>
           </button>
@@ -160,15 +160,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer Info */}
-      <div className="p-3 border-t border-purple-100 bg-purple-50/40 text-[11px] text-stone-500">
+      <div className="p-3 border-t border-purple-100 bg-purple-50/40 text-[11px] text-stone-700">
         <div className="flex items-center justify-between">
           <span className="font-bold text-[#2C1E6D] flex items-center">
             <span className="text-[#6C52EE]">Chingu</span>
             <span className="text-[#FF5CA8]">Pop</span>
           </span>
-          <span className="font-mono text-[10px] text-purple-400 font-semibold">v1.0.0 PWA</span>
+          <span className="font-mono text-[10px] text-purple-700 font-bold">v1.0.0 PWA</span>
         </div>
-        <p className="text-[10px] mt-0.5 text-stone-500">Korean Language Learning Academy</p>
+        <p className="text-[10px] mt-0.5 text-stone-600 font-medium">Korean Language Learning Academy</p>
       </div>
 
     </aside>

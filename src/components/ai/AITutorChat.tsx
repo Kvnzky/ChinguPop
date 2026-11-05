@@ -229,7 +229,7 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
               </div>
 
               {!isTutor && (
-                <div className="w-8 h-8 rounded-full bg-academy-gold text-academy-navy flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#FF5CA8] to-[#FF8DC3] text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-sm">
                   {currentUser.name.charAt(0)}
                 </div>
               )}
@@ -238,8 +238,8 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
         })}
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-xs text-stone-500 italic p-2">
-            <span className="w-2 h-2 rounded-full bg-academy-gold animate-bounce" />
+          <div className="flex items-center gap-2 text-xs text-stone-700 font-medium italic p-2">
+            <span className="w-2 h-2 rounded-full bg-[#FF5CA8] animate-bounce" />
             <span>Professor Kim is analyzing your Korean sentence...</span>
           </div>
         )}

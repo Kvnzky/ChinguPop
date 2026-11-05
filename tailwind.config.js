@@ -47,7 +47,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"Noto Sans KR"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', '"Noto Sans KR"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
         serif: ['"Noto Serif KR"', 'Georgia', 'serif'],
         korean: ['"Noto Sans KR"', '"Malgun Gothic"', 'sans-serif']
       }
