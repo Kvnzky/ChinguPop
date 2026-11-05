@@ -21,7 +21,8 @@ import {
   HelpCircle,
   Lightbulb,
   Headphones,
-  FileText
+  FileText,
+  Bell
 } from 'lucide-react';
 import { NavItemKey } from '../common/Sidebar';
 
@@ -127,195 +128,371 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   return (
     <div className="space-y-6">
       
-      {/* 📱 1. DEDICATED MOBILE DASHBOARD VIEW (< 768px) */}
+      {/* 📱 1. DEDICATED MOBILE LEARNING APP DASHBOARD VIEW (< 768px) - MATCHING CHINGUPOP UX */}
       <div className="md:hidden space-y-4">
-        {/* A. Compact Welcome Header */}
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-white border border-purple-200/80 shadow-xs">
+        
+        {/* Top Header: User Avatar + Greeting + Notification Bell */}
+        <div className="flex items-center justify-between pt-1 pb-1">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] text-white font-extrabold text-base flex items-center justify-center shadow-sm shrink-0">
-              {currentUser.name.charAt(0)}
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] p-0.5 shadow-md">
+              <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-extrabold text-[#2C1E6D] text-lg">
+                {currentUser.name.charAt(0)}
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-base font-bold text-[#2C1E6D]">
-                  안녕하세요, {currentUser.name}!
+                <h1 className="text-lg font-bold text-[#2C1E6D] tracking-tight">
+                  Hello {currentUser.name},
                 </h1>
-                <span className="text-xs">👋</span>
+                <span className="text-base">👋</span>
               </div>
-              <p className="text-[11px] text-stone-600 font-medium">
-                {currentUser.proficiency} • <span className="font-mono text-purple-700 font-bold">{currentUser.studentId}</span>
+              <p className="text-xs text-stone-500 font-medium">
+                Let's practice Korean! (한국어 연습하자!)
               </p>
             </div>
           </div>
+
           <button
             type="button"
             onClick={() => onNavigate('records')}
-            className="px-2.5 py-1.5 rounded-xl bg-purple-50 text-[#6C52EE] border border-purple-200 text-xs font-bold"
-            title="View Academic Standing"
+            className="w-10 h-10 rounded-full bg-white border border-stone-200 flex items-center justify-center text-stone-700 shadow-2xs hover:bg-stone-50 active:scale-95 transition-all relative"
+            aria-label="Notifications & Records"
           >
-            {completedInCourse > 0 || submissions.length > 0 ? `Grade ${currentUser.currentAcademicGrade}` : 'Enrolled'}
+            <Bell className="w-5 h-5 text-stone-700" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#FF5CA8]" />
           </button>
         </div>
 
-        {/* B. Primary "Continue Learning" Card (Most Prominent Feature on Mobile) */}
-        <div className="bg-gradient-to-br from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-5 shadow-lg border border-purple-400/30 relative overflow-hidden space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono tracking-wider uppercase font-bold text-[#55C8F5] bg-white/10 px-2 py-0.5 rounded border border-cyan-400/30">
-              Continue Learning
-            </span>
-            <span className="text-[11px] text-purple-200 font-mono font-medium">
-              ~20 min session
-            </span>
-          </div>
-
-          <div>
-            <span className="text-xs text-purple-200 font-medium block">
-              {currentCourse?.title}
-            </span>
-            <h2 className="text-lg font-bold text-white tracking-tight mt-0.5">
-              {nextLesson?.title || 'Lesson 1: Basic Vowels (기본 모음)'}
+        {/* Top Highlight Progress Card (Excellent + Circular Progress Ring) */}
+        <div 
+          onClick={() => onNavigate('classroom')}
+          className="bg-white rounded-3xl p-5 border border-stone-200/90 shadow-sm flex items-center justify-between cursor-pointer active:scale-99 transition-all hover:border-[#6C52EE]/40"
+        >
+          <div className="space-y-1">
+            <h2 className="text-lg font-bold text-[#2C1E6D] tracking-tight">
+              {completionPercent >= 50 ? 'Outstanding!' : 'Excellent'}
             </h2>
+            <p className="text-xs text-stone-600 font-medium">
+              Today Learned <strong className="text-[#2C1E6D] font-bold">{currentUser.dailyStudyMinutes} Mins</strong>
+            </p>
+            <div className="flex items-center gap-1.5 pt-1 text-[11px] font-semibold text-[#6C52EE]">
+              <span>🔥 {activeDaysThisWeek}/7 Days Active</span>
+              <span>•</span>
+              <span className="text-[#FF5CA8] font-bold">Grade {currentUser.currentAcademicGrade}</span>
+            </div>
           </div>
 
-          {/* Compact Course Progress Bar */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs text-purple-200 font-medium">
-              <span>Course Progress</span>
-              <span className="font-mono text-white font-bold">{completionPercent}%</span>
-            </div>
-            <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-[#FF5CA8] to-[#44C5F5] rounded-full transition-all"
-                style={{ width: `${completionPercent}%` }}
+          {/* Circular Progress Ring */}
+          <div className="relative w-18 h-18 shrink-0 flex items-center justify-center">
+            <svg className="w-18 h-18 -rotate-90" viewBox="0 0 64 64">
+              <circle
+                cx="32"
+                cy="32"
+                r="26"
+                stroke="#F1F0F7"
+                strokeWidth="5.5"
+                fill="none"
               />
+              <circle
+                cx="32"
+                cy="32"
+                r="26"
+                stroke="#38BDF8"
+                strokeWidth="5.5"
+                strokeDasharray={163.36}
+                strokeDashoffset={163.36 - (163.36 * Math.max(12, completionPercent)) / 100}
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+            <div className="absolute text-center leading-none">
+              <span className="font-extrabold text-sm text-[#2C1E6D] font-mono block">
+                {Math.max(12, completionPercent)}%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section: Your lessons */}
+        <div className="space-y-3 pt-1">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-base font-extrabold text-[#2C1E6D] tracking-tight">
+              Your lessons
+            </h2>
+            <button
+              type="button"
+              onClick={() => onNavigate('courses')}
+              className="text-xs font-bold text-[#6C52EE] hover:underline"
+            >
+              See all
+            </button>
+          </div>
+
+          {/* 2-Column Whimsical Character Modules Grid */}
+          <div className="grid grid-cols-2 gap-3.5">
+            
+            {/* Card 1: Phonetics (Purple #7C5CF6) */}
+            <div
+              onClick={() => onNavigate('classroom')}
+              className="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer active:scale-98 transition-all hover:border-[#7C5CF6]"
+            >
+              <div className="h-24 bg-[#7C5CF6] flex items-center justify-center relative select-none">
+                <svg viewBox="0 0 120 70" className="w-24 h-14">
+                  {/* Left Eye */}
+                  <ellipse cx="42" cy="30" rx="13" ry="15" fill="white" />
+                  <circle cx="45" cy="30" r="7" fill="#1E1442" />
+                  <circle cx="43" cy="27" r="2.5" fill="white" />
+                  <path d="M 32 18 Q 42 12 52 18" stroke="#1E1442" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                  <path d="M 30 22 L 25 18" stroke="#1E1442" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M 33 16 L 31 10" stroke="#1E1442" strokeWidth="2" strokeLinecap="round" />
+
+                  {/* Right Eye */}
+                  <ellipse cx="78" cy="30" rx="13" ry="15" fill="white" />
+                  <circle cx="81" cy="30" r="7" fill="#1E1442" />
+                  <circle cx="79" cy="27" r="2.5" fill="white" />
+                  <path d="M 68 18 Q 78 12 88 18" stroke="#1E1442" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                  <path d="M 87 16 L 89 10" stroke="#1E1442" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M 90 22 L 95 18" stroke="#1E1442" strokeWidth="2" strokeLinecap="round" />
+
+                  {/* Smile */}
+                  <path d="M 50 48 Q 60 58 70 48" stroke="#1E1442" strokeWidth="3" fill="none" strokeLinecap="round" />
+                </svg>
+              </div>
+
+              <div className="p-3.5 space-y-2 text-center">
+                <div>
+                  <h3 className="font-extrabold text-sm text-[#2C1E6D]">
+                    Phonetics
+                  </h3>
+                  <p className="text-[11px] text-stone-500 font-medium">
+                    Sounds, pronunciation
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#7C5CF6] rounded-full" 
+                      style={{ width: `${Math.max(15, competencies.hangulReading)}%` }} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
+                    <span>{completedInCourse}/12 Lesson</span>
+                    <span className="text-[#7C5CF6]">{Math.max(15, competencies.hangulReading)}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Grammar (Orange #FF8A00) */}
+            <div
+              onClick={() => onNavigate('courses')}
+              className="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer active:scale-98 transition-all hover:border-[#FF8A00]"
+            >
+              <div className="h-24 bg-[#FF8A00] flex items-center justify-center relative select-none">
+                <svg viewBox="0 0 120 70" className="w-24 h-14">
+                  {/* Left Eye */}
+                  <ellipse cx="40" cy="30" rx="13" ry="15" fill="white" />
+                  <circle cx="41" cy="32" r="7" fill="#2E1600" />
+                  <circle cx="40" cy="29" r="2.5" fill="white" />
+
+                  {/* Right Eye */}
+                  <ellipse cx="80" cy="30" rx="13" ry="15" fill="white" />
+                  <circle cx="81" cy="32" r="7" fill="#2E1600" />
+                  <circle cx="80" cy="29" r="2.5" fill="white" />
+
+                  {/* Happy Open Mouth */}
+                  <path d="M 50 44 Q 60 62 70 44 Z" fill="#2E1600" />
+                </svg>
+              </div>
+
+              <div className="p-3.5 space-y-2 text-center">
+                <div>
+                  <h3 className="font-extrabold text-sm text-[#2C1E6D]">
+                    Grammar
+                  </h3>
+                  <p className="text-[11px] text-stone-500 font-medium">
+                    Dictionary, spelling
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#FF8A00] rounded-full" 
+                      style={{ width: `${Math.max(20, competencies.grammar)}%` }} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
+                    <span>{Math.max(2, Math.round(competencies.grammar / 10))}/10 Lesson</span>
+                    <span className="text-[#FF8A00]">{Math.max(20, competencies.grammar)}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Hieroglyphic / Strokes (Green #22C55E) */}
+            <div
+              onClick={() => onNavigate('hangul-lab')}
+              className="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer active:scale-98 transition-all hover:border-[#22C55E]"
+            >
+              <div className="h-24 bg-[#22C55E] flex items-center justify-center relative select-none">
+                <svg viewBox="0 0 120 70" className="w-24 h-14">
+                  {/* Brows */}
+                  <path d="M 33 16 Q 43 14 53 19" stroke="#063E17" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                  <path d="M 87 16 Q 77 14 67 19" stroke="#063E17" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+                  {/* Left Eye looking up */}
+                  <ellipse cx="43" cy="33" rx="13" ry="14" fill="white" />
+                  <circle cx="43" cy="28" r="7" fill="#063E17" />
+                  <circle cx="41" cy="25" r="2.5" fill="white" />
+
+                  {/* Right Eye looking up */}
+                  <ellipse cx="77" cy="33" rx="13" ry="14" fill="white" />
+                  <circle cx="77" cy="28" r="7" fill="#063E17" />
+                  <circle cx="75" cy="25" r="2.5" fill="white" />
+
+                  {/* Surprised Cute Mouth */}
+                  <ellipse cx="60" cy="51" rx="5" ry="6" fill="#063E17" />
+                </svg>
+              </div>
+
+              <div className="p-3.5 space-y-2 text-center">
+                <div>
+                  <h3 className="font-extrabold text-sm text-[#2C1E6D]">
+                    Hieroglyphic
+                  </h3>
+                  <p className="text-[11px] text-stone-500 font-medium">
+                    Hieroglyphs, symbols
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#22C55E] rounded-full" 
+                      style={{ width: `${Math.max(25, competencies.hangulWriting)}%` }} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
+                    <span>{Math.max(1, submissions.length)}/12 Lesson</span>
+                    <span className="text-[#22C55E]">{Math.max(25, competencies.hangulWriting)}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: Lexis (Hot Pink #FF5CA8) */}
+            <div
+              onClick={() => onNavigate('vocabulary')}
+              className="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer active:scale-98 transition-all hover:border-[#FF5CA8]"
+            >
+              <div className="h-24 bg-[#FF5CA8] flex items-center justify-center relative select-none">
+                <svg viewBox="0 0 120 70" className="w-24 h-14">
+                  {/* Left Eye */}
+                  <ellipse cx="40" cy="30" rx="13" ry="15" fill="white" />
+                  <circle cx="43" cy="30" r="7" fill="#3D061E" />
+                  <circle cx="41" cy="27" r="2.5" fill="white" />
+                  <path d="M 30 18 Q 40 12 50 18" stroke="#3D061E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+                  {/* Right Eye (Winking / sly) */}
+                  <ellipse cx="80" cy="30" rx="13" ry="15" fill="white" />
+                  <circle cx="83" cy="30" r="7" fill="#3D061E" />
+                  <circle cx="81" cy="27" r="2.5" fill="white" />
+                  <path d="M 70 18 Q 80 12 90 18" stroke="#3D061E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+                  {/* Cheeky Smirk */}
+                  <path d="M 48 48 Q 60 48 70 43" stroke="#3D061E" strokeWidth="3" fill="none" strokeLinecap="round" />
+                </svg>
+              </div>
+
+              <div className="p-3.5 space-y-2 text-center">
+                <div>
+                  <h3 className="font-extrabold text-sm text-[#2C1E6D]">
+                    Lexis
+                  </h3>
+                  <p className="text-[11px] text-stone-500 font-medium">
+                    Word form, meaning
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#FF5CA8] rounded-full" 
+                      style={{ width: `${Math.max(30, competencies.vocabulary)}%` }} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
+                    <span>{Math.max(5, vocabLearnedCount)}/20 Lesson</span>
+                    <span className="text-[#FF5CA8]">{Math.max(30, competencies.vocabulary)}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Card 5 (Speaking Lab & AI Tutor Peek Card) */}
+          <div
+            onClick={() => onNavigate('speaking-lab')}
+            className="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden flex flex-col justify-between cursor-pointer active:scale-98 transition-all hover:border-[#38BDF8]"
+          >
+            <div className="h-20 bg-[#38BDF8] flex items-center justify-center relative select-none">
+              <svg viewBox="0 0 120 60" className="w-24 h-12">
+                {/* Left Eye looking up with lashes */}
+                <ellipse cx="44" cy="30" rx="12" ry="13" fill="white" />
+                <circle cx="44" cy="25" r="6" fill="#0C2E42" />
+                <circle cx="42" cy="23" r="2" fill="white" />
+                <path d="M 34 20 L 30 15" stroke="#0C2E42" strokeWidth="2" strokeLinecap="round" />
+                <path d="M 41 17 L 39 12" stroke="#0C2E42" strokeWidth="2" strokeLinecap="round" />
+                <path d="M 48 18 L 49 13" stroke="#0C2E42" strokeWidth="2" strokeLinecap="round" />
+
+                {/* Right Eye looking up with lashes */}
+                <ellipse cx="76" cy="30" rx="12" ry="13" fill="white" />
+                <circle cx="76" cy="25" r="6" fill="#0C2E42" />
+                <circle cx="74" cy="23" r="2" fill="white" />
+                <path d="M 72 18 L 71 13" stroke="#0C2E42" strokeWidth="2" strokeLinecap="round" />
+                <path d="M 79 17 L 81 12" stroke="#0C2E42" strokeWidth="2" strokeLinecap="round" />
+                <path d="M 86 20 L 90 15" stroke="#0C2E42" strokeWidth="2" strokeLinecap="round" />
+
+                {/* Smile */}
+                <path d="M 52 45 Q 60 53 68 45" stroke="#0C2E42" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              </svg>
+            </div>
+
+            <div className="p-3.5 flex items-center justify-between">
+              <div>
+                <h3 className="font-extrabold text-sm text-[#2C1E6D]">
+                  Speaking Lab & AI Teacher
+                </h3>
+                <p className="text-[11px] text-stone-500 font-medium">
+                  Voice shadowing & real-time pronunciation feedback
+                </p>
+              </div>
+              <button
+                type="button"
+                className="px-3.5 py-1.5 rounded-xl bg-cyan-50 text-[#0284C7] font-bold text-xs border border-cyan-200"
+              >
+                Practice
+              </button>
             </div>
           </div>
 
-          {/* Big Touch-Friendly Button (Min 48px height) */}
+        </div>
+
+        {/* Quick Continue Lesson Action Button */}
+        <div className="pt-2">
           <button
             type="button"
             onClick={() => onNavigate('classroom')}
-            className="w-full h-12 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-98 flex items-center justify-center gap-2"
+            className="w-full h-13 rounded-2xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-md active:scale-98 flex items-center justify-center gap-2"
           >
-            <span>{completedInCourse === 0 ? 'Start Lesson 1: Basic Vowels' : 'Resume Korean Lesson'}</span>
+            <span>{completedInCourse === 0 ? 'Start Lesson 1: Basic Vowels' : 'Resume Current Korean Lesson'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
-        {/* C. Daily Learning Progress (Compact Metrics Grid) */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="p-3 rounded-xl bg-white border border-stone-200 shadow-2xs text-center space-y-0.5">
-            <span className="text-[10px] text-stone-600 font-bold uppercase tracking-wider block">Streak / Days</span>
-            <div className="text-sm font-bold text-[#6C52EE] font-mono flex items-center justify-center gap-1">
-              <span>🔥</span>
-              <span>{activeDaysThisWeek} / 7d</span>
-            </div>
-          </div>
-
-          <div className="p-3 rounded-xl bg-white border border-stone-200 shadow-2xs text-center space-y-0.5">
-            <span className="text-[10px] text-stone-600 font-bold uppercase tracking-wider block">Study Time</span>
-            <div className="text-sm font-bold text-[#2C1E6D] font-mono">
-              {weeklyStudyHours}h
-            </div>
-          </div>
-
-          <div className="p-3 rounded-xl bg-white border border-stone-200 shadow-2xs text-center space-y-0.5">
-            <span className="text-[10px] text-stone-600 font-bold uppercase tracking-wider block">Mastered</span>
-            <div className="text-sm font-bold text-emerald-600 font-mono">
-              {completedInCourse}/{totalLessonsInCourse}
-            </div>
-          </div>
-        </div>
-
-        {/* D. Quick Learning Access Grid (6 large touch items) */}
-        <div className="space-y-2">
-          <h3 className="text-xs font-bold text-[#2C1E6D] uppercase tracking-wider px-1">
-            Learning Activities
-          </h3>
-          <div className="grid grid-cols-2 gap-2.5">
-            {[
-              { key: 'classroom', label: 'Classroom', desc: 'Interactive lessons', icon: GraduationCap, color: 'text-[#6C52EE]', bg: 'bg-purple-50' },
-              { key: 'hangul-lab', label: 'Hangul Lab', desc: 'Alphabet & writing', icon: Grid, color: 'text-[#FF5CA8]', bg: 'bg-pink-50' },
-              { key: 'ai-tutor', label: 'AI Teacher', desc: 'Chat & tutoring', icon: Bot, color: 'text-[#44C5F5]', bg: 'bg-cyan-50' },
-              { key: 'vocabulary', label: 'Vocabulary', desc: `${vocabLearnedCount} words (SRS)`, icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50' },
-              { key: 'speaking-lab', label: 'Speaking Lab', desc: 'Mic & shadowing', icon: Mic, color: 'text-rose-500', bg: 'bg-rose-50' },
-              { key: 'assignments', label: 'Assignments', desc: `${pendingAssignments.length} pending`, icon: FileCheck, color: 'text-emerald-500', bg: 'bg-emerald-50' }
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => onNavigate(item.key as any)}
-                  className="p-3 rounded-xl bg-white border border-stone-200 hover:border-[#6C52EE] active:scale-95 transition-all text-left flex items-center gap-3 min-h-[56px] shadow-2xs"
-                >
-                  <div className={`p-2 rounded-lg ${item.bg} ${item.color} shrink-0`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold text-[#2C1E6D] truncate">
-                      {item.label}
-                    </div>
-                    <div className="text-[10px] text-stone-600 truncate">
-                      {item.desc}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* E. Recommended Next Learning Card */}
-        {recommendations.length > 0 && (
-          <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-200 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6C52EE] flex items-center gap-1">
-                <Lightbulb className="w-3.5 h-3.5" />
-                Recommended for You
-              </span>
-              <span className="text-[10px] font-mono text-purple-700 bg-white px-2 py-0.5 rounded font-bold">
-                {recommendations[0].type.toUpperCase()}
-              </span>
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-[#2C1E6D]">
-                {recommendations[0].title}
-              </h4>
-              <p className="text-[11px] text-stone-600 mt-0.5 leading-snug">
-                {recommendations[0].description}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigate(recommendations[0].targetTab)}
-              className="w-full py-2.5 rounded-lg bg-white border border-[#6C52EE]/40 text-[#6C52EE] hover:bg-[#6C52EE] hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-2xs"
-            >
-              <span>{recommendations[0].actionLabel}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-
-        {/* F. 9 Competency Radar on Mobile */}
-        <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-2xs space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-            <h3 className="font-bold text-xs text-[#2C1E6D] flex items-center gap-1.5">
-              <GraduationCap className="w-4 h-4 text-[#6C52EE]" />
-              <span>9 Competency Radar</span>
-            </h3>
-            <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
-              Verified
-            </span>
-          </div>
-          <div className="space-y-2.5">
-            <ProgressBar label="Hangul Reading" subLabel={`${competencies.hangulReading}%`} value={competencies.hangulReading} color="purple" height="h-2" />
-            <ProgressBar label="Hangul Writing" subLabel={`${competencies.hangulWriting}%`} value={competencies.hangulWriting} color="pink" height="h-2" />
-            <ProgressBar label="Grammar" subLabel={`${competencies.grammar}%`} value={competencies.grammar} color="purple" height="h-2" />
-            <ProgressBar label="Vocabulary" subLabel={`${competencies.vocabulary}%`} value={competencies.vocabulary} color="blue" height="h-2" />
-            <ProgressBar label="Pronunciation" subLabel={`${competencies.pronunciationAccuracy}%`} value={competencies.pronunciationAccuracy} color="pink" height="h-2" />
-          </div>
-        </div>
       </div>
 
       {/* 💻 2. DESKTOP & TABLET CLASSROOM VIEW (Visible on screens >= 768px) */}
