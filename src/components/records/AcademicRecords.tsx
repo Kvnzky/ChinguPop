@@ -71,14 +71,24 @@ export const AcademicRecords: React.FC<AcademicRecordsProps> = ({ currentUser })
 
         <div>
           <span className="text-stone-400 font-mono uppercase text-[10px] block">Academic GPA / Standing</span>
-          <div className="font-serif font-bold text-base text-emerald-800 mt-1">Grade {currentUser.currentAcademicGrade} (3.9 / 4.0)</div>
-          <div className="text-[11px] text-stone-500">Dean's Honors List</div>
+          <div className="font-serif font-bold text-base text-academy-navy mt-1">
+            {completedLessons.length > 0 || submissions.length > 0
+              ? `Grade ${currentUser.currentAcademicGrade}`
+              : 'Pending Evaluation'}
+          </div>
+          <div className="text-[11px] text-stone-500">
+            {completedLessons.length > 0 ? "Dean's Honors List" : 'Awaiting First Term Assessments'}
+          </div>
         </div>
 
         <div>
           <span className="text-stone-400 font-mono uppercase text-[10px] block">Institutional Attendance</span>
-          <div className="font-mono font-bold text-base text-academy-navy mt-1">{currentUser.attendancePercentage}% Verified</div>
-          <div className="text-[11px] text-stone-500">{attendance.length} Sessions Logged</div>
+          <div className="font-mono font-bold text-base text-academy-navy mt-1">
+            {attendance.length > 0 ? `${currentUser.attendancePercentage}% Verified` : '0 Recorded Days'}
+          </div>
+          <div className="text-[11px] text-stone-500">
+            {attendance.length > 0 ? `${attendance.length} Sessions Logged` : 'Ready to Begin Lesson 1'}
+          </div>
         </div>
       </div>
 
@@ -128,26 +138,32 @@ export const AcademicRecords: React.FC<AcademicRecordsProps> = ({ currentUser })
             </h3>
           </div>
 
-          <div className="divide-y divide-stone-100">
-            {submissions.map((sub) => (
-              <div key={sub.id} className="py-3 space-y-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-serif font-bold text-academy-navy">Submission #{sub.id.slice(-4)}</span>
-                  <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    Grade: {sub.grade ?? 'Pending'} / 100
-                  </span>
-                </div>
-                <div className="p-3 bg-stone-50 rounded-lg border border-stone-200 font-serif text-[11px] text-stone-700 italic">
-                  "{sub.content.slice(0, 80)}..."
-                </div>
-                {sub.teacherFeedback && (
-                  <div className="text-[11px] text-stone-600">
-                    <strong className="text-academy-navy">Faculty Feedback:</strong> {sub.teacherFeedback}
+          {submissions.length > 0 ? (
+            <div className="divide-y divide-stone-100">
+              {submissions.map((sub) => (
+                <div key={sub.id} className="py-3 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-serif font-bold text-academy-navy">Submission #{sub.id.slice(-4)}</span>
+                    <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      Grade: {sub.grade ?? 'Pending'} / 100
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                  <div className="p-3 bg-stone-50 rounded-lg border border-stone-200 font-serif text-[11px] text-stone-700 italic">
+                    "{sub.content.slice(0, 80)}..."
+                  </div>
+                  {sub.teacherFeedback && (
+                    <div className="text-[11px] text-stone-600">
+                      <strong className="text-academy-navy">Faculty Feedback:</strong> {sub.teacherFeedback}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center text-xs text-stone-400 bg-stone-50 rounded-lg border border-stone-100">
+              No homework submissions recorded yet. Complete and submit assignments in the Assignments portal to establish your record.
+            </div>
+          )}
         </div>
 
       </div>
@@ -162,14 +178,20 @@ export const AcademicRecords: React.FC<AcademicRecordsProps> = ({ currentUser })
           Enrolled students must maintain at least 80% attendance to qualify for the TOPIK I Academy Diploma.
         </p>
 
-        <div className="flex flex-wrap gap-2 pt-2">
-          {attendance.map((date) => (
-            <div key={date} className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 font-mono text-xs flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{date} (Present)</span>
-            </div>
-          ))}
-        </div>
+        {attendance.length > 0 ? (
+          <div className="flex flex-wrap gap-2 pt-2">
+            {attendance.map((date) => (
+              <div key={date} className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 font-mono text-xs flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{date} (Present)</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-6 text-center text-xs text-stone-400 bg-stone-50 rounded-lg border border-stone-100">
+            No attendance recorded yet. Complete your first study session to mark day 1 attendance.
+          </div>
+        )}
       </div>
 
     </div>

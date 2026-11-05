@@ -51,7 +51,11 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
   const combinedLessonsCompleted = dhieCompletedLessons.length + mhieCompletedLessons.length;
   const combinedVocabLearned = dhieVocabulary.filter(w => w.status !== 'new').length + mhieVocabulary.filter(w => w.status !== 'new').length;
   const combinedSubmissions = dhieSubmissions.length + mhieSubmissions.length;
-  const combinedStudyHours = ((dhieCompletedLessons.length * 1.5 + mhieCompletedLessons.length * 1.5) + 12).toFixed(1);
+  const combinedStudyHours = (
+    dhieCompletedLessons.length * 1.0 +
+    mhieCompletedLessons.length * 1.0 +
+    (storage.getAttendance(dhie.id).length + storage.getAttendance(mhie.id).length) * 0.5
+  ).toFixed(1);
 
   const students = [
     {
@@ -63,7 +67,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
       completionRate: dhieCompletionRate,
       color: 'border-amber-300 bg-amber-50/30',
       badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
-      topSkill: 'Hangul Vowels Articulation & Flashcards'
+      topSkill: dhieCompletedLessons.length > 0 ? 'Hangul Vowels Articulation' : 'Enrolled • Ready to Begin'
     },
     {
       profile: mhie,
@@ -74,7 +78,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
       completionRate: mhieCompletionRate,
       color: 'border-emerald-300 bg-emerald-50/30',
       badgeColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-      topSkill: 'Consonant Architecture & Audio Dictation'
+      topSkill: mhieCompletedLessons.length > 0 ? 'Consonant Architecture' : 'Enrolled • Ready to Begin'
     }
   ];
 
@@ -205,10 +209,12 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
                 <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
                   <span className="text-[11px] text-stone-500 block">Academic Standing</span>
                   <span className="font-serif font-bold text-sm text-academy-gold-dark">
-                    Grade {student.profile.currentAcademicGrade}
+                    {student.completedLessons.length > 0 || student.submissions.length > 0
+                      ? `Grade ${student.profile.currentAcademicGrade}`
+                      : 'Enrolled (Not Started)'}
                   </span>
-                  <span className="text-[10px] text-emerald-600 font-semibold block mt-0.5">
-                    {student.profile.attendancePercentage}% Attendance
+                  <span className="text-[10px] text-stone-400 font-semibold block mt-0.5">
+                    {student.completedLessons.length > 0 ? `${student.profile.attendancePercentage}% Attendance` : '0 Days Active'}
                   </span>
                 </div>
               </div>

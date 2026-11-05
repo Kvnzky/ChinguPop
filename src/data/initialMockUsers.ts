@@ -20,8 +20,8 @@ export const INITIAL_USERS: UserProfile[] = [
     assignedTeacherId: 'admin-faculty',
     currentCourseId: 'course-pre-a1',
     bio: "Dhie's Korean Language Journey: Aiming for full fluency from Hangul foundations to TOPIK mastery.",
-    attendancePercentage: 100,
-    currentAcademicGrade: 'A'
+    attendancePercentage: 0,
+    currentAcademicGrade: 'Pending'
   },
   {
     id: 'student-mhie',
@@ -39,7 +39,7 @@ export const INITIAL_USERS: UserProfile[] = [
     assignedTeacherId: 'admin-faculty',
     currentCourseId: 'course-pre-a1',
     bio: "Mhie's Korean Language Journey: Dedicated daily practice for practical conversational fluency and TOPIK.",
-    attendancePercentage: 100,
-    currentAcademicGrade: 'A'
+    attendancePercentage: 0,
+    currentAcademicGrade: 'Pending'
   }
 ];

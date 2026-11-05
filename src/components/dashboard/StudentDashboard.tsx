@@ -40,30 +40,32 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const submissions = storage.getSubmissions(currentUser.id);
   const vocabulary = storage.getVocabulary(currentUser.id);
   const assignments = storage.getAssignments();
+  const attendanceDates = storage.getAttendance(currentUser.id);
   const currentCourse = courses.find(c => c.id === currentUser.currentCourseId) || courses[0];
 
   const totalLessonsInCourse = currentCourse?.totalLessons || 12;
   const completedInCourse = completedLessons.length;
   const completionPercent = Math.min(100, Math.round((completedInCourse / totalLessonsInCourse) * 100));
 
-  // Compute 9 authentic competencies based on student activity history
+  // Compute 9 authentic competencies based strictly on actual completed activity
   const vocabLearnedCount = vocabulary.filter(w => w.status !== 'new').length;
   const isVowelsDone = completedLessons.includes('lesson-pre-a1-1');
 
   const competencies = {
-    hangulReading: Math.min(100, completedInCourse * 15 + 20),
-    hangulWriting: Math.min(100, submissions.length * 25 + (isVowelsDone ? 20 : 10)),
-    grammar: Math.min(100, completedInCourse * 12 + 15),
-    vocabulary: Math.min(100, vocabLearnedCount * 8 + 15),
-    listening: Math.min(100, completedInCourse * 14 + 18),
-    speaking: Math.min(100, completedInCourse * 10 + 15),
-    readingComprehension: Math.min(100, completedInCourse * 11 + 10),
-    writingComposition: Math.min(100, submissions.length * 30 + 10),
-    pronunciationAccuracy: Math.min(100, completedInCourse * 12 + (isVowelsDone ? 25 : 15))
+    hangulReading: Math.min(100, completedInCourse * 15),
+    hangulWriting: Math.min(100, submissions.length * 25),
+    grammar: Math.min(100, completedInCourse * 12),
+    vocabulary: Math.min(100, vocabLearnedCount * 8),
+    listening: Math.min(100, completedInCourse * 14),
+    speaking: Math.min(100, completedInCourse * 10),
+    readingComprehension: Math.min(100, completedInCourse * 11),
+    writingComposition: Math.min(100, submissions.length * 30),
+    pronunciationAccuracy: Math.min(100, completedInCourse * 12)
   };
 
-  // Weekly study stats
-  const weeklyStudyHours = (completedInCourse * 1.5 + (currentUser.dailyStudyMinutes * 7 / 60)).toFixed(1);
+  // Weekly study stats strictly based on actual sessions
+  const activeDaysThisWeek = attendanceDates.length;
+  const weeklyStudyHours = ((completedInCourse * 1.0) + (activeDaysThisWeek * (currentUser.dailyStudyMinutes / 60))).toFixed(1);
   const weeklyTargetHours = (currentUser.dailyStudyMinutes * currentUser.studyDaysPerWeek / 60).toFixed(1);
   const pendingAssignments = assignments.filter(a => !submissions.some(s => s.assignmentId === a.id));
   const pendingLessonsCount = Math.max(0, totalLessonsInCourse - completedInCourse);
@@ -152,7 +154,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               onClick={() => onNavigate('classroom')}
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-academy-gold hover:bg-academy-gold-light text-academy-navy font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-95"
             >
-              <span>Resume Study Session</span>
+              <span>{completedInCourse === 0 ? 'Start Lesson 1: Basic Vowels' : 'Resume Study Session'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -163,13 +165,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           <div className="space-y-1">
             <span className="text-stone-400 block text-[11px]">Academic Standing</span>
             <div className="text-xl font-serif font-bold text-academy-gold">
-              Grade {currentUser.currentAcademicGrade} (Distinction)
+              {completedInCourse > 0 || submissions.length > 0
+                ? `Grade ${currentUser.currentAcademicGrade}`
+                : 'Enrolled (Not Started)'}
             </div>
           </div>
           <div className="space-y-1">
             <span className="text-stone-400 block text-[11px]">Attendance Record</span>
-            <div className="text-xl font-mono font-bold text-emerald-400">
-              {currentUser.attendancePercentage}% Perfect
+            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-emerald-400' : 'text-stone-400'}`}>
+              {activeDaysThisWeek > 0 ? `${activeDaysThisWeek} Days Active` : '0 Days (Ready)'}
             </div>
           </div>
           <div className="space-y-1">
@@ -180,8 +184,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           </div>
           <div className="space-y-1">
             <span className="text-stone-400 block text-[11px]">Weekly Target</span>
-            <div className="text-xl font-mono font-bold text-amber-300">
-              {currentUser.studyDaysPerWeek} / {currentUser.studyDaysPerWeek} Days Active
+            <div className={`text-xl font-mono font-bold ${activeDaysThisWeek > 0 ? 'text-amber-300' : 'text-stone-400'}`}>
+              {activeDaysThisWeek} / {currentUser.studyDaysPerWeek} Days Active
             </div>
           </div>
         </div>
@@ -281,8 +285,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 Target: {weeklyTargetHours} hours/week ({currentUser.dailyStudyMinutes} min/day, 7 days/week).
               </p>
             </div>
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-              On Track (100%)
+            <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+              Number(weeklyStudyHours) > 0
+                ? 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                : 'text-stone-600 bg-stone-100 border border-stone-200'
+            }`}>
+              {Number(weeklyStudyHours) > 0 ? 'In Progress' : 'Awaiting First Session'}
             </span>
           </div>
 
@@ -291,7 +299,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
               <span className="text-stone-500 block text-[11px]">Total Study Time</span>
               <span className="text-base font-serif font-bold text-academy-navy">{weeklyStudyHours} hrs</span>
-              <span className="text-[10px] text-emerald-600 block mt-0.5">Target: {weeklyTargetHours} hrs</span>
+              <span className="text-[10px] text-stone-500 block mt-0.5">Target: {weeklyTargetHours} hrs</span>
             </div>
 
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
@@ -303,7 +311,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">
               <span className="text-stone-500 block text-[11px]">SRS Flashcards</span>
               <span className="text-base font-serif font-bold text-academy-navy">{vocabLearnedCount} Terms</span>
-              <span className="text-[10px] text-amber-700 block mt-0.5">Retention 92%</span>
+              <span className="text-[10px] text-stone-400 block mt-0.5">{vocabLearnedCount > 0 ? 'In Review' : '0 Reviewed'}</span>
             </div>
 
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-100">

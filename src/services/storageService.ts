@@ -42,9 +42,9 @@ class StorageService {
   private init() {
     if (typeof window === 'undefined') return;
 
-    // Strict cleanup of legacy placeholder students or faculty accounts from localStorage
+    // Strict cleanup of legacy placeholder students or mock progress from localStorage
     const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
-    if (!rawUsers || rawUsers.includes('teacher-kim') || rawUsers.includes('admin-dean') || rawUsers.includes('student-default') || rawUsers.includes('Min-ji') || rawUsers.includes('Alexandre')) {
+    if (!rawUsers || rawUsers.includes('teacher-kim') || rawUsers.includes('admin-dean') || rawUsers.includes('student-default') || rawUsers.includes('Min-ji') || rawUsers.includes('"attendancePercentage":100')) {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(INITIAL_USERS));
     }
 
@@ -61,10 +61,10 @@ class StorageService {
       localStorage.setItem(STORAGE_KEYS.ASSIGNMENTS, JSON.stringify(INITIAL_ASSIGNMENTS));
     }
 
-    // Sanitize submissions to Dhie & Mhie only
+    // Clean initial state: zero submissions for new scholars
     const rawSubmissions = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
-    if (!rawSubmissions || rawSubmissions.includes('student-default')) {
-      localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(INITIAL_SUBMISSIONS));
+    if (!rawSubmissions || rawSubmissions.includes('sub-1') || rawSubmissions.includes('student-default')) {
+      localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify([]));
     }
 
     // Initialize vocabulary deck for Dhie and Mhie independently
@@ -78,24 +78,22 @@ class StorageService {
     }
 
     // Initialize completed lessons map:
-    // Dhie has completed Lesson 1 (Pre-A1) and working on Lesson 2.
-    // Mhie starts fresh at Lesson 1 with zero lessons completed.
+    // Both Dhie and Mhie start fresh at Lesson 1 with zero lessons completed.
     const rawCompleted = localStorage.getItem(STORAGE_KEYS.COMPLETED_LESSONS);
-    if (!rawCompleted || rawCompleted.includes('student-default')) {
+    if (!rawCompleted || rawCompleted.includes('lesson-pre-a1-1') || rawCompleted.includes('student-default')) {
       const completed: Record<string, string[]> = {
-        'student-dhie': ['lesson-pre-a1-1'],
+        'student-dhie': [],
         'student-mhie': []
       };
       localStorage.setItem(STORAGE_KEYS.COMPLETED_LESSONS, JSON.stringify(completed));
     }
 
-    // Initialize attendance for Dhie and Mhie
+    // Initialize attendance for Dhie and Mhie (starts at zero before first session)
     const rawAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
-    if (!rawAttendance || rawAttendance.includes('student-default')) {
-      const today = new Date().toISOString().split('T')[0];
+    if (!rawAttendance || rawAttendance.includes('2026-11-04') || rawAttendance.includes('student-default')) {
       const attendanceMap: Record<string, string[]> = {
-        'student-dhie': [today, '2026-11-04'],
-        'student-mhie': [today]
+        'student-dhie': [],
+        'student-mhie': []
       };
       localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceMap));
     }
