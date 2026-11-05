@@ -80,14 +80,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-xl tracking-tight text-white flex items-center">
-                  <span className="text-[#A78BFA]">Chingu</span>
+                  <span className="text-[#8E77F7]">Chingu</span>
                   <span className="text-[#FF5CA8]">Pop</span>
                 </span>
                 <span className="hidden sm:inline-block text-xs font-korean text-purple-200 border border-purple-400/40 px-1.5 py-0.2 rounded-full bg-purple-900/40 font-medium">
                   친구팝
                 </span>
               </div>
-              <p className="text-[10px] tracking-wide text-purple-200/90 font-medium">
+              <p className="text-[10px] tracking-wide text-purple-200/90 font-medium truncate max-w-[150px] xs:max-w-[220px] sm:max-w-none">
                 Korean Language Learning Academy • Learn Korean. Find Your Chingu.
               </p>
             </div>

@@ -3,6 +3,7 @@ import { UserProfile, Course, Lesson } from './types';
 import { storage } from './services/storageService';
 import { Navbar } from './components/common/Navbar';
 import { Sidebar, NavItemKey } from './components/common/Sidebar';
+import { MobileBottomNav } from './components/common/MobileBottomNav';
 
 // Screen Components
 import { StudentDashboard } from './components/dashboard/StudentDashboard';
@@ -134,8 +135,8 @@ export function App() {
           </div>
         )}
 
-        {/* Dynamic Main Stage View */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl overflow-x-hidden min-h-[calc(100vh-4rem)]">
+        {/* Dynamic Main Stage View with mobile bottom nav clearance */}
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-5xl overflow-x-hidden min-h-[calc(100vh-4rem)] pb-24 md:pb-8">
           {currentTab === 'dashboard' && (
             <StudentDashboard
               currentUser={currentUser}
@@ -211,6 +212,17 @@ export function App() {
         </main>
 
       </div>
+
+      {/* Mobile-First Sticky Bottom Navigation Bar (md:hidden) */}
+      <MobileBottomNav
+        currentTab={currentTab}
+        onSelectTab={(tab) => {
+          setCurrentTab(tab);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onOpenMenu={() => setMobileMenuOpen(true)}
+        pendingAssignmentsCount={storage.getAssignments().length - storage.getSubmissions(currentUser.id).length}
+      />
 
       {/* Guided Walkthrough Tour Modal */}
       <GuidedOnboardingTour
