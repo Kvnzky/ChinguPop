@@ -46,13 +46,16 @@ interface StudentDashboardProps {
   currentUser: UserProfile;
   courses: Course[];
   onNavigate: (tab: NavItemKey, lessonId?: string) => void;
+  onOpenAuth?: (tab: 'signin' | 'register') => void;
 }
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   currentUser,
   courses,
-  onNavigate
+  onNavigate,
+  onOpenAuth
 }) => {
+  const isGuestVisitor = currentUser.id === 'guest-visitor' || (!storage.isAuthenticated() && !storage.isAdminAuthenticated());
   const completedLessons = storage.getCompletedLessons(currentUser.id);
   const submissions = storage.getSubmissions(currentUser.id);
   const vocabulary = storage.getVocabulary(currentUser.id);
@@ -219,6 +222,40 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
         </div>
       </div>
 
+      {isGuestVisitor && (
+        <div className="bg-gradient-to-r from-[#2C1E6D] via-[#4F35C8] to-[#6C52EE] rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-purple-300/30">
+          <div className="space-y-1">
+            <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/15 text-purple-100 text-[10px] font-bold uppercase tracking-wider">
+              Public Visitor Mode • Not Signed In
+            </span>
+            <h2 className="text-base sm:text-lg font-extrabold tracking-tight">
+              Welcome to ChinguPop Korean Language Academy! 🇰🇷
+            </h2>
+            <p className="text-xs text-purple-100/90 max-w-xl leading-relaxed">
+              Sign in to your account or register a free scholar profile to save your lesson progress, track vocabulary flashcards, and earn certificates.
+            </p>
+          </div>
+          {onOpenAuth && (
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => onOpenAuth('signin')}
+                className="px-4 py-2.5 rounded-xl bg-white text-[#2C1E6D] hover:bg-purple-50 font-extrabold text-xs shadow-sm transition-all cursor-pointer"
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => onOpenAuth('register')}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF3D9A] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer"
+              >
+                Free Sign Up
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 📱 1. DEDICATED MOBILE LEARNING APP DASHBOARD VIEW (< 768px) - MATCHING CHINGUPOP UX */}
       <div className={`${devicePreviewMode === 'mobile' ? 'block' : devicePreviewMode === 'auto' ? 'md:hidden' : 'hidden'} space-y-4`}>
         
@@ -227,13 +264,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] p-0.5 shadow-md">
               <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-extrabold text-[#2C1E6D] text-lg">
-                {currentUser.name.charAt(0)}
+                {isGuestVisitor ? '🇰🇷' : currentUser.name.charAt(0)}
               </div>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="text-lg font-bold text-[#2C1E6D] tracking-tight">
-                  Hello {currentUser.name},
+                  {isGuestVisitor ? 'Welcome to ChinguPop!' : `Hello ${currentUser.name},`}
                 </h1>
                 <span className="text-base">👋</span>
               </div>
@@ -1278,18 +1315,20 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#38BDF8]" />
             </button>
 
-            {/* User Profile Avatar */}
-            <div 
-              onClick={() => onNavigate('settings')}
-              className="flex items-center gap-2 cursor-pointer group"
-              title={`${currentUser.name} (${currentUser.role})`}
-            >
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] p-0.5 shadow-2xs group-hover:scale-105 transition-transform">
-                <div className="w-full h-full rounded-2xl bg-white flex items-center justify-center font-bold text-xs text-[#2C1E6D]">
-                  {currentUser.name.charAt(0)}
+            {/* User Profile Avatar (Only shown when signed in) */}
+            {!isGuestVisitor && (
+              <div 
+                onClick={() => onNavigate('settings')}
+                className="flex items-center gap-2 cursor-pointer group"
+                title={`${currentUser.name} (${currentUser.role})`}
+              >
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] p-0.5 shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-full h-full rounded-2xl bg-white flex items-center justify-center font-bold text-xs text-[#2C1E6D]">
+                    {currentUser.name.charAt(0)}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -1836,10 +1875,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               </div>
               <div>
                 <h3 className="font-extrabold text-sm text-[#1E1B4B]">
-                  Academic File & 9 Competency Radar • Student {currentUser.studentId}
+                  {isGuestVisitor
+                    ? '9 Korean Competency Radar & Daily Study Timetable'
+                    : `Academic File & 9 Competency Radar • Student ${currentUser.studentId}`}
                 </h3>
                 <p className="text-xs text-stone-500 font-medium">
-                  Grade {currentUser.currentAcademicGrade} • {activeDaysThisWeek}/7 Active Days • Verified Progress
+                  {isGuestVisitor
+                    ? 'Sign in to track your personal academic standing and attendance'
+                    : `Grade ${currentUser.currentAcademicGrade} • ${activeDaysThisWeek}/7 Active Days • Verified Progress`}
                 </p>
               </div>
             </div>

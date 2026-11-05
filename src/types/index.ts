@@ -2,6 +2,8 @@
 
 export type UserRole = 'student' | 'teacher' | 'admin';
 
+export type AccountStatus = 'active' | 'inactive' | 'suspended';
+
 export type KoreanProficiency = 
   | 'Pre-A1' // Level 0: Korean Foundations
   | 'Level 1' // TOPIK I Level 1 (Beginner)
@@ -17,7 +19,12 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role: UserRole;
+  status?: AccountStatus;
+  emailVerified?: boolean;
+  lastLoginAt?: string;
+  updatedAt?: string;
   avatar?: string;
   studentId?: string;
   enrolledDate: string;
@@ -32,6 +39,30 @@ export interface UserProfile {
   bio?: string;
   attendancePercentage: number;
   currentAcademicGrade: string; // 'A' | 'B' | 'C' | 'D' | 'F'
+}
+
+export interface AuthSession {
+  userId: string;
+  email: string;
+  role: UserRole;
+  isAuthenticated: boolean;
+  isAdminAuthenticated?: boolean;
+  loginAt: string;
+  expiresAt: string;
+  token: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  actorId: string;
+  actorName: string;
+  actorEmail?: string;
+  action: string;
+  targetUserId?: string;
+  targetUserName?: string;
+  targetUserEmail?: string;
+  details: string;
 }
 
 export interface SkillProficiency {

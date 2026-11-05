@@ -7,13 +7,17 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. PROFILES & ROLES
 CREATE TYPE user_role AS ENUM ('student', 'teacher', 'admin');
+CREATE TYPE account_status AS ENUM ('active', 'inactive', 'suspended');
 CREATE TYPE proficiency_level AS ENUM ('Pre-A1', 'Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5', 'Level 6');
 
 CREATE TABLE profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    role user_role DEFAULT 'student',
+    role user_role NOT NULL DEFAULT 'student',
+    status account_status NOT NULL DEFAULT 'active',
+    email_verified BOOLEAN DEFAULT FALSE,
+    last_login_at TIMESTAMPTZ,
     student_id TEXT UNIQUE,
     proficiency proficiency_level DEFAULT 'Pre-A1',
     immersion_stage TEXT DEFAULT 'beginner',
@@ -25,9 +29,23 @@ CREATE TABLE profiles (
     current_course_id TEXT,
     bio TEXT,
     attendance_percentage NUMERIC DEFAULT 100,
-    current_academic_grade VARCHAR(2) DEFAULT 'A',
+    current_academic_grade VARCHAR(10) DEFAULT 'Pending',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 1B. ADMIN AUDIT LOGS
+CREATE TABLE audit_logs (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    actor_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    actor_name TEXT NOT NULL,
+    actor_email TEXT,
+    action TEXT NOT NULL,
+    target_user_id UUID,
+    target_user_name TEXT,
+    target_user_email TEXT,
+    details TEXT NOT NULL
 );
 
 -- 2. COURSES & CURRICULUM
@@ -174,21 +192,60 @@ CREATE TABLE certificates (
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- =========================================================================
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE student_completed_lessons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE student_vocabulary ENABLE ROW LEVEL SECURITY;
 ALTER TABLE assignment_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE exam_attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE certificates ENABLE ROW LEVEL SECURITY;
 
--- Profiles: Users can view their own profile, Teachers view their students, Admins view all
+-- Profiles: Users can view their own active profile, Teachers view their students, Admins view all
 CREATE POLICY "Profiles view policy" ON profiles
     FOR SELECT USING (
         auth.uid() = id OR 
-        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('teacher', 'admin'))
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('teacher', 'admin') AND status = 'active')
     );
 
+-- Profiles Insert: Users can only insert their own profile with default 'student' role and 'active' status
+CREATE POLICY "Profiles self registration insert policy" ON profiles
+    FOR INSERT WITH CHECK (
+        (auth.uid() = id AND role = 'student' AND status = 'active') OR
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND status = 'active')
+    );
+
+-- Profiles Update: Regular users can update their own profile but CANNOT change their role or status; Admins can update all
 CREATE POLICY "Profiles update policy" ON profiles
-    FOR UPDATE USING (auth.uid() = id OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+    FOR UPDATE USING (
+        (auth.uid() = id AND status = 'active') OR
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND status = 'active')
+    )
+    WITH CHECK (
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND status = 'active') OR
+        (
+            auth.uid() = id AND
+            role = (SELECT p.role FROM profiles p WHERE p.id = auth.uid()) AND
+            status = (SELECT p.status FROM profiles p WHERE p.id = auth.uid())
+        )
+    );
+
+-- Profiles Delete: Only active Admins can delete profiles (cannot delete own profile)
+CREATE POLICY "Profiles admin delete policy" ON profiles
+    FOR DELETE USING (
+        auth.uid() <> id AND
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND status = 'active')
+    );
+
+-- Audit Logs: Only active Admins can read and insert audit logs
+CREATE POLICY "Audit logs admin select" ON audit_logs
+    FOR SELECT USING (
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND status = 'active')
+    );
+
+CREATE POLICY "Audit logs insert" ON audit_logs
+    FOR INSERT WITH CHECK (
+        auth.uid() = actor_id OR
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND status = 'active')
+    );
 
 -- Student Vocabulary: Students only read and write their own words
 CREATE POLICY "Student vocabulary isolation" ON student_vocabulary

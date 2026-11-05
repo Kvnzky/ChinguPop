@@ -5,6 +5,9 @@ export const ADMIN_USER: UserProfile = {
   name: 'ChinguPop Faculty Admin',
   email: 'admin@chingupop.com',
   role: 'admin',
+  status: 'active',
+  emailVerified: true,
+  lastLoginAt: '2026-11-05T08:00:00.000Z',
   studentId: 'FACULTY-01',
   enrolledDate: '2026-11-01',
   proficiency: 'Level 6',
@@ -24,6 +27,9 @@ export const DEFAULT_STARTER_STUDENT: UserProfile = {
   name: 'Chingu Learner',
   email: 'learner@chingupop.com',
   role: 'student',
+  status: 'active',
+  emailVerified: true,
+  lastLoginAt: '2026-11-05T08:00:00.000Z',
   studentId: 'CP-2026-0001',
   enrolledDate: '2026-11-01',
   proficiency: 'Pre-A1',
@@ -43,3 +49,25 @@ export const INITIAL_USERS: UserProfile[] = [
   DEFAULT_STARTER_STUDENT,
   ADMIN_USER
 ];
+
+export const PUBLIC_GUEST_USER: UserProfile = {
+  id: 'guest-visitor',
+  name: 'Guest Visitor',
+  email: '',
+  phone: '',
+  role: 'student',
+  status: 'active',
+  emailVerified: false,
+  studentId: 'GUEST',
+  enrolledDate: '2026-11-05',
+  proficiency: 'Pre-A1',
+  immersionStage: 'beginner',
+  explanationLanguage: 'English',
+  filipinoSupport: true,
+  dailyStudyMinutes: 30,
+  studyDaysPerWeek: 5,
+  currentCourseId: 'course-pre-a1',
+  bio: 'Welcome to ChinguPop! Sign in or create a free account to track your Korean learning journey.',
+  attendancePercentage: 0,
+  currentAcademicGrade: '-'
+};

@@ -86,7 +86,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
 
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-white/10 border border-purple-300/30 text-center">
-              <span className="block text-2xl font-bold text-[#FF5CA8]">2</span>
+              <span className="block text-2xl font-bold text-[#FF5CA8]">{students.length}</span>
               <span className="text-[10px] text-purple-200 uppercase tracking-wider font-semibold">Enrolled Scholars</span>
             </div>
           </div>
