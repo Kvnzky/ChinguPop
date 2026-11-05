@@ -2,6 +2,17 @@ import { Assignment, AssignmentSubmission, Quiz } from '../types';
 
 export const INITIAL_ASSIGNMENTS: Assignment[] = [
   {
+    id: 'asg-vowels-1',
+    courseId: 'course-pre-a1',
+    lessonId: 'lesson-pre-a1-1',
+    title: 'Basic Hangul Vowels Handwriting & Calligraphy Drill',
+    instructions: 'Write out all 10 basic vowels with initial ㅇ (아, 야, 어, 여, 오, 요, 우, 유, 으, 이) 5 times each on paper or the digital canvas, and practice saying "우유" and "아이" aloud. Upload a picture (JPEG/PNG) of your handwriting for automated AI stroke recognition and faculty evaluation.',
+    dueDate: '2026-11-10',
+    maxGrade: 100,
+    submissionType: 'writing-prompt',
+    supportingMaterial: 'Reference: Lesson 1 - Basic Vowels Stroke Order & Placement Geometry'
+  },
+  {
     id: 'asg-1',
     courseId: 'course-pre-a1',
     lessonId: 'lesson-pre-a1-8',

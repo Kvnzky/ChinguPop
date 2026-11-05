@@ -15,6 +15,7 @@ import { ListenAndRepeatStudio } from './ListenAndRepeatStudio';
 import { HangulWritingCanvas } from './HangulWritingCanvas';
 import { SyllableBuilderActivity } from './SyllableBuilderActivity';
 import { LearningObjectiveChecklist, InteractiveObjective } from './LearningObjectiveChecklist';
+import { LessonAssignmentPortal } from './LessonAssignmentPortal';
 import { 
   BookOpen, 
   Sparkles, 
@@ -596,10 +597,23 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
             {currentLesson.homeworkPrompt || 'Practice writing all 10 basic vowels 5 times each in stroke order, and record yourself pronouncing 우유 (milk) and 아이 (child).'}
           </p>
           <div className="text-[11px] text-stone-500">
-            Submit your written homework in the <strong>Assignments Portal</strong> for instructor feedback.
+            Submit your written homework in the <strong>Assignments Portal directly below</strong> for instant AI vision evaluation and academic credit.
           </div>
         </div>
 
+      </div>
+
+      {/* 13. INTEGRATED ASSIGNMENT PORTAL WITH AI VISION EVALUATION (Directly Under Homework Card) */}
+      <div id="lesson-assignment-portal" className="pt-2">
+        <LessonAssignmentPortal
+          lessonId={currentLesson.id}
+          lessonTitle={currentLesson.title}
+          homeworkPrompt={currentLesson.homeworkPrompt}
+          currentUser={currentUser}
+          onSubmissionComplete={() => {
+            markObjectiveDone('obj-7');
+          }}
+        />
       </div>
 
     </div>

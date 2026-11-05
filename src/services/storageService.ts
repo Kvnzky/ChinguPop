@@ -57,7 +57,8 @@ class StorageService {
       localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(COURSES_DATA));
     }
 
-    if (!localStorage.getItem(STORAGE_KEYS.ASSIGNMENTS)) {
+    const rawAssignments = localStorage.getItem(STORAGE_KEYS.ASSIGNMENTS);
+    if (!rawAssignments || !rawAssignments.includes('asg-vowels-1')) {
       localStorage.setItem(STORAGE_KEYS.ASSIGNMENTS, JSON.stringify(INITIAL_ASSIGNMENTS));
     }
 

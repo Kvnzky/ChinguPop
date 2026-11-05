@@ -169,10 +169,51 @@ export const AssignmentView: React.FC<AssignmentViewProps> = ({ currentUser }) =
                 </span>
               </div>
 
+              {/* If an image was uploaded */}
+              {currentSubmission.imageUrl && (
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-stone-600 block">
+                    Uploaded Handwriting Photo:
+                  </span>
+                  <div className="rounded-xl border border-stone-200 overflow-hidden bg-stone-50 max-h-72 flex items-center justify-center p-2">
+                    <img
+                      src={currentSubmission.imageUrl}
+                      alt="Submitted work"
+                      className="max-h-64 object-contain rounded-lg"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* AI Vision Calligraphy Report */}
+              {currentSubmission.aiVisionEvaluation && (
+                <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-academy-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-academy-gold-dark" />
+                      SNU AI Calligraphy & Vision Assessment
+                    </span>
+                    <span className="font-mono font-bold text-emerald-800 text-xs px-2 py-0.5 bg-white rounded border border-amber-300">
+                      Score: {currentSubmission.aiVisionEvaluation.overallScore} / 100
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-800 leading-relaxed">
+                    {currentSubmission.aiVisionEvaluation.analysisSummary}
+                  </p>
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {currentSubmission.aiVisionEvaluation.detectedCharacters.map((c) => (
+                      <span key={c} className="px-2 py-0.5 rounded text-xs font-serif font-bold bg-academy-navy text-academy-gold">
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Student's original work */}
               <div className="space-y-1.5">
                 <span className="text-xs font-bold text-stone-600 block">
-                  Your Submitted Korean Text:
+                  Your Submitted Content / Notes:
                 </span>
                 <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 text-xs font-serif leading-relaxed text-academy-navy whitespace-pre-line">
                   {currentSubmission.content}

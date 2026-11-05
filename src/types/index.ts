@@ -210,6 +210,8 @@ export interface AssignmentSubmission {
   studentName: string;
   submittedAt: string;
   content: string;
+  imageUrl?: string;
+  imageFileName?: string;
   status: 'submitted' | 'under-review' | 'graded';
   grade?: number;
   teacherFeedback?: string;
@@ -219,6 +221,17 @@ export interface AssignmentSubmission {
     explanation: string;
     mistakeType: string;
   }[];
+  aiVisionEvaluation?: {
+    overallScore: number;
+    strokeAccuracyScore: number;
+    symmetryScore: number;
+    alignmentScore: number;
+    detectedCharacters: string[];
+    analysisSummary: string;
+    strokeOrderFeedback: string;
+    strengths: string[];
+    recommendations: string[];
+  };
 }
 
 export interface Quiz {
