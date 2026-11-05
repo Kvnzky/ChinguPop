@@ -203,6 +203,7 @@ export function App() {
             <StudentDashboard
               currentUser={currentUser}
               courses={courses}
+              onOpenAuth={handleOpenAuth}
               onNavigate={(tab) => {
                 setCurrentTab(tab);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -210,26 +211,90 @@ export function App() {
             />
           )}
 
-          {currentTab === 'academy-overview' && (
-            <AcademyProgressOverview
-              currentUser={currentUser}
-              courses={courses}
-              onSelectStudent={(id) => {
-                if (storage.isAdminAuthenticated() || id === currentUser.id) {
-                  const u = storage.getUserById(id);
-                  if (u) {
-                    storage.setCurrentUser(u.id);
-                    handleUserChange(u);
-                  }
-                } else {
-                  handleOpenAuth('signin');
-                }
-              }}
-              onNavigateTab={(tab) => {
-                setCurrentTab(tab);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            />
+          {/* Protected Personal Tabs Gate when Signed Out */}
+          {(['academy-overview', 'assignments', 'examinations', 'planner', 'records', 'certificates', 'settings'] as NavItemKey[]).includes(currentTab) &&
+          !storage.isAuthenticated() &&
+          !storage.isAdminAuthenticated() ? (
+            <div className="max-w-xl mx-auto my-12 bg-white rounded-3xl border border-stone-200 shadow-lg p-8 text-center space-y-5">
+              <div className="w-14 h-14 rounded-2xl bg-purple-100 text-[#6C52EE] flex items-center justify-center mx-auto font-extrabold text-xl">
+                🔒
+              </div>
+              <div className="space-y-2">
+                <span className="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold uppercase tracking-wider">
+                  Protected Member Area
+                </span>
+                <h2 className="text-xl font-extrabold text-[#1E1B4B]">
+                  Sign In Required to Access Your Account
+                </h2>
+                <p className="text-xs text-stone-600 leading-relaxed max-w-md mx-auto">
+                  You are currently signed out. Please sign in to your scholar account or create a free account to access personal profile settings, academic transcripts, assignments, and certificates.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleOpenAuth('signin')}
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#2C1E6D] to-[#6C52EE] hover:from-[#3B288C] hover:to-[#553ACF] text-white font-bold text-xs shadow-md transition-all"
+                >
+                  Sign In to Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenAuth('register')}
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF3D9A] text-white font-bold text-xs shadow-md transition-all"
+                >
+                  Create Free Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentTab('dashboard')}
+                  className="px-4 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-600 font-bold text-xs transition-all"
+                >
+                  Back to Public Homepage
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {currentTab === 'academy-overview' && (
+                <AcademyProgressOverview
+                  currentUser={currentUser}
+                  courses={courses}
+                  onSelectStudent={(id) => {
+                    if (storage.isAdminAuthenticated() || id === currentUser.id) {
+                      const u = storage.getUserById(id);
+                      if (u) {
+                        storage.setCurrentUser(u.id);
+                        handleUserChange(u);
+                      }
+                    } else {
+                      handleOpenAuth('signin');
+                    }
+                  }}
+                  onNavigateTab={(tab) => {
+                    setCurrentTab(tab);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              )}
+
+              {currentTab === 'assignments' && <AssignmentView currentUser={currentUser} />}
+
+              {currentTab === 'examinations' && <ExamSystem currentUser={currentUser} />}
+
+              {currentTab === 'planner' && <StudyPlanner currentUser={currentUser} />}
+
+              {currentTab === 'records' && <AcademicRecords currentUser={currentUser} />}
+
+              {currentTab === 'certificates' && <CertificateView currentUser={currentUser} />}
+
+              {currentTab === 'settings' && (
+                <SettingsView
+                  currentUser={currentUser}
+                  onUserUpdate={(updated) => setCurrentUser(updated)}
+                />
+              )}
+            </>
           )}
 
           {currentTab === 'courses' && (
@@ -256,24 +321,7 @@ export function App() {
 
           {currentTab === 'vocabulary' && <VocabularySRS currentUser={currentUser} />}
 
-          {currentTab === 'assignments' && <AssignmentView currentUser={currentUser} />}
-
-          {currentTab === 'examinations' && <ExamSystem currentUser={currentUser} />}
-
-          {currentTab === 'planner' && <StudyPlanner currentUser={currentUser} />}
-
           {currentTab === 'materials' && <MaterialsLibrary />}
-
-          {currentTab === 'records' && <AcademicRecords currentUser={currentUser} />}
-
-          {currentTab === 'certificates' && <CertificateView currentUser={currentUser} />}
-
-          {currentTab === 'settings' && (
-            <SettingsView
-              currentUser={currentUser}
-              onUserUpdate={(updated) => setCurrentUser(updated)}
-            />
-          )}
 
           {currentTab === 'admin-portal' && (
             <AdminPanel onSwitchUser={handleUserChange} />

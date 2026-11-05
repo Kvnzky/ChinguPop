@@ -43,6 +43,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
   // Registration Form State
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
@@ -129,6 +130,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
       const newStudent = storage.registerStudent({
         name: trimmedName,
         email: trimmedEmail,
+        phone: phone.trim(),
         password,
         confirmPassword,
         dailyStudyMinutes: dailyMinutes,
@@ -143,6 +145,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
       );
       setName('');
       setEmail('');
+      setPhone('');
       setPassword('');
       setConfirmPassword('');
       onRegistered(newStudent);
@@ -340,7 +343,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
         </div>
 
         {/* Active Session Notice if already authenticated */}
-        {activeSession && currentUser && !registeredUser && (
+        {activeSession && currentUser && currentUser.id !== 'guest-visitor' && !registeredUser && (
           <div className="mx-6 mt-4 p-3 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2 text-[#2C1E6D]">
               <ShieldCheck className="w-4 h-4 text-[#6C52EE] shrink-0" />
@@ -501,44 +504,6 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
               </button>
             </div>
 
-            {/* Saved Accounts on This Browser Quick-Select */}
-            {storage.getStudents().length > 0 && (
-              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 space-y-2">
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-[#1E1B4B]">Registered Scholar Accounts on This Device:</span>
-                  <span className="text-[10px] text-stone-500">Click to fill email</span>
-                </div>
-                <div className="space-y-1.5 max-h-32 overflow-y-auto">
-                  {storage.getStudents().map((st) => {
-                    const hasPwd = storage.hasPassword(st.id);
-                    const isDemo = st.email === 'learner@chingupop.com';
-                    return (
-                      <button
-                        key={st.id}
-                        type="button"
-                        onClick={() => {
-                          setSignInEmail(st.email);
-                          if (isDemo) {
-                            setSignInPassword(STARTER_STUDENT_DEFAULT_PASSWORD);
-                          }
-                          setError(null);
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-lg bg-white hover:bg-purple-50 border border-stone-200 hover:border-purple-300 flex items-center justify-between text-[11px] transition-colors"
-                      >
-                        <div className="truncate">
-                          <span className="font-bold text-[#1E1B4B]">{st.name}</span>
-                          <span className="text-stone-500 font-mono text-[10px] ml-1.5">({st.email})</span>
-                        </div>
-                        <span className="text-[10px] font-bold text-[#6C52EE] shrink-0 ml-2">
-                          {isDemo ? 'Fill Demo' : hasPwd ? 'Select' : 'Set Password'}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             <div className="text-center pt-1">
               <button
                 type="button"
@@ -581,21 +546,38 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
               />
             </div>
 
-            <div className="space-y-1">
-              <label htmlFor="reg-email" className="text-xs font-bold text-[#1E1B4B] flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-[#6C52EE]" />
-                <span>Email Address (이메일) *</span>
-              </label>
-              <input
-                id="reg-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. alex@example.com"
-                autoComplete="email"
-                required
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#6C52EE]/30 focus:border-[#6C52EE]"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label htmlFor="reg-email" className="text-xs font-bold text-[#1E1B4B] flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-[#6C52EE]" />
+                  <span>Email Address (이메일) *</span>
+                </label>
+                <input
+                  id="reg-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. alex@example.com"
+                  autoComplete="email"
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#6C52EE]/30 focus:border-[#6C52EE]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="reg-phone" className="text-xs font-bold text-[#1E1B4B] flex items-center gap-1.5">
+                  <span>Contact Number (연락처)</span>
+                </label>
+                <input
+                  id="reg-phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="e.g. +63 917 123 4567"
+                  autoComplete="tel"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#6C52EE]/30 focus:border-[#6C52EE]"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

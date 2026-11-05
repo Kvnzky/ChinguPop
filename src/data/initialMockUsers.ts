@@ -49,3 +49,25 @@ export const INITIAL_USERS: UserProfile[] = [
   DEFAULT_STARTER_STUDENT,
   ADMIN_USER
 ];
+
+export const PUBLIC_GUEST_USER: UserProfile = {
+  id: 'guest-visitor',
+  name: 'Guest Visitor',
+  email: '',
+  phone: '',
+  role: 'student',
+  status: 'active',
+  emailVerified: false,
+  studentId: 'GUEST',
+  enrolledDate: '2026-11-05',
+  proficiency: 'Pre-A1',
+  immersionStage: 'beginner',
+  explanationLanguage: 'English',
+  filipinoSupport: true,
+  dailyStudyMinutes: 30,
+  studyDaysPerWeek: 5,
+  currentCourseId: 'course-pre-a1',
+  bio: 'Welcome to ChinguPop! Sign in or create a free account to track your Korean learning journey.',
+  attendancePercentage: 0,
+  currentAcademicGrade: '-'
+};

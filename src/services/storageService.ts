@@ -13,7 +13,7 @@ import {
   AIMessage, 
   StudyPlanItem 
 } from '../types';
-import { INITIAL_USERS, ADMIN_USER, DEFAULT_STARTER_STUDENT } from '../data/initialMockUsers';
+import { INITIAL_USERS, ADMIN_USER, DEFAULT_STARTER_STUDENT, PUBLIC_GUEST_USER } from '../data/initialMockUsers';
 import { COURSES_DATA } from '../data/curriculumData';
 import { INITIAL_VOCABULARY } from '../data/vocabularyData';
 import { INITIAL_ASSIGNMENTS, INITIAL_SUBMISSIONS } from '../data/assessmentData';
@@ -75,6 +75,7 @@ function normalizeUser(user: UserProfile): UserProfile {
     ...user,
     name: (user.name || 'Scholar').trim(),
     email: (user.email || '').trim().toLowerCase(),
+    phone: (user.phone || '').trim(),
     role: user.role || 'student',
     status: user.status || 'active',
     emailVerified: user.emailVerified !== undefined ? user.emailVerified : true,
@@ -116,15 +117,16 @@ class StorageService {
       u => u && u.id !== 'student-dhie' && u.id !== 'student-mhie' && u.id !== 'teacher-kim' && u.id !== 'admin-dean'
     );
 
+    // Ensure both ADMIN_USER and DEFAULT_STARTER_STUDENT are in the database without removing any registered user
     if (parsedUsers.length === 0) {
       parsedUsers = [normalizeUser(DEFAULT_STARTER_STUDENT), normalizeUser(ADMIN_USER)];
     } else {
-      // Ensure ADMIN_USER is always present in the unified user store
-      const hasAdmin = parsedUsers.some(u => u.id === ADMIN_USER.id || u.role === 'admin');
-      if (!hasAdmin) {
+      if (!parsedUsers.some(u => u.id === DEFAULT_STARTER_STUDENT.id)) {
+        parsedUsers.unshift(normalizeUser(DEFAULT_STARTER_STUDENT));
+      }
+      if (!parsedUsers.some(u => u.id === ADMIN_USER.id)) {
         parsedUsers.push(normalizeUser(ADMIN_USER));
       }
-      // Normalize all existing user records
       parsedUsers = parsedUsers.map(normalizeUser);
     }
 
@@ -153,16 +155,11 @@ class StorageService {
       localStorage.setItem(STORAGE_KEYS.PASSWORDS, JSON.stringify(pwdMap));
     }
 
-    const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
-    if (
-      !currentId || 
-      currentId === 'student-dhie' || 
-      currentId === 'student-mhie' || 
-      currentId === 'teacher-kim' ||
-      (currentId === ADMIN_USER.id && !this.isAdminAuthenticated())
-    ) {
-      const firstActiveStudent = parsedUsers.find(u => u.role === 'student' && u.status === 'active') || DEFAULT_STARTER_STUDENT;
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, firstActiveStudent.id);
+    // CRITICAL FIX: Do NOT auto-populate CURRENT_USER_ID when there is no valid authenticated session.
+    // If no active session exists, remove any stale CURRENT_USER_ID so signed-out visitors never display a registered user.
+    const activeSessionRaw = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
+    if (!activeSessionRaw) {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.COURSES)) {
@@ -304,32 +301,42 @@ class StorageService {
     );
   }
 
-  getCurrentUser(): UserProfile {
+  getAuthenticatedUser(): UserProfile | null {
     const session = this.getSession();
-    if (session && session.isAuthenticated) {
-      const sessionUser = this.getUserById(session.userId);
-      if (sessionUser && sessionUser.status === 'active') {
-        if (sessionUser.role === 'admin' && !this.isAdminAuthenticated()) {
-          // Do not allow unverified admin session
-        } else {
-          return sessionUser;
-        }
-      }
+    if (!session || !session.isAuthenticated) {
+      return null;
+    }
+    const sessionUser = this.getUserById(session.userId);
+    if (!sessionUser || sessionUser.status !== 'active') {
+      localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
+      return null;
+    }
+    if (sessionUser.role === 'admin' && !this.isAdminAuthenticated()) {
+      localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
+      return null;
+    }
+    return sessionUser;
+  }
+
+  getCurrentUser(): UserProfile {
+    const authUser = this.getAuthenticatedUser();
+    if (authUser) {
+      return authUser;
     }
 
-    const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID) || DEFAULT_STARTER_STUDENT.id;
-    if (currentId === ADMIN_USER.id || this.getUserById(currentId)?.role === 'admin') {
-      if (this.isAdminAuthenticated()) {
-        return this.getUserById(currentId) || this.getAdminUser();
-      }
+    // If Admin Portal session is active via sessionStorage, return the Admin user
+    if (this.isAdminAuthenticated()) {
+      return this.getAdminUser();
     }
 
-    const activeStudents = this.getStudents().filter(u => u.status === 'active');
-    return (
-      activeStudents.find(u => u.id === currentId) ||
-      activeStudents[0] ||
-      normalizeUser(DEFAULT_STARTER_STUDENT)
-    );
+    // CRITICAL: When signed out, NEVER return a registered user's profile from ha_users.
+    // Ensure stale CURRENT_USER_ID is cleared and return the isolated PUBLIC_GUEST_USER.
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
+    }
+    return { ...PUBLIC_GUEST_USER };
   }
 
   setCurrentUser(userId: string): UserProfile {
@@ -348,7 +355,7 @@ class StorageService {
       throw new Error(`Cannot switch to this account because its status is ${user.status}.`);
     }
 
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, user.id);
+    this.createSession(user, this.isAdminAuthenticated());
     return user;
   }
 
@@ -552,27 +559,34 @@ class StorageService {
   }
 
   logout(): UserProfile {
-    const currentSession = this.getSession();
-    const currentUser = this.getCurrentUser();
-    if (currentSession) {
+    const authUser = this.getAuthenticatedUser();
+    if (authUser) {
       this.recordAuditLog({
-        actorId: currentUser.id,
-        actorName: currentUser.name,
-        actorEmail: currentUser.email,
+        actorId: authUser.id,
+        actorName: authUser.name,
+        actorEmail: authUser.email,
         action: 'USER_SIGN_OUT',
-        details: `${currentUser.name} signed out.`
+        details: `${authUser.name} (${authUser.email}) signed out.`
+      });
+    } else if (this.isAdminAuthenticated()) {
+      const adminUser = this.getAdminUser();
+      this.recordAuditLog({
+        actorId: adminUser.id,
+        actorName: adminUser.name,
+        actorEmail: adminUser.email,
+        action: 'ADMIN_SIGN_OUT',
+        details: `${adminUser.name} signed out of Admin Portal.`
       });
     }
+
+    // Completely terminate authenticated session and clear stale active user IDs
+    // without deleting any registered user profiles from STORAGE_KEYS.USERS
     localStorage.removeItem(STORAGE_KEYS.AUTH_SESSION);
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
+    localStorage.removeItem(STORAGE_KEYS.ADMIN_AUTH);
     sessionStorage.removeItem(STORAGE_KEYS.ADMIN_AUTH);
 
-    const defaultStudent =
-      this.getStudents().find(s => s.status === 'active' && s.id === DEFAULT_STARTER_STUDENT.id) ||
-      this.getStudents().find(s => s.status === 'active') ||
-      normalizeUser(DEFAULT_STARTER_STUDENT);
-
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, defaultStudent.id);
-    return defaultStudent;
+    return { ...PUBLIC_GUEST_USER };
   }
 
   private hasCustomAdminPassword(): boolean {
@@ -634,6 +648,7 @@ class StorageService {
   registerStudent(data: {
     name: string;
     email: string;
+    phone?: string;
     password?: string;
     confirmPassword?: string;
     proficiency?: any;
@@ -644,6 +659,7 @@ class StorageService {
   }): UserProfile {
     const cleanName = (data.name || '').trim();
     const cleanEmail = (data.email || '').trim().toLowerCase();
+    const cleanPhone = (data.phone || '').trim();
 
     if (!cleanName || cleanName.length < 2) {
       throw new Error('Please enter your full name (at least 2 characters).');
@@ -681,6 +697,7 @@ class StorageService {
       id: newId,
       name: cleanName,
       email: cleanEmail,
+      phone: cleanPhone,
       role: 'student',
       status: 'active',
       emailVerified: true,
@@ -898,6 +915,7 @@ class StorageService {
   adminCreateUser(data: {
     name: string;
     email: string;
+    phone?: string;
     password: string;
     role: UserRole;
     status?: AccountStatus;
@@ -910,6 +928,7 @@ class StorageService {
     const actor = this.requireAdminAuth();
     const cleanName = (data.name || '').trim();
     const cleanEmail = (data.email || '').trim().toLowerCase();
+    const cleanPhone = (data.phone || '').trim();
 
     if (!cleanName || cleanName.length < 2) {
       throw new Error('Full name must be at least 2 characters.');
@@ -936,6 +955,7 @@ class StorageService {
       id: newId,
       name: cleanName,
       email: cleanEmail,
+      phone: cleanPhone,
       role,
       status,
       emailVerified: true,
@@ -992,7 +1012,7 @@ class StorageService {
 
   adminUpdateUser(
     targetUserId: string,
-    updates: Partial<Pick<UserProfile, 'name' | 'email' | 'role' | 'status' | 'proficiency' | 'immersionStage' | 'dailyStudyMinutes' | 'studyDaysPerWeek' | 'filipinoSupport' | 'explanationLanguage' | 'bio' | 'currentAcademicGrade' | 'studentId'>>
+    updates: Partial<Pick<UserProfile, 'name' | 'email' | 'phone' | 'role' | 'status' | 'proficiency' | 'immersionStage' | 'dailyStudyMinutes' | 'studyDaysPerWeek' | 'filipinoSupport' | 'explanationLanguage' | 'bio' | 'currentAcademicGrade' | 'attendancePercentage' | 'studentId'>>
   ): UserProfile {
     const actor = this.requireAdminAuth();
     const target = this.getUserById(targetUserId);

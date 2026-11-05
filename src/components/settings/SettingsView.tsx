@@ -10,6 +10,7 @@ interface SettingsViewProps {
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserUpdate }) => {
   const [name, setName] = useState(currentUser.name);
+  const [phone, setPhone] = useState(currentUser.phone || '');
   const [bio, setBio] = useState(currentUser.bio || '');
   const [proficiency, setProficiency] = useState<KoreanProficiency>(currentUser.proficiency);
   const [immersionStage, setImmersionStage] = useState<ImmersionStage>(currentUser.immersionStage);
@@ -28,6 +29,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
 
   useEffect(() => {
     setName(currentUser.name);
+    setPhone(currentUser.phone || '');
     setBio(currentUser.bio || '');
     setProficiency(currentUser.proficiency);
     setImmersionStage(currentUser.immersionStage);
@@ -73,6 +75,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
       const updated: UserProfile = {
         ...currentUser,
         name: name.trim(),
+        phone: phone.trim(),
         bio: bio.trim(),
         proficiency,
         immersionStage,
@@ -169,7 +172,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
             />
           </div>
 
-          <div className="sm:col-span-2">
+          <div>
+            <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5">
+              Contact Number
+            </label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="e.g. +63 917 123 4567"
+              className="w-full p-2.5 border border-stone-300 rounded-lg text-xs text-stone-800"
+            />
+          </div>
+
+          <div>
             <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5">
               Personal Study Bio / Goal
             </label>

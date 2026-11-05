@@ -100,6 +100,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
   // Create User Form State
   const [newUserName, setNewUserName] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserPhone, setNewUserPhone] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
   const [newUserRole, setNewUserRole] = useState<UserRole>('student');
   const [newUserStatus, setNewUserStatus] = useState<AccountStatus>('active');
@@ -108,15 +109,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
   // Edit User Form State
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editStudentId, setEditStudentId] = useState('');
   const [editRole, setEditRole] = useState<UserRole>('student');
   const [editStatus, setEditStatus] = useState<AccountStatus>('active');
   const [editProficiency, setEditProficiency] = useState<KoreanProficiency>('Pre-A1');
   const [editImmersion, setEditImmersion] = useState<ImmersionStage>('beginner');
+  const [editExplanationLanguage, setEditExplanationLanguage] = useState<'English' | 'Filipino' | 'Korean'>('Filipino');
   const [editDailyMinutes, setEditDailyMinutes] = useState(60);
   const [editStudyDays, setEditStudyDays] = useState(7);
   const [editGrade, setEditGrade] = useState('Pending');
+  const [editAttendancePct, setEditAttendancePct] = useState(0);
   const [editFilipinoSupport, setEditFilipinoSupport] = useState(true);
   const [editBio, setEditBio] = useState('');
+  const [generatedResetCode, setGeneratedResetCode] = useState<string | null>(null);
 
   // Quick Password Reset Card State
   const [selectedStudentForPwd, setSelectedStudentForPwd] = useState<string>(() => users[0]?.id || '');
@@ -211,6 +217,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
         !q ||
         u.name.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
+        (u.phone || '').toLowerCase().includes(q) ||
         (u.studentId || '').toLowerCase().includes(q);
       const matchesRole = roleFilter === 'all' || u.role === roleFilter;
       const uStatus = u.status || 'active';
@@ -249,13 +256,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
     setEditingUser(user);
     setEditName(user.name);
     setEditEmail(user.email);
+    setEditPhone(user.phone || '');
+    setEditStudentId(user.studentId || '');
     setEditRole(user.role);
     setEditStatus(user.status || 'active');
     setEditProficiency(user.proficiency);
     setEditImmersion(user.immersionStage);
+    setEditExplanationLanguage(user.explanationLanguage || 'Filipino');
     setEditDailyMinutes(user.dailyStudyMinutes);
     setEditStudyDays(user.studyDaysPerWeek);
     setEditGrade(user.currentAcademicGrade || 'Pending');
+    setEditAttendancePct(user.attendancePercentage || 0);
     setEditFilipinoSupport(user.filipinoSupport);
     setEditBio(user.bio || '');
   };
@@ -267,13 +278,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
       storage.adminUpdateUser(editingUser.id, {
         name: editName,
         email: editEmail,
+        phone: editPhone,
+        studentId: editStudentId,
         role: editRole,
         status: editStatus,
         proficiency: editProficiency,
         immersionStage: editImmersion,
+        explanationLanguage: editExplanationLanguage,
         dailyStudyMinutes: Number(editDailyMinutes),
         studyDaysPerWeek: Number(editStudyDays),
         currentAcademicGrade: editGrade,
+        attendancePercentage: Number(editAttendancePct),
         filipinoSupport: editFilipinoSupport,
         bio: editBio
       });
@@ -291,6 +306,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
       const created = storage.adminCreateUser({
         name: newUserName,
         email: newUserEmail,
+        phone: newUserPhone,
         password: newUserPassword,
         role: newUserRole,
         status: newUserStatus,
@@ -298,6 +314,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
       });
       setNewUserName('');
       setNewUserEmail('');
+      setNewUserPhone('');
       setNewUserPassword('');
       setNewUserRole('student');
       setNewUserStatus('active');
@@ -785,7 +802,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
         <div className="space-y-6">
           
           {/* KPI Summary Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-xs flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 block">
@@ -834,6 +851,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
               </div>
               <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
                 <UserX className="w-5 h-5" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-xs flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 block">
+                  Total Administrators
+                </span>
+                <span className="text-2xl font-bold text-[#2C1E6D] mt-1 block">
+                  {dashboardStats.totalAdmins}
+                </span>
+                <span className="text-[10px] text-purple-700 font-medium mt-0.5 block">
+                  Authorized faculty & staff
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#2C1E6D] flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5" />
               </div>
             </div>
 
@@ -1009,9 +1043,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
                               </div>
                             </td>
 
-                            {/* Email */}
+                            {/* Email & Contact Number */}
                             <td className="py-3.5 px-4">
                               <div className="font-medium text-stone-800">{u.email}</div>
+                              {u.phone && (
+                                <div className="text-[10px] text-stone-500 font-mono mt-0.5">
+                                  📞 {u.phone}
+                                </div>
+                              )}
                               <div className="text-[10px] text-emerald-700 flex items-center gap-1 mt-0.5">
                                 <CheckCircle className="w-3 h-3 text-emerald-600" />
                                 <span>Verified</span>
@@ -1660,8 +1699,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
                 <span className="font-bold text-emerald-700 capitalize mt-0.5 block">{viewingUser.status || 'active'}</span>
               </div>
               <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
+                <span className="text-[10px] text-stone-500 uppercase font-bold block">Contact Number</span>
+                <span className="font-mono font-bold text-stone-800 mt-0.5 block">{viewingUser.phone || 'Not provided'}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
                 <span className="text-[10px] text-stone-500 uppercase font-bold block">Registered Date</span>
                 <span className="font-mono font-bold text-stone-800 mt-0.5 block">{viewingUser.enrolledDate}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
+                <span className="text-[10px] text-stone-500 uppercase font-bold block">Last Login</span>
+                <span className="font-mono font-bold text-stone-800 mt-0.5 block">
+                  {viewingUser.lastLoginAt ? viewingUser.lastLoginAt.split('T')[0] : 'Never'}
+                </span>
               </div>
               <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
                 <span className="text-[10px] text-stone-500 uppercase font-bold block">Proficiency</span>
@@ -1677,6 +1726,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
                 <span className="text-[10px] text-stone-500 uppercase font-bold block">Attendance Days</span>
                 <span className="font-mono font-bold text-stone-800 mt-0.5 block">
                   {storage.getAttendance(viewingUser.id).length} Days Active
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
+                <span className="text-[10px] text-stone-500 uppercase font-bold block">Academic Grade</span>
+                <span className="font-mono font-bold text-stone-800 mt-0.5 block">
+                  {viewingUser.currentAcademicGrade || 'Pending'}
                 </span>
               </div>
             </div>
@@ -1779,6 +1834,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
               </div>
 
               <div>
+                <label className="block font-bold text-academy-navy mb-1">Contact Number</label>
+                <input
+                  type="tel"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  placeholder="e.g. +63 917 123 4567"
+                  className="w-full p-2.5 border border-stone-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-academy-navy mb-1">Scholar / Student ID</label>
+                <input
+                  type="text"
+                  value={editStudentId}
+                  onChange={(e) => setEditStudentId(e.target.value)}
+                  placeholder="e.g. CP-2026-1001"
+                  className="w-full p-2.5 border border-stone-300 rounded-lg font-mono"
+                />
+              </div>
+
+              <div>
                 <label className="block font-bold text-academy-navy mb-1">Role</label>
                 <select
                   value={editRole}
@@ -1821,12 +1898,62 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
               </div>
 
               <div>
+                <label className="block font-bold text-academy-navy mb-1">Immersion Stage</label>
+                <select
+                  value={editImmersion}
+                  onChange={(e) => setEditImmersion(e.target.value as ImmersionStage)}
+                  className="w-full p-2.5 border border-stone-300 rounded-lg bg-white"
+                >
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-academy-navy mb-1">Explanation Language</label>
+                <select
+                  value={editExplanationLanguage}
+                  onChange={(e) => setEditExplanationLanguage(e.target.value as 'English' | 'Filipino' | 'Korean')}
+                  className="w-full p-2.5 border border-stone-300 rounded-lg bg-white"
+                >
+                  <option value="Filipino">Filipino-English Bilingual</option>
+                  <option value="English">English Only</option>
+                  <option value="Korean">Korean Immersion</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block font-bold text-academy-navy mb-1">Academic Grade</label>
                 <input
                   type="text"
                   value={editGrade}
                   onChange={(e) => setEditGrade(e.target.value)}
                   className="w-full p-2.5 border border-stone-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-academy-navy mb-1">Daily Study Minutes</label>
+                <input
+                  type="number"
+                  min={15}
+                  max={240}
+                  value={editDailyMinutes}
+                  onChange={(e) => setEditDailyMinutes(Number(e.target.value))}
+                  className="w-full p-2.5 border border-stone-300 rounded-lg font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-academy-navy mb-1">Study Days / Week</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={7}
+                  value={editStudyDays}
+                  onChange={(e) => setEditStudyDays(Number(e.target.value))}
+                  className="w-full p-2.5 border border-stone-300 rounded-lg font-mono"
                 />
               </div>
 
@@ -1908,6 +2035,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
                   value={newUserEmail}
                   onChange={(e) => setNewUserEmail(e.target.value)}
                   placeholder="e.g. minseo@example.com"
+                  className="w-full p-2.5 border border-stone-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-academy-navy mb-1">Contact Number</label>
+                <input
+                  type="tel"
+                  value={newUserPhone}
+                  onChange={(e) => setNewUserPhone(e.target.value)}
+                  placeholder="e.g. +63 917 123 4567"
                   className="w-full p-2.5 border border-stone-300 rounded-lg"
                 />
               </div>
@@ -2049,18 +2187,47 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
               </button>
             </div>
 
-            <div className="text-xs space-y-2">
-              <p className="text-stone-600">
-                Enter a new strong password for <strong>{passwordModalUser.email}</strong> (at least 8 characters with letters and numbers/symbols).
-              </p>
-              <input
-                type="password"
-                required
-                value={modalNewPassword}
-                onChange={(e) => setModalNewPassword(e.target.value)}
-                placeholder="New password (min. 8 characters)"
-                className="w-full p-2.5 border border-stone-300 rounded-lg text-xs"
-              />
+            <div className="text-xs space-y-3">
+              <div className="p-3 rounded-xl bg-purple-50/70 border border-purple-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[#2C1E6D]">Option A: Trigger 6-Digit Reset Code</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        const res = storage.requestPasswordReset(passwordModalUser.email);
+                        setGeneratedResetCode(res.code);
+                        notifySuccess(`Generated password reset code for ${passwordModalUser.email}: ${res.code}`);
+                      } catch (err: any) {
+                        notifyError(err?.message || 'Failed to generate reset code.');
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-[#6C52EE] hover:bg-[#553ACF] text-white font-bold text-[11px]"
+                  >
+                    Generate Reset Code
+                  </button>
+                </div>
+                {generatedResetCode && (
+                  <div className="p-2 rounded-lg bg-white border border-purple-200 font-mono text-xs text-[#2C1E6D]">
+                    Verification Code: <strong>{generatedResetCode}</strong> (Valid for 15 minutes)
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="font-bold text-academy-navy block">Option B: Set New Password Directly</span>
+                <p className="text-stone-600 text-[11px]">
+                  Enter a new strong password for <strong>{passwordModalUser.email}</strong> (at least 8 characters with letters and numbers/symbols).
+                </p>
+                <input
+                  type="password"
+                  required
+                  value={modalNewPassword}
+                  onChange={(e) => setModalNewPassword(e.target.value)}
+                  placeholder="New password (min. 8 characters)"
+                  className="w-full p-2.5 border border-stone-300 rounded-lg text-xs"
+                />
+              </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
