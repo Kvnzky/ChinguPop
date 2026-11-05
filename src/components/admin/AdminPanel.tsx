@@ -18,14 +18,29 @@ import {
   Globe, 
   CheckCircle, 
   User, 
-  GraduationCap 
+  GraduationCap,
+  Eye,
+  EyeOff,
+  LogOut,
+  ArrowLeft
 } from 'lucide-react';
+
+const ADMIN_USERNAME = 'admin123';
+const ADMIN_PASSWORD = 'Bunny_016';
 
 interface AdminPanelProps {
   onSwitchUser?: (user: UserProfile) => void;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return typeof window !== 'undefined' && sessionStorage.getItem('ha_admin_auth') === 'true';
+  });
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<'grading' | 'students' | 'curriculum' | 'settings'>('grading');
   const [users, setUsers] = useState<UserProfile[]>(storage.getUsers());
   const [courses, setCourses] = useState<Course[]>(storage.getCourses());
@@ -37,6 +52,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
   const [feedbackInput, setFeedbackInput] = useState<string>(selectedSub?.teacherFeedback || '');
   const [adminUnlockAll, setAdminUnlockAllState] = useState<boolean>(storage.isAdminUnlockAll());
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
+
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginUsername.trim().toLowerCase() === ADMIN_USERNAME.toLowerCase() && loginPassword === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('ha_admin_auth', 'true');
+      setLoginError(null);
+    } else {
+      setLoginError('Invalid username or password. Please use the authorized faculty credentials.');
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('ha_admin_auth');
+    if (onSwitchUser) {
+      const student = storage.getStudents()[0] || storage.getCurrentUser();
+      onSwitchUser(student);
+    }
+  };
 
   const getAssignmentTitle = (assignmentId: string) => {
     return assignments.find(a => a.id === assignmentId)?.title || 'Korean Language Exercise';
@@ -53,6 +88,99 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
   const [newLessonKoreanTitle, setNewLessonKoreanTitle] = useState('');
   const [newLessonIntro, setNewLessonIntro] = useState('');
   const [newLessonExplanation, setNewLessonExplanation] = useState('');
+
+  // If not authenticated, render the secure Admin Login Gate
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-purple-200/90 relative overflow-hidden space-y-6">
+          <div className="text-center space-y-2">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#2C1E6D] to-[#6C52EE] text-white flex items-center justify-center mx-auto shadow-md">
+              <ShieldCheck className="w-8 h-8 text-[#55C8F5]" />
+            </div>
+            <div className="inline-block px-2.5 py-0.5 rounded-full bg-purple-50 border border-purple-200 text-[#6C52EE] text-[10px] font-mono font-bold uppercase tracking-wider">
+              Faculty / Admin Gate
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-[#1E1B4B]">
+              Admin Portal
+            </h2>
+            <p className="text-xs text-stone-500 max-w-xs mx-auto">
+              Please enter your institutional credentials to access the administrative grading queue & platform controls.
+            </p>
+          </div>
+
+          <form onSubmit={handleAdminLogin} className="space-y-4">
+            {loginError && (
+              <div className="p-3 rounded-xl bg-pink-50 border border-pink-200 text-pink-700 text-xs font-semibold">
+                {loginError}
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[#1E1B4B] flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-[#6C52EE]" />
+                <span>Username</span>
+              </label>
+              <input
+                type="text"
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+                placeholder="admin123"
+                required
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#6C52EE]/30 focus:border-[#6C52EE]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[#1E1B4B] flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-[#6C52EE]" />
+                <span>Password</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-stone-200 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#6C52EE]/30 focus:border-[#6C52EE]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#2C1E6D] to-[#6C52EE] hover:from-[#3B288C] hover:to-[#553ACF] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-98"
+            >
+              Log In to Admin Portal
+            </button>
+          </form>
+
+          {onSwitchUser && (
+            <div className="pt-2 text-center border-t border-stone-100">
+              <button
+                type="button"
+                onClick={() => {
+                  const student = storage.getStudents()[0] || storage.getCurrentUser();
+                  onSwitchUser(student);
+                }}
+                className="text-xs font-bold text-stone-500 hover:text-[#6C52EE] transition-colors"
+              >
+                ← Return to Student Classroom
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // Grading handler
   const handleSelectSub = (sub: AssignmentSubmission) => {
@@ -204,7 +332,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[10px] font-mono px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>admin123 (Active)</span>
+          </span>
+          <button
+            type="button"
+            onClick={handleAdminLogout}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-xs font-semibold text-rose-700 border border-rose-200 transition-colors"
+            title="Lock & Log Out of Admin Portal"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
           {onSwitchUser && (
             <button
               type="button"
@@ -214,7 +355,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
               }}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-purple-50 hover:bg-purple-100 text-xs font-semibold text-[#6C52EE] border border-purple-200 transition-colors"
             >
-              <span>← Back to Student Classroom</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Student Classroom</span>
             </button>
           )}
           <button
