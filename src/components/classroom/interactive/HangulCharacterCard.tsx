@@ -41,19 +41,19 @@ export const HangulCharacterCard: React.FC<HangulCharacterCardProps> = ({
       rate: 0.85,
       onEnd: () => setIsPlaying(false)
     });
-    // Open full pronunciation studio for this vowel
+    // Select this vowel for active pronunciation studio below
     onSelect();
   };
 
   return (
     <div
       onClick={handleClickCard}
-      className={`group p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between select-none min-w-0 w-full overflow-hidden bg-white shadow-sm relative hover:shadow-md hover:border-academy-gold ${
+      className={`group p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between select-none min-w-0 w-full overflow-hidden shadow-sm relative hover:shadow-md ${
         isSelected
-          ? 'border-academy-navy shadow-md ring-2 ring-academy-gold/50'
-          : 'border-stone-200'
+          ? 'border-academy-gold bg-amber-50/40 shadow-md ring-2 ring-academy-gold/60 scale-[1.02]'
+          : 'border-stone-200 bg-white hover:border-academy-gold/60'
       } ${className}`}
-      title={`Click to pronounce "${item.name}" (${item.romanization}) and open pronunciation studio`}
+      title={`Click to pronounce "${item.name}" (${item.romanization}) and practice in studio below`}
     >
       {/* Top Bar: Romanization, Syllable Name, Sound Indicator & Mastered Checkbox */}
       <div className="flex items-center justify-between gap-1 min-w-0">

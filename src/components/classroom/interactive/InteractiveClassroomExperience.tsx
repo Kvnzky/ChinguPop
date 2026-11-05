@@ -29,7 +29,9 @@ import {
   Sun, 
   Compass, 
   User, 
-  Globe 
+  Globe,
+  ArrowRight,
+  ArrowLeft 
 } from 'lucide-react';
 
 interface InteractiveClassroomExperienceProps {
@@ -43,10 +45,10 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
   currentUser,
   onLessonMastered
 }) => {
-  // Navigation tabs for the structured flow: LEARN → LISTEN → WATCH → PRACTICE → SPEAK → WRITE → TEST
+  // Streamlined 6-step Studio Navigation (merged Grid + Pronunciation Studio + Mouth Guide into Step 1)
   const [activeStudioTab, setActiveStudioTab] = useState<
-    'alphabet-classroom' | 'pronunciation-studio' | 'mouth-guide' | 'listen-identify' | 'listen-repeat' | 'writing' | 'syllable-builder' | 'knowledge-check'
-  >('alphabet-classroom');
+    'vowels-studio' | 'listen-identify' | 'listen-repeat' | 'writing' | 'syllable-builder' | 'knowledge-check'
+  >('vowels-studio');
 
   // Interactive Checklist State
   const [objectives, setObjectives] = useState<InteractiveObjective[]>(INITIAL_VOWEL_OBJECTIVES);
@@ -182,14 +184,12 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
       {/* 3. STEP-BY-STEP INTERACTIVE STUDIO NAVIGATION BAR */}
       <div className="bg-academy-navy text-academy-ivory rounded-2xl p-2.5 shadow-md flex flex-wrap items-center gap-1.5 sm:gap-2 no-scrollbar scrollbar-none">
         {[
-          { key: 'alphabet-classroom', label: '1. Vowel Grid', icon: BookOpen },
-          { key: 'pronunciation-studio', label: '2. Pronunciation Studio', icon: Mic },
-          { key: 'mouth-guide', label: '3. Mouth & Vocal Tract', icon: Compass },
-          { key: 'listen-identify', label: '4. Listen & Identify', icon: Headphones },
-          { key: 'listen-repeat', label: '5. Listen & Repeat', icon: Sparkles },
-          { key: 'writing', label: '6. Stroke Writing', icon: PenTool },
-          { key: 'syllable-builder', label: '7. Syllable Builder', icon: Layers },
-          { key: 'knowledge-check', label: '8. Knowledge Check', icon: HelpCircle }
+          { key: 'vowels-studio', label: '1. Vowels & Pronunciation', icon: BookOpen },
+          { key: 'listen-identify', label: '2. Listen & Identify', icon: Headphones },
+          { key: 'listen-repeat', label: '3. Listen & Repeat', icon: Sparkles },
+          { key: 'writing', label: '4. Stroke Writing', icon: PenTool },
+          { key: 'syllable-builder', label: '5. Syllable Builder', icon: Layers },
+          { key: 'knowledge-check', label: '6. Knowledge Check', icon: HelpCircle }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeStudioTab === tab.key;
@@ -211,16 +211,18 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
         })}
       </div>
 
-      {/* TAB 1: INTERACTIVE ALPHABET CLASSROOM (10 Basic Vowel Cards) */}
-      {activeStudioTab === 'alphabet-classroom' && (
+      {/* TAB 1: UNIFIED VOWEL ALPHABET & PRONUNCIATION STUDIO (No Redundant Tab Switching) */}
+      {activeStudioTab === 'vowels-studio' && (
         <div className="space-y-6">
+          
+          {/* Section A: Interactive Vowel Alphabet Classroom Grid */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-stone-100">
             <div>
               <h3 className="font-serif font-bold text-lg text-academy-navy">
                 Interactive Vowel Alphabet Classroom (기본 모음 10자)
               </h3>
               <p className="text-xs text-stone-600 mt-0.5">
-                Click any vowel card to preview audio, inspect articulation, and open its pronunciation studio.
+                Click any vowel card to hear native Korean audio and practice in the integrated Pronunciation Studio directly below.
               </p>
             </div>
             <span className="text-xs font-mono text-stone-600 bg-white px-3 py-1.5 rounded-lg border border-stone-200 self-start sm:self-center shrink-0">
@@ -235,163 +237,263 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
                 item={item}
                 isSelected={selectedCharItem.char === item.char}
                 isCompleted={masteredChars.includes(item.char)}
-                onSelect={() => {
-                  handleSelectChar(item);
-                  setActiveStudioTab('pronunciation-studio');
-                }}
+                onSelect={() => handleSelectChar(item)}
                 onToggleComplete={() => toggleCharMastered(item.char)}
               />
             ))}
           </div>
 
-          {/* Vertical vs Horizontal Placement Explainer */}
-          <div className="p-4 rounded-xl border border-stone-200 bg-white shadow-sm space-y-2">
-            <button
-              type="button"
-              onClick={() => setPlacementRuleExpanded(!placementRuleExpanded)}
-              className="w-full flex items-center justify-between text-left"
-            >
-              <span className="font-serif font-bold text-sm text-academy-navy">
-                Geometric Placement Rule: Vertical Vowels vs Horizontal Vowels
-              </span>
-              {placementRuleExpanded ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
-            </button>
-
-            {placementRuleExpanded && (
-              <div className="pt-2 border-t border-stone-100 text-xs text-stone-700 space-y-2">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-3 bg-stone-50 rounded-lg border border-stone-200">
-                    <strong className="text-academy-navy font-serif">1. Vertical Vowels (ㅏ, ㅑ, ㅓ, ㅕ, ㅣ):</strong>
-                    <p className="text-[11px] text-stone-600 mt-1">
-                      Written to the <em>RIGHT</em> of the consonant block (e.g. 아, 야, 어, 여, 이).
-                    </p>
+          {/* Section B: Unified Active Character Pronunciation & Articulation Studio */}
+          <div className="rounded-2xl border-2 border-stone-200 bg-stone-50/70 p-5 sm:p-6 shadow-sm space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-14 h-14 rounded-2xl bg-academy-navy text-academy-gold font-serif font-black text-3xl flex items-center justify-center shadow-md border-2 border-academy-gold/40 shrink-0">
+                  {selectedCharItem.char}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-serif font-bold text-lg text-academy-navy truncate">
+                      Vowel Studio: {selectedCharItem.name}
+                    </h4>
+                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                      [{selectedCharItem.romanization}]
+                    </span>
                   </div>
-                  <div className="p-3 bg-stone-50 rounded-lg border border-stone-200">
-                    <strong className="text-academy-navy font-serif">2. Horizontal Vowels (ㅗ, ㅛ, ㅜ, ㅠ, ㅡ):</strong>
-                    <p className="text-[11px] text-stone-600 mt-1">
-                      Written directly <em>BELOW</em> the consonant block (e.g. 오, 요, 우, 유, 으).
-                    </p>
-                  </div>
+                  <p className="text-xs text-stone-600 mt-0.5 truncate">
+                    {selectedCharItem.approxEnglish} • {selectedCharItem.mouthSummary}
+                  </p>
                 </div>
               </div>
-            )}
+
+              {/* Quick character switcher pill row */}
+              <div className="flex flex-wrap items-center gap-1.5 no-scrollbar scrollbar-none shrink-0">
+                <span className="text-[11px] font-mono text-stone-500 font-semibold mr-1">Switch:</span>
+                {BASIC_VOWELS_INTERACTIVE_DATA.map((item) => (
+                  <button
+                    key={item.char}
+                    type="button"
+                    onClick={() => handleSelectChar(item)}
+                    className={`w-8 h-8 rounded-lg font-serif font-bold text-sm transition-all border ${
+                      selectedCharItem.char === item.char
+                        ? 'bg-academy-navy text-academy-gold border-academy-navy shadow-sm ring-1 ring-academy-gold'
+                        : 'bg-white hover:bg-stone-100 text-stone-700 border-stone-200'
+                    }`}
+                    title={`Switch to ${item.char} (${item.name})`}
+                  >
+                    {item.char}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Side-by-side Studio Tools: Voice Recording & Articulation Anatomy */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              {/* Tool 1: Voice Recorder & Native Reference Audio */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-academy-navy uppercase tracking-wider block">
+                  1. Native Speech Reference & Voice Recording Studio
+                </span>
+                <VoiceRecorder
+                  targetKorean={selectedCharItem.name}
+                  targetRomanization={selectedCharItem.romanization}
+                  targetEnglish={selectedCharItem.approxEnglish}
+                  onRecordCompleted={() => markObjectiveDone('obj-6')}
+                />
+              </div>
+
+              {/* Tool 2: Anatomical Vocal Tract & Mouth Position Guide */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-academy-navy uppercase tracking-wider block">
+                  2. Anatomical Articulation & Mouth Shape
+                </span>
+                <MouthPositionGuide
+                  info={selectedCharItem.phoneticGuide}
+                />
+              </div>
+            </div>
+
+            {/* Geometric Placement Explainer */}
+            <div className="p-4 rounded-xl border border-stone-200 bg-white shadow-sm space-y-2">
+              <button
+                type="button"
+                onClick={() => setPlacementRuleExpanded(!placementRuleExpanded)}
+                className="w-full flex items-center justify-between text-left"
+              >
+                <span className="font-serif font-bold text-sm text-academy-navy">
+                  Geometric Placement Rule: Vertical Vowels vs Horizontal Vowels
+                </span>
+                {placementRuleExpanded ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
+              </button>
+
+              {placementRuleExpanded && (
+                <div className="pt-2 border-t border-stone-100 text-xs text-stone-700 space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                      <strong className="text-academy-navy font-serif">1. Vertical Vowels (ㅏ, ㅑ, ㅓ, ㅕ, ㅣ):</strong>
+                      <p className="text-[11px] text-stone-600 mt-1">
+                        Written to the <em>RIGHT</em> of the consonant block (e.g. 아, 야, 어, 여, 이).
+                      </p>
+                    </div>
+                    <div className="p-3 bg-stone-50 rounded-lg border border-stone-200">
+                      <strong className="text-academy-navy font-serif">2. Horizontal Vowels (ㅗ, ㅛ, ㅜ, ㅠ, ㅡ):</strong>
+                      <p className="text-[11px] text-stone-600 mt-1">
+                        Written directly <em>BELOW</em> the consonant block (e.g. 오, 요, 우, 유, 으).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Direct Progression to Next Step */}
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveStudioTab('listen-identify');
+                  window.scrollTo({ top: 300, behavior: 'smooth' });
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-academy-navy hover:bg-academy-navy-light text-academy-ivory font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
+              >
+                <span>Proceed to Step 2: Listen & Identify Quiz</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* TAB 2: PRONUNCIATION STUDIO (Listen Reference, Record Voice, Replay, Compare) */}
-      {activeStudioTab === 'pronunciation-studio' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-200">
-            <div>
-              <h3 className="font-serif font-bold text-lg text-academy-navy">
-                Korean Pronunciation Studio
-              </h3>
-              <p className="text-xs text-stone-600 mt-0.5">
-                Active target: <strong className="text-academy-navy text-sm font-serif">{selectedCharItem.char} ({selectedCharItem.name})</strong>
-              </p>
-            </div>
-            
-            {/* Quick character switcher */}
-            <div className="flex flex-wrap items-center gap-1 no-scrollbar scrollbar-none">
-              {BASIC_VOWELS_INTERACTIVE_DATA.map((item) => (
-                <button
-                  key={item.char}
-                  type="button"
-                  onClick={() => setSelectedCharItem(item)}
-                  className={`w-8 h-8 rounded-lg font-serif font-bold text-sm transition-all border ${
-                    selectedCharItem.char === item.char
-                      ? 'bg-academy-navy text-academy-gold border-academy-navy'
-                      : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-200'
-                  }`}
-                >
-                  {item.char}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <VoiceRecorder
-            targetKorean={selectedCharItem.name}
-            targetRomanization={selectedCharItem.romanization}
-            targetEnglish={selectedCharItem.approxEnglish}
-            onRecordCompleted={() => markObjectiveDone('obj-6')}
-          />
-        </div>
-      )}
-
-      {/* TAB 3: MOUTH POSITION AND SOUND GUIDE (Visual SVG Anatomy) */}
-      {activeStudioTab === 'mouth-guide' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-200">
-            <div>
-              <h3 className="font-serif font-bold text-lg text-academy-navy">
-                Visual Mouth Position & Articulation Guide
-              </h3>
-              <p className="text-xs text-stone-600 mt-0.5">
-                Biomechanical vocal tract inspection for <strong className="text-academy-navy text-sm font-serif">{selectedCharItem.char}</strong>
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1 no-scrollbar scrollbar-none">
-              {BASIC_VOWELS_INTERACTIVE_DATA.map((item) => (
-                <button
-                  key={item.char}
-                  type="button"
-                  onClick={() => setSelectedCharItem(item)}
-                  className={`w-8 h-8 rounded-lg font-serif font-bold text-sm transition-all border ${
-                    selectedCharItem.char === item.char
-                      ? 'bg-academy-navy text-academy-gold border-academy-navy'
-                      : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-200'
-                  }`}
-                >
-                  {item.char}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <MouthPositionGuide
-            info={selectedCharItem.phoneticGuide}
-          />
-        </div>
-      )}
-
-      {/* TAB 4: LISTEN AND IDENTIFY (Acoustic Audio Quiz) */}
+      {/* TAB 2: LISTEN AND IDENTIFY (Acoustic Audio Quiz) */}
       {activeStudioTab === 'listen-identify' && (
-        <ListeningExercise
-          questions={VOWEL_LISTENING_QUESTIONS}
-          onCompleteExercise={(score) => {
-            if (score >= 80) {
-              markObjectiveDone('obj-5');
-            }
-          }}
-        />
+        <div className="space-y-4">
+          <ListeningExercise
+            questions={VOWEL_LISTENING_QUESTIONS}
+            onCompleteExercise={(score) => {
+              if (score >= 80) {
+                markObjectiveDone('obj-5');
+              }
+            }}
+          />
+
+          <div className="p-4 bg-white rounded-xl border border-stone-200 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setActiveStudioTab('vowels-studio')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-academy-navy transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Vowels Studio</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveStudioTab('listen-repeat');
+                window.scrollTo({ top: 300, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-academy-navy hover:bg-academy-navy-light text-academy-ivory text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+            >
+              <span>Next: Step 3 Listen & Repeat</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* TAB 5: LISTEN AND REPEAT (Guided Syllable Shadowing) */}
+      {/* TAB 3: LISTEN AND REPEAT (Guided Syllable Shadowing) */}
       {activeStudioTab === 'listen-repeat' && (
-        <ListenAndRepeatStudio
-          onComplete={() => markObjectiveDone('obj-6')}
-        />
+        <div className="space-y-4">
+          <ListenAndRepeatStudio
+            onComplete={() => markObjectiveDone('obj-6')}
+          />
+
+          <div className="p-4 bg-white rounded-xl border border-stone-200 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setActiveStudioTab('listen-identify')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-academy-navy transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Listen & Identify</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveStudioTab('writing');
+                window.scrollTo({ top: 300, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-academy-navy hover:bg-academy-navy-light text-academy-ivory text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+            >
+              <span>Next: Step 4 Stroke Writing</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* TAB 6: WRITING PRACTICE (Touch / Mouse Canvas) */}
+      {/* TAB 4: WRITING PRACTICE (Touch / Mouse Canvas) */}
       {activeStudioTab === 'writing' && (
-        <HangulWritingCanvas
-          targets={VOWEL_WRITING_TARGETS}
-          onPracticeSaved={(char) => markObjectiveDone('obj-7')}
-        />
+        <div className="space-y-4">
+          <HangulWritingCanvas
+            targets={VOWEL_WRITING_TARGETS}
+            onPracticeSaved={(char) => markObjectiveDone('obj-7')}
+          />
+
+          <div className="p-4 bg-white rounded-xl border border-stone-200 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setActiveStudioTab('listen-repeat')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-academy-navy transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Listen & Repeat</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveStudioTab('syllable-builder');
+                window.scrollTo({ top: 300, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-academy-navy hover:bg-academy-navy-light text-academy-ivory text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+            >
+              <span>Next: Step 5 Syllable Builder</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* TAB 7: SYLLABLE BUILDER (Interactive 3-part Block Construction) */}
+      {/* TAB 5: SYLLABLE BUILDER (Interactive 3-part Block Construction) */}
       {activeStudioTab === 'syllable-builder' && (
-        <SyllableBuilderActivity
-          onSyllableConstructed={() => markObjectiveDone('obj-8')}
-        />
+        <div className="space-y-4">
+          <SyllableBuilderActivity
+            onSyllableConstructed={() => markObjectiveDone('obj-8')}
+          />
+
+          <div className="p-4 bg-white rounded-xl border border-stone-200 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setActiveStudioTab('writing')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-academy-navy transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Stroke Writing</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveStudioTab('knowledge-check');
+                window.scrollTo({ top: 300, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-academy-navy hover:bg-academy-navy-light text-academy-ivory text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+            >
+              <span>Next: Step 6 Knowledge Check Quiz</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* TAB 8: KNOWLEDGE CHECK (Comprehension Questions) */}
+      {/* TAB 6: KNOWLEDGE CHECK (Comprehension Questions) */}
       {activeStudioTab === 'knowledge-check' && (
         <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm space-y-6">
           <div className="flex items-center justify-between pb-3 border-b border-stone-200">
