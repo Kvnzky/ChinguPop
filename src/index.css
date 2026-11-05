@@ -12,7 +12,7 @@
   /* Custom Clean Academic Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
-    height: 6px;
+    height: 0px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
@@ -24,6 +24,20 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #a8a29e;
   }
+}
+
+/* Hide scrollbars for Chrome, Safari, Edge, Firefox */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar,
+.scrollbar-none {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
 }
 
 /* Print Optimization for Formal Academic Certificates & Transcripts */

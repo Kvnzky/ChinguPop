@@ -180,7 +180,7 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
       </div>
 
       {/* 3. STEP-BY-STEP INTERACTIVE STUDIO NAVIGATION BAR */}
-      <div className="bg-academy-navy text-academy-ivory rounded-2xl p-2.5 shadow-md flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+      <div className="bg-academy-navy text-academy-ivory rounded-2xl p-2.5 shadow-md flex flex-wrap items-center gap-1.5 sm:gap-2 no-scrollbar scrollbar-none">
         {[
           { key: 'alphabet-classroom', label: '1. Vowel Grid', icon: BookOpen },
           { key: 'pronunciation-studio', label: '2. Pronunciation Studio', icon: Mic },
@@ -293,7 +293,7 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
             </div>
             
             {/* Quick character switcher */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex flex-wrap items-center gap-1 no-scrollbar scrollbar-none">
               {BASIC_VOWELS_INTERACTIVE_DATA.map((item) => (
                 <button
                   key={item.char}
@@ -333,7 +333,7 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
               </p>
             </div>
 
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex flex-wrap items-center gap-1 no-scrollbar scrollbar-none">
               {BASIC_VOWELS_INTERACTIVE_DATA.map((item) => (
                 <button
                   key={item.char}

@@ -246,7 +246,7 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
       </div>
 
       {/* Suggested Quick Question Chips */}
-      <div className="p-2.5 bg-stone-100/90 border-t border-stone-200 flex items-center gap-2 overflow-x-auto text-[11px] shrink-0">
+      <div className="p-2.5 bg-stone-100/90 border-t border-stone-200 flex items-center gap-2 overflow-x-auto text-[11px] shrink-0 no-scrollbar scrollbar-none">
         <span className="text-stone-500 font-semibold shrink-0 flex items-center gap-1">
           <HelpCircle className="w-3.5 h-3.5 text-academy-gold-dark" />
           Try asking:

@@ -44,7 +44,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
     <div className="space-y-6">
       
       {/* Course Level Selector Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex flex-wrap gap-2 pb-2 no-scrollbar scrollbar-none">
         {courses.map((course) => {
           const isSelected = selectedCourseId === course.id;
           return (

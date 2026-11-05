@@ -106,7 +106,7 @@ export const ListenAndRepeatStudio: React.FC<ListenAndRepeatStudioProps> = ({
       </div>
 
       {/* Series Selector Pills */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex flex-wrap gap-2 pb-1 no-scrollbar scrollbar-none">
         {SYLLABLE_PRACTICE_SERIES.map((s, idx) => (
           <button
             key={s.seriesName}

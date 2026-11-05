@@ -230,7 +230,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
       )}
 
       {/* Tabs */}
-      <div className="flex border-b border-stone-200 gap-4 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex border-b border-stone-200 gap-4 overflow-x-auto pb-1 no-scrollbar scrollbar-none">
         <button
           type="button"
           onClick={() => setActiveTab('grading')}
