@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile, KoreanProficiency, ImmersionStage } from '../../types';
 import { storage } from '../../services/storageService';
-import { Settings, Save, Check, Globe, Clock, Calendar, Sparkles, Lock, ShieldCheck, Key } from 'lucide-react';
+import { Settings, Save, Check, Globe, Clock, Calendar, Lock, ShieldCheck, Key, User, Mail, AlertCircle } from 'lucide-react';
 
 interface SettingsViewProps {
   currentUser: UserProfile;
@@ -9,6 +9,8 @@ interface SettingsViewProps {
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserUpdate }) => {
+  const [name, setName] = useState(currentUser.name);
+  const [bio, setBio] = useState(currentUser.bio || '');
   const [proficiency, setProficiency] = useState<KoreanProficiency>(currentUser.proficiency);
   const [immersionStage, setImmersionStage] = useState<ImmersionStage>(currentUser.immersionStage);
   const [dailyMinutes, setDailyMinutes] = useState(currentUser.dailyStudyMinutes);
@@ -16,6 +18,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
   const [filipinoSupport, setFilipinoSupport] = useState(currentUser.filipinoSupport);
   const [explanationLang, setExplanationLang] = useState(currentUser.explanationLanguage);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
   // Password Setup / Reset State
   const [newPassword, setNewPassword] = useState('');
@@ -23,13 +26,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
   const [pwdMsg, setPwdMsg] = useState<string | null>(null);
   const [pwdError, setPwdError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setName(currentUser.name);
+    setBio(currentUser.bio || '');
+    setProficiency(currentUser.proficiency);
+    setImmersionStage(currentUser.immersionStage);
+    setDailyMinutes(currentUser.dailyStudyMinutes);
+    setStudyDays(currentUser.studyDaysPerWeek);
+    setFilipinoSupport(currentUser.filipinoSupport);
+    setExplanationLang(currentUser.explanationLanguage);
+  }, [currentUser]);
+
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPwdMsg(null);
     setPwdError(null);
 
-    if (newPassword.length < 6) {
-      setPwdError('Password must be at least 6 characters long.');
+    const pwdCheck = storage.validatePasswordStrength(newPassword);
+    if (!pwdCheck.valid) {
+      setPwdError(pwdCheck.message || 'Password must be at least 8 characters long and include a letter and number/symbol.');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -40,26 +55,41 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
     storage.setPassword(currentUser.id, newPassword);
     setNewPassword('');
     setConfirmPassword('');
-    setPwdMsg('Academic account password updated securely!');
+    setPwdMsg('Account password updated securely!');
     setTimeout(() => setPwdMsg(null), 4000);
   };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    const updated: UserProfile = {
-      ...currentUser,
-      proficiency,
-      immersionStage,
-      dailyStudyMinutes: Number(dailyMinutes),
-      studyDaysPerWeek: Number(studyDays),
-      filipinoSupport,
-      explanationLanguage: explanationLang
-    };
+    setProfileError(null);
+    setStatusMsg(null);
 
-    storage.saveUser(updated);
-    onUserUpdate(updated);
-    setStatusMsg('Student academic settings updated successfully!');
-    setTimeout(() => setStatusMsg(null), 3000);
+    if (!name.trim() || name.trim().length < 2) {
+      setProfileError('Full name must be at least 2 characters.');
+      return;
+    }
+
+    try {
+      const updated: UserProfile = {
+        ...currentUser,
+        name: name.trim(),
+        bio: bio.trim(),
+        proficiency,
+        immersionStage,
+        dailyStudyMinutes: Number(dailyMinutes),
+        studyDaysPerWeek: Number(studyDays),
+        filipinoSupport,
+        explanationLanguage: explanationLang
+      };
+
+      storage.saveUser(updated);
+      const fresh = storage.getUserById(currentUser.id) || updated;
+      onUserUpdate(fresh);
+      setStatusMsg('Student academic profile and immersion settings updated successfully!');
+      setTimeout(() => setStatusMsg(null), 3000);
+    } catch (err: any) {
+      setProfileError(err?.message || 'Could not update profile.');
+    }
   };
 
   return (
@@ -67,17 +97,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
       
       {/* Header */}
       <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-academy-navy text-academy-gold">
-            <Settings className="w-6 h-6" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-academy-navy text-academy-gold">
+              <Settings className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="font-serif font-bold text-xl text-academy-navy">
+                Personal Academic Profile & Immersion Settings
+              </h2>
+              <p className="text-xs text-stone-600 mt-0.5">
+                Manage your account identity, daily study duration, immersion progression, and security credentials.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-serif font-bold text-xl text-academy-navy">
-              Personal Academic Profile & Immersion Settings
-            </h2>
-            <p className="text-xs text-stone-600 mt-0.5">
-              Customize your daily study duration, teaching immersion progression, and Filipino language assistance.
-            </p>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
+              {currentUser.status || 'active'}
+            </span>
+            <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-purple-50 text-[#6C52EE] border border-purple-200 font-bold">
+              {currentUser.role}
+            </span>
           </div>
         </div>
       </div>
@@ -89,9 +130,59 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
         </div>
       )}
 
+      {profileError && (
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 font-semibold flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-rose-600" />
+          <span>{profileError}</span>
+        </div>
+      )}
+
       {/* Settings Form */}
       <form onSubmit={handleSave} className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-6">
         
+        {/* Identity & Contact Info */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-stone-100">
+          <div>
+            <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5" />
+              <span>Full Name</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-2.5 border border-stone-300 rounded-lg text-xs font-semibold text-stone-800"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5" />
+              <span>Registered Email ({currentUser.studentId})</span>
+            </label>
+            <input
+              type="email"
+              disabled
+              value={currentUser.email}
+              className="w-full p-2.5 border border-stone-200 bg-stone-50 rounded-lg text-xs text-stone-500 cursor-not-allowed"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5">
+              Personal Study Bio / Goal
+            </label>
+            <input
+              type="text"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Your Korean learning objective..."
+              className="w-full p-2.5 border border-stone-300 rounded-lg text-xs text-stone-800"
+            />
+          </div>
+        </div>
+
         {/* Proficiency Level */}
         <div>
           <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5">
@@ -207,12 +298,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
                 Private Account Security & Password
               </h3>
               <p className="text-xs text-stone-500">
-                Setup or reset your private student login credentials.
+                Setup or reset your private student login credentials (min. 8 characters with letters and numbers/symbols).
               </p>
             </div>
           </div>
           <span className="text-[10px] font-mono uppercase bg-stone-100 text-stone-600 px-2 py-0.5 rounded border border-stone-200">
-            SHA-256 Hashed
+            Salted SHA-256
           </span>
         </div>
 
@@ -238,7 +329,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
             </label>
             <input
               type="password"
-              placeholder="Minimum 6 characters"
+              placeholder="Minimum 8 characters"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full p-2.5 border border-stone-300 rounded-lg text-xs"

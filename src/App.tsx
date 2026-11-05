@@ -23,19 +23,20 @@ import { AcademicRecords } from './components/records/AcademicRecords';
 import { CertificateView } from './components/certificates/CertificateView';
 import { SettingsView } from './components/settings/SettingsView';
 import { AdminPanel } from './components/admin/AdminPanel';
-import { RegisterModal } from './components/auth/RegisterModal';
+import { RegisterModal, AuthModalTab } from './components/auth/RegisterModal';
 
 export function App() {
-  const [currentUser, setCurrentUser] = useState<UserProfile>(storage.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => storage.getCurrentUser());
   const [currentTab, setCurrentTab] = useState<NavItemKey>('dashboard');
-  const [courses, setCourses] = useState<Course[]>(storage.getCourses());
+  const [courses, setCourses] = useState<Course[]>(() => storage.getCourses());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<AuthModalTab>('register');
   const [isTourOpen, setIsTourOpen] = useState(() => {
     return !storage.isTourCompleted(currentUser.id);
   });
 
-  // Check URL routing for /admin or #/admin
+  // Check URL routing for /admin or #/admin without elevating user role prior to authentication
   useEffect(() => {
     const checkAdminRoute = () => {
       const path = window.location.pathname.toLowerCase();
@@ -43,7 +44,9 @@ export function App() {
       const search = window.location.search.toLowerCase();
       if (path.endsWith('/admin') || hash === '#/admin' || hash === '#admin' || search.includes('admin=true')) {
         setCurrentTab('admin-portal');
-        setCurrentUser(storage.getAdminUser());
+        if (storage.isAdminAuthenticated()) {
+          setCurrentUser(storage.getCurrentUser());
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
@@ -56,6 +59,16 @@ export function App() {
     };
   }, []);
 
+  // Synchronize user state on cross-tab storage events
+  useEffect(() => {
+    const handleStorageSync = () => {
+      setCurrentUser(storage.getCurrentUser());
+      setCourses(storage.getCourses());
+    };
+    window.addEventListener('storage', handleStorageSync);
+    return () => window.removeEventListener('storage', handleStorageSync);
+  }, []);
+
   // Active lesson selected for Classroom
   const [activeLesson, setActiveLesson] = useState<Lesson>(() => {
     const preA1 = courses.find(c => c.id === 'course-pre-a1');
@@ -66,7 +79,6 @@ export function App() {
   const handleCompleteLesson = (lessonId: string) => {
     storage.markLessonCompleted(currentUser.id, lessonId);
     storage.recordAttendanceToday(currentUser.id);
-    // Refresh user state to reflect updated attendance/records
     setCurrentUser(storage.getCurrentUser());
   };
 
@@ -78,7 +90,29 @@ export function App() {
 
   const handleUserChange = (user: UserProfile) => {
     setCurrentUser(user);
+    if (user.role === 'admin' && storage.isAdminAuthenticated()) {
+      setCurrentTab('admin-portal');
+    } else {
+      if (window.location.hash.toLowerCase().includes('admin')) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+      setCurrentTab('dashboard');
+    }
+  };
+
+  const handleOpenAuth = (tab: AuthModalTab) => {
+    setAuthModalTab(tab);
+    setIsRegisterOpen(true);
+  };
+
+  const handleLogout = () => {
+    const fallbackUser = storage.logout();
+    setCurrentUser(fallbackUser);
+    if (window.location.hash.toLowerCase().includes('admin') || window.location.pathname.toLowerCase().endsWith('/admin')) {
+      window.history.replaceState(null, '', '/');
+    }
     setCurrentTab('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Register PWA Service Worker
@@ -99,7 +133,13 @@ export function App() {
         onUserChange={handleUserChange}
         onOpenMobileMenu={() => setMobileMenuOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
-        onOpenRegister={() => setIsRegisterOpen(true)}
+        onOpenRegister={() => handleOpenAuth('register')}
+        onOpenAuth={handleOpenAuth}
+        onLogout={handleLogout}
+        onNavigateTab={(tab) => {
+          setCurrentTab(tab);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       {/* Main LMS Grid Layout */}
@@ -112,8 +152,8 @@ export function App() {
             setCurrentTab(tab);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          userRole={currentUser.role}
-          pendingAssignmentsCount={storage.getAssignments().length - storage.getSubmissions(currentUser.id).length}
+          userRole={storage.isAdminAuthenticated() ? 'admin' : currentUser.role}
+          pendingAssignmentsCount={Math.max(0, storage.getAssignments().length - storage.getSubmissions(currentUser.id).length)}
           className="hidden md:flex shrink-0"
         />
 
@@ -147,8 +187,8 @@ export function App() {
                   setMobileMenuOpen(false);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                userRole={currentUser.role}
-                pendingAssignmentsCount={storage.getAssignments().length - storage.getSubmissions(currentUser.id).length}
+                userRole={storage.isAdminAuthenticated() ? 'admin' : currentUser.role}
+                pendingAssignmentsCount={Math.max(0, storage.getAssignments().length - storage.getSubmissions(currentUser.id).length)}
                 className="w-full flex-1"
               />
             </div>
@@ -173,8 +213,15 @@ export function App() {
               currentUser={currentUser}
               courses={courses}
               onSelectStudent={(id) => {
-                const u = storage.getUserById(id);
-                if (u) handleUserChange(u);
+                if (storage.isAdminAuthenticated() || id === currentUser.id) {
+                  const u = storage.getUserById(id);
+                  if (u) {
+                    storage.setCurrentUser(u.id);
+                    handleUserChange(u);
+                  }
+                } else {
+                  handleOpenAuth('signin');
+                }
               }}
               onNavigateTab={(tab) => {
                 setCurrentTab(tab);
@@ -241,15 +288,16 @@ export function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onOpenMenu={() => setMobileMenuOpen(true)}
-        pendingAssignmentsCount={storage.getAssignments().length - storage.getSubmissions(currentUser.id).length}
+        pendingAssignmentsCount={Math.max(0, storage.getAssignments().length - storage.getSubmissions(currentUser.id).length)}
       />
 
-      {/* Free Student Registration Modal */}
+      {/* Scholar Authentication & Registration Modal */}
       <RegisterModal
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
         onRegistered={(user) => handleUserChange(user)}
         currentUserId={currentUser.id}
+        initialTab={authModalTab}
       />
 
       {/* Guided Walkthrough Tour Modal */}
@@ -273,7 +321,9 @@ export function App() {
             e.preventDefault();
             window.location.hash = '/admin';
             setCurrentTab('admin-portal');
-            setCurrentUser(storage.getAdminUser());
+            if (storage.isAdminAuthenticated()) {
+              setCurrentUser(storage.getCurrentUser());
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className="text-stone-400 hover:text-stone-600 hover:underline"
