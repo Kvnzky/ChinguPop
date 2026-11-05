@@ -58,17 +58,17 @@ export const HangulCharacterCard: React.FC<HangulCharacterCardProps> = ({
       {/* Top Bar: Romanization, Syllable Name, Sound Indicator & Mastered Checkbox */}
       <div className="flex items-center justify-between gap-1 min-w-0">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs font-mono font-bold text-[#6C52EE] px-2 py-0.5 rounded bg-purple-50 border border-purple-200 shrink-0">
+          <span className="text-xs font-mono font-bold text-[#6C52EE] px-2 py-0.5 rounded-lg bg-purple-50 border border-purple-200 shrink-0">
             {item.romanization}
           </span>
           <span className="text-sm font-korean font-bold text-stone-800 truncate">
             {item.name}
           </span>
-          <Volume2 
-            className={`w-3.5 h-3.5 text-stone-500 group-hover:text-[#6C52EE] transition-colors shrink-0 ${
-              isPlaying ? 'text-[#FF5CA8] animate-pulse' : ''
-            }`} 
-          />
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+            isPlaying ? 'bg-[#FF5CA8] text-white scale-110 shadow-sm animate-pulse' : 'bg-purple-50 text-[#6C52EE]'
+          }`}>
+            <Volume2 className="w-3.5 h-3.5" />
+          </div>
         </div>
 
         <button
@@ -77,7 +77,7 @@ export const HangulCharacterCard: React.FC<HangulCharacterCardProps> = ({
             e.stopPropagation();
             onToggleComplete();
           }}
-          className="p-1 rounded-full text-stone-400 hover:text-emerald-600 transition-colors shrink-0"
+          className="min-w-[44px] min-h-[44px] -mr-2 -mt-2 flex items-center justify-center rounded-full text-stone-400 hover:text-emerald-600 active:scale-90 transition-transform shrink-0"
           title={isCompleted ? 'Marked mastered' : 'Click to mark mastered'}
           aria-label={isCompleted ? 'Marked mastered' : 'Click to mark mastered'}
         >

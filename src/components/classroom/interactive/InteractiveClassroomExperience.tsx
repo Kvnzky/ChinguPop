@@ -182,8 +182,8 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
         )}
       </div>
 
-      {/* 3. STEP-BY-STEP INTERACTIVE STUDIO NAVIGATION BAR */}
-      <div className="bg-gradient-to-r from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-2.5 shadow-md flex flex-wrap items-center gap-1.5 sm:gap-2 no-scrollbar scrollbar-none border border-purple-400/20">
+      {/* 3. STEP-BY-STEP INTERACTIVE STUDIO NAVIGATION BAR (Mobile Scrollable) */}
+      <div className="bg-gradient-to-r from-[#2C1E6D] via-[#3B288C] to-[#553ACF] text-white rounded-2xl p-2 shadow-md flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scrollbar-none border border-purple-400/20">
         {[
           { key: 'vowels-studio', label: '1. Vowels & Pronunciation', icon: BookOpen },
           { key: 'listen-identify', label: '2. Listen & Identify', icon: Headphones },
@@ -199,13 +199,13 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
               key={tab.key}
               type="button"
               onClick={() => setActiveStudioTab(tab.key as any)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 active:scale-95 ${
                 isActive
                   ? 'bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] text-white shadow-md ring-2 ring-pink-400/40'
                   : 'text-purple-200 hover:text-white hover:bg-white/10'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
             </button>
           );
@@ -266,15 +266,15 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
                 </div>
               </div>
 
-              {/* Quick character switcher pill row */}
-              <div className="flex flex-wrap items-center gap-1.5 no-scrollbar scrollbar-none shrink-0">
-                <span className="text-[11px] font-mono text-stone-500 font-semibold mr-1">Switch:</span>
+              {/* Quick character switcher pill row (Touch Friendly) */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none py-1 max-w-full">
+                <span className="text-[11px] font-mono text-stone-600 font-bold mr-1 shrink-0">Switch:</span>
                 {BASIC_VOWELS_INTERACTIVE_DATA.map((item) => (
                   <button
                     key={item.char}
                     type="button"
                     onClick={() => handleSelectChar(item)}
-                    className={`w-8 h-8 rounded-lg font-serif font-bold text-sm transition-all border ${
+                    className={`min-w-[40px] h-10 rounded-xl font-serif font-bold text-sm transition-all border shrink-0 flex items-center justify-center active:scale-95 ${
                       selectedCharItem.char === item.char
                         ? 'bg-[#6C52EE] text-white border-[#6C52EE] shadow-sm ring-2 ring-purple-400/40'
                         : 'bg-white hover:bg-purple-50 text-stone-700 border-stone-200 hover:border-purple-300'

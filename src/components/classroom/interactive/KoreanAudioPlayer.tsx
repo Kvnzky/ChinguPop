@@ -111,29 +111,29 @@ export const KoreanAudioPlayer: React.FC<KoreanAudioPlayerProps> = ({
         <button
           type="button"
           onClick={handleTogglePlay}
-          className={`flex items-center justify-center rounded-lg font-bold transition-all shadow-sm shrink-0 ${
-            size === 'sm' ? 'w-8 h-8 text-xs' : size === 'lg' ? 'w-12 h-12 text-base' : 'w-10 h-10 text-sm'
+          className={`flex items-center justify-center rounded-xl font-bold transition-all shadow-md active:scale-95 shrink-0 ${
+            size === 'sm' ? 'w-10 h-10 text-xs' : size === 'lg' ? 'w-12 h-12 text-base' : 'w-11 h-11 text-sm'
           } ${
             isPlaying
-              ? 'bg-academy-navy text-academy-gold ring-2 ring-academy-gold animate-pulse'
-              : 'bg-academy-navy text-academy-ivory hover:bg-academy-navy-light'
+              ? 'bg-[#FF5CA8] text-white ring-4 ring-pink-400/30 animate-pulse'
+              : 'bg-gradient-to-tr from-[#6C52EE] to-[#8E77F7] text-white hover:brightness-110 shadow-sm'
           }`}
           title={isPlaying ? 'Pause pronunciation' : `Listen: "${text}"`}
         >
           {isPlaying ? (
-            <Pause className={size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+            <Pause className={size === 'sm' ? 'w-4 h-4' : 'w-5 h-5'} />
           ) : (
-            <Play className={size === 'sm' ? 'w-3.5 h-3.5 ml-0.5' : 'w-4 h-4 ml-0.5'} />
+            <Play className={size === 'sm' ? 'w-4 h-4 ml-0.5' : 'w-5 h-5 ml-0.5'} />
           )}
         </button>
 
         {/* Speed Controls */}
-        <div className="inline-flex rounded-lg border border-stone-300 bg-white p-0.5 text-[10px] sm:text-[11px] font-medium shrink-0">
+        <div className="inline-flex rounded-xl border border-stone-300 bg-white p-0.5 text-xs font-semibold shrink-0">
           <button
             type="button"
             onClick={handleNormalPlay}
-            className={`px-2 py-1 rounded transition-colors ${
-              speed === 0.85 ? 'bg-academy-navy text-white font-bold' : 'text-stone-600 hover:text-academy-navy'
+            className={`px-2.5 py-1.5 rounded-lg transition-all ${
+              speed === 0.85 ? 'bg-[#6C52EE] text-white font-bold shadow-xs' : 'text-stone-700 hover:text-[#6C52EE]'
             }`}
             title="Play at standard clear learner pace"
           >
@@ -142,12 +142,12 @@ export const KoreanAudioPlayer: React.FC<KoreanAudioPlayerProps> = ({
           <button
             type="button"
             onClick={handleSlowPlay}
-            className={`px-2 py-1 rounded transition-colors flex items-center gap-1 ${
-              speed === 0.65 ? 'bg-academy-navy text-white font-bold' : 'text-stone-600 hover:text-academy-navy'
+            className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+              speed === 0.65 ? 'bg-[#6C52EE] text-white font-bold shadow-xs' : 'text-stone-700 hover:text-[#6C52EE]'
             }`}
             title="Play slowly to inspect vowel/consonant mouth shape"
           >
-            <Gauge className="w-3 h-3 text-academy-gold" />
+            <Gauge className="w-3.5 h-3.5 text-[#FF5CA8]" />
             <span>Slow (0.7x)</span>
           </button>
         </div>
@@ -156,10 +156,10 @@ export const KoreanAudioPlayer: React.FC<KoreanAudioPlayerProps> = ({
         <button
           type="button"
           onClick={() => handlePlay(speed)}
-          className="p-1.5 sm:p-2 text-stone-500 hover:text-academy-navy hover:bg-stone-200/60 rounded-lg transition-colors shrink-0"
+          className="min-w-[40px] min-h-[40px] flex items-center justify-center text-stone-600 hover:text-[#6C52EE] hover:bg-purple-50 rounded-xl transition-colors shrink-0"
           title="Replay pronunciation"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
+          <RotateCcw className="w-4 h-4" />
         </button>
       </div>
 

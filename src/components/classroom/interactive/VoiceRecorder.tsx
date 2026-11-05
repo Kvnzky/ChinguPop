@@ -198,14 +198,14 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             type="button"
             onClick={isRecording ? stopRecording : startRecording}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-sm ${
+            className={`flex items-center gap-2 px-5 py-3 min-h-[44px] rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 ${
               isRecording
                 ? 'bg-rose-600 text-white animate-pulse ring-4 ring-rose-200'
-                : 'bg-academy-navy hover:bg-academy-navy-light text-academy-ivory'
+                : 'bg-gradient-to-r from-[#6C52EE] to-[#8E77F7] text-white hover:brightness-110'
             }`}
           >
             {isRecording ? (
@@ -215,7 +215,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
               </>
             ) : (
               <>
-                <Mic className="w-4 h-4 text-academy-gold" />
+                <Mic className="w-4 h-4 text-[#FF5CA8]" />
                 <span>Record My Voice</span>
               </>
             )}
@@ -225,16 +225,16 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             <button
               type="button"
               onClick={togglePlayRecording}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 text-academy-navy font-bold text-xs uppercase tracking-wider transition-all shadow-sm"
+              className="flex items-center gap-2 px-4 py-3 min-h-[44px] rounded-xl bg-white hover:bg-stone-50 border border-stone-300 text-[#2C1E6D] font-bold text-xs uppercase tracking-wider transition-all shadow-sm active:scale-95"
             >
               {isPlayingRecording ? (
                 <>
-                  <Pause className="w-4 h-4 text-academy-navy" />
+                  <Pause className="w-4 h-4 text-[#2C1E6D]" />
                   <span>Pause My Audio</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-4 h-4 text-academy-gold-dark" />
+                  <Play className="w-4 h-4 text-[#FF5CA8]" />
                   <span>Play My Recording</span>
                 </>
               )}
@@ -245,7 +245,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             <button
               type="button"
               onClick={startRecording}
-              className="p-2 text-stone-500 hover:text-academy-navy rounded-lg transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-600 hover:text-[#6C52EE] hover:bg-purple-50 rounded-xl transition-colors shrink-0"
               title="Record again"
             >
               <RotateCcw className="w-4 h-4" />
