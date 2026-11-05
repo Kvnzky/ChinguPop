@@ -46,13 +46,13 @@ export const GuidedOnboardingTour: React.FC<GuidedOnboardingTourProps> = ({
     {
       title: `Welcome to ChinguPop, ${currentUser.name}`,
       koreanTitle: `친구팝에 오신 것을 환영합니다`,
-      badge: `Private Academy • ${currentUser.name} & Partner`,
+      badge: `Korean Language Academy`,
       icon: GraduationCap,
-      description: `ChinguPop is a modern, fun, interactive Korean language learning academy inspired by K-culture, K-drama, and the joy of learning Hangul together. Custom-configured for Dhie and Mhie with rigorous academic standards and conversational fluency.`,
+      description: `ChinguPop is a modern, fun, interactive Korean language learning academy inspired by K-culture, K-drama, and the joy of learning Hangul together. Open to all Korean learners with rigorous academic standards and conversational fluency.`,
       highlights: [
-        `Strict two-student private enrollment (Dhie & Mhie)`,
+        `Personalized student account with independent progress tracking`,
         `Complete Pre-A1 to TOPIK II academic curriculum`,
-        `Progressive immersion tailored to your daily 60-minute schedule`,
+        `Progressive immersion tailored to your daily schedule`,
         `Integrated Filipino bridge notes for tricky grammar concepts`
       ],
       recommendation: `Begin by exploring your personalized dashboard to review your academic timetable.`

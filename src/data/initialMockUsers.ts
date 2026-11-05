@@ -1,45 +1,45 @@
 import { UserProfile } from '../types';
 
-export const AUTHORIZED_STUDENT_IDS = ['student-dhie', 'student-mhie'] as const;
-export const AUTHORIZED_STUDENT_EMAILS = ['dhie@hangul.academy', 'mhie@hangul.academy'] as const;
+export const ADMIN_USER: UserProfile = {
+  id: 'admin-faculty',
+  name: 'ChinguPop Faculty Admin',
+  email: 'admin@chingupop.com',
+  role: 'admin',
+  studentId: 'FACULTY-01',
+  enrolledDate: '2026-11-01',
+  proficiency: 'Level 6',
+  immersionStage: 'advanced',
+  explanationLanguage: 'English',
+  filipinoSupport: false,
+  dailyStudyMinutes: 60,
+  studyDaysPerWeek: 7,
+  currentCourseId: 'course-pre-a1',
+  bio: 'ChinguPop Korean Language Learning Academy Faculty Administration',
+  attendancePercentage: 100,
+  currentAcademicGrade: 'A+'
+};
+
+export const DEFAULT_STARTER_STUDENT: UserProfile = {
+  id: 'student-chingu-1',
+  name: 'Chingu Learner',
+  email: 'learner@chingupop.com',
+  role: 'student',
+  studentId: 'CP-2026-0001',
+  enrolledDate: '2026-11-01',
+  proficiency: 'Pre-A1',
+  immersionStage: 'beginner',
+  explanationLanguage: 'English',
+  filipinoSupport: true,
+  dailyStudyMinutes: 60,
+  studyDaysPerWeek: 7,
+  assignedTeacherId: 'admin-faculty',
+  currentCourseId: 'course-pre-a1',
+  bio: 'My Korean Language Journey: Learning Hangul foundations, K-culture, and practical conversational fluency.',
+  attendancePercentage: 0,
+  currentAcademicGrade: 'Pending'
+};
 
 export const INITIAL_USERS: UserProfile[] = [
-  {
-    id: 'student-dhie',
-    name: 'Dhie',
-    email: 'dhie@hangul.academy',
-    role: 'student',
-    studentId: 'HA-2026-DHIE',
-    enrolledDate: '2026-11-01',
-    proficiency: 'Pre-A1',
-    immersionStage: 'beginner',
-    explanationLanguage: 'English',
-    filipinoSupport: true,
-    dailyStudyMinutes: 60,
-    studyDaysPerWeek: 7,
-    assignedTeacherId: 'admin-faculty',
-    currentCourseId: 'course-pre-a1',
-    bio: "Dhie's Korean Language Journey: Aiming for full fluency from Hangul foundations to TOPIK mastery.",
-    attendancePercentage: 0,
-    currentAcademicGrade: 'Pending'
-  },
-  {
-    id: 'student-mhie',
-    name: 'Mhie',
-    email: 'mhie@hangul.academy',
-    role: 'student',
-    studentId: 'HA-2026-MHIE',
-    enrolledDate: '2026-11-01',
-    proficiency: 'Pre-A1',
-    immersionStage: 'beginner',
-    explanationLanguage: 'English',
-    filipinoSupport: true,
-    dailyStudyMinutes: 60,
-    studyDaysPerWeek: 7,
-    assignedTeacherId: 'admin-faculty',
-    currentCourseId: 'course-pre-a1',
-    bio: "Mhie's Korean Language Journey: Dedicated daily practice for practical conversational fluency and TOPIK.",
-    attendancePercentage: 0,
-    currentAcademicGrade: 'Pending'
-  }
+  DEFAULT_STARTER_STUDENT,
+  ADMIN_USER
 ];

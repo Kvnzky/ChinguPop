@@ -23,15 +23,38 @@ import { AcademicRecords } from './components/records/AcademicRecords';
 import { CertificateView } from './components/certificates/CertificateView';
 import { SettingsView } from './components/settings/SettingsView';
 import { AdminPanel } from './components/admin/AdminPanel';
+import { RegisterModal } from './components/auth/RegisterModal';
 
 export function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile>(storage.getCurrentUser());
   const [currentTab, setCurrentTab] = useState<NavItemKey>('dashboard');
   const [courses, setCourses] = useState<Course[]>(storage.getCourses());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(() => {
     return !storage.isTourCompleted(currentUser.id);
   });
+
+  // Check URL routing for /admin or #/admin
+  useEffect(() => {
+    const checkAdminRoute = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      if (path.endsWith('/admin') || hash === '#/admin' || hash === '#admin' || search.includes('admin=true')) {
+        setCurrentTab('admin-portal');
+        setCurrentUser(storage.getAdminUser());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+    checkAdminRoute();
+    window.addEventListener('hashchange', checkAdminRoute);
+    window.addEventListener('popstate', checkAdminRoute);
+    return () => {
+      window.removeEventListener('hashchange', checkAdminRoute);
+      window.removeEventListener('popstate', checkAdminRoute);
+    };
+  }, []);
 
   // Active lesson selected for Classroom
   const [activeLesson, setActiveLesson] = useState<Lesson>(() => {
@@ -76,10 +99,7 @@ export function App() {
         onUserChange={handleUserChange}
         onOpenMobileMenu={() => setMobileMenuOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
-        onOpenAdmin={() => {
-          setCurrentTab('admin-portal');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
+        onOpenRegister={() => setIsRegisterOpen(true)}
       />
 
       {/* Main LMS Grid Layout */}
@@ -224,6 +244,14 @@ export function App() {
         pendingAssignmentsCount={storage.getAssignments().length - storage.getSubmissions(currentUser.id).length}
       />
 
+      {/* Free Student Registration Modal */}
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        onRegistered={(user) => handleUserChange(user)}
+        currentUserId={currentUser.id}
+      />
+
       {/* Guided Walkthrough Tour Modal */}
       <GuidedOnboardingTour
         currentUser={currentUser}
@@ -235,6 +263,24 @@ export function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
+
+      {/* Discrete Faculty Access Link for /admin */}
+      <footer className="py-2 px-4 text-center text-[10px] text-stone-400 select-none">
+        <span>ChinguPop Academy • </span>
+        <a 
+          href="#/admin" 
+          onClick={(e) => {
+            e.preventDefault();
+            window.location.hash = '/admin';
+            setCurrentTab('admin-portal');
+            setCurrentUser(storage.getAdminUser());
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="text-stone-400 hover:text-stone-600 hover:underline"
+        >
+          Faculty Portal (/admin)
+        </a>
+      </footer>
     </div>
   );
 }

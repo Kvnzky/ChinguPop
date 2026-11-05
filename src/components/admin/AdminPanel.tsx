@@ -43,7 +43,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
   };
 
   // Student password reset state
-  const [selectedStudentForPwd, setSelectedStudentForPwd] = useState<'student-dhie' | 'student-mhie'>('student-dhie');
+  const registeredStudents = storage.getStudents();
+  const [selectedStudentForPwd, setSelectedStudentForPwd] = useState<string>(() => registeredStudents[0]?.id || '');
   const [newPassword, setNewPassword] = useState('');
 
   // New Lesson State
@@ -88,7 +89,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
       return;
     }
     storage.setPassword(selectedStudentForPwd, newPassword);
-    const studentName = selectedStudentForPwd === 'student-dhie' ? 'Dhie' : 'Mhie';
+    const student = storage.getUserById(selectedStudentForPwd);
+    const studentName = student ? student.name : selectedStudentForPwd;
     setNewPassword('');
     setStatusMsg(`Security password updated for student ${studentName}!`);
     setTimeout(() => setStatusMsg(null), 3500);
@@ -168,12 +170,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
   };
 
   const handleResetDefaults = () => {
-    if (confirm('Are you sure you want to reset the database to initial seed defaults for Dhie and Mhie?')) {
+    if (confirm('Are you sure you want to reset the database to initial seed defaults?')) {
       storage.resetToInitialDefaults();
       setUsers(storage.getUsers());
       setCourses(storage.getCourses());
       setSubmissions(storage.getSubmissions());
-      setStatusMsg('Database restored to clean institutional seed state for Dhie and Mhie.');
+      setStatusMsg('Database restored to clean institutional seed state.');
       setTimeout(() => setStatusMsg(null), 3000);
     }
   };
@@ -197,12 +199,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
               </span>
             </div>
             <p className="text-xs text-stone-600 mt-0.5">
-              Assignment grading queue, Dhie & Mhie scholar management, sequential curriculum unlocks, and platform settings.
+              Assignment grading queue, student scholar management, sequential curriculum unlocks, and platform settings.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {onSwitchUser && (
+            <button
+              type="button"
+              onClick={() => {
+                const firstStudent = storage.getStudents()[0] || storage.getCurrentUser();
+                onSwitchUser(firstStudent);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-purple-50 hover:bg-purple-100 text-xs font-semibold text-[#6C52EE] border border-purple-200 transition-colors"
+            >
+              <span>← Back to Student Classroom</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={handleExportDB}
@@ -253,7 +267,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Manage Scholars (Dhie & Mhie)</span>
+          <span>Manage Registered Scholars</span>
         </button>
         <button
           type="button"
@@ -296,7 +310,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
             <div className="space-y-2 max-h-[500px] overflow-y-auto">
               {submissions.map((sub) => {
                 const isSelected = selectedSub?.id === sub.id;
-                const studentName = sub.studentId === 'student-dhie' ? 'Dhie' : sub.studentId === 'student-mhie' ? 'Mhie' : sub.studentId;
+                const student = storage.getUserById(sub.studentId);
+                const studentName = student ? student.name : sub.studentId;
                 return (
                   <button
                     key={sub.id}
@@ -337,7 +352,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
                       Grading: {getAssignmentTitle(selectedSub.assignmentId)}
                     </h3>
                     <p className="text-xs text-stone-500 mt-0.5">
-                      Student: <strong className="text-academy-navy">{selectedSub.studentId === 'student-dhie' ? 'Dhie' : 'Mhie'}</strong> • Submitted: {selectedSub.submittedAt}
+                      Student: <strong className="text-academy-navy">{storage.getUserById(selectedSub.studentId)?.name || selectedSub.studentId}</strong> • Submitted: {selectedSub.submittedAt}
                     </p>
                   </div>
                 </div>
@@ -400,12 +415,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
         </div>
       )}
 
-      {/* Tab 2: Scholar Management (Dhie & Mhie) */}
+      {/* Tab 2: Scholar Management */}
       {activeTab === 'students' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
             <h3 className="font-serif font-bold text-base text-academy-navy pb-2 border-b border-stone-200">
-              Private Academy Scholars (Dhie & Mhie)
+              Registered Academy Scholars
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -463,7 +478,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
               </h3>
             </div>
             <p className="text-[11px] text-stone-500 leading-relaxed">
-              Reset login credentials for Dhie or Mhie. Uses salted SHA-256 password hashing.
+              Reset login credentials for any registered student. Uses salted SHA-256 password hashing.
             </p>
 
             <div>
@@ -472,11 +487,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onSwitchUser }) => {
               </label>
               <select
                 value={selectedStudentForPwd}
-                onChange={(e) => setSelectedStudentForPwd(e.target.value as any)}
+                onChange={(e) => setSelectedStudentForPwd(e.target.value)}
                 className="w-full p-2.5 border border-stone-300 rounded-lg text-xs"
               >
-                <option value="student-dhie">Dhie (HA-2026-DHIE)</option>
-                <option value="student-mhie">Mhie (HA-2026-MHIE)</option>
+                {registeredStudents.map((st) => (
+                  <option key={st.id} value={st.id}>
+                    {st.name} ({st.studentId})
+                  </option>
+                ))}
               </select>
             </div>
 

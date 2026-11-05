@@ -9,7 +9,7 @@ import {
   AIMessage, 
   StudyPlanItem 
 } from '../types';
-import { INITIAL_USERS, AUTHORIZED_STUDENT_IDS } from '../data/initialMockUsers';
+import { INITIAL_USERS, ADMIN_USER, DEFAULT_STARTER_STUDENT } from '../data/initialMockUsers';
 import { COURSES_DATA } from '../data/curriculumData';
 import { INITIAL_VOCABULARY } from '../data/vocabularyData';
 import { INITIAL_ASSIGNMENTS, INITIAL_SUBMISSIONS } from '../data/assessmentData';
@@ -44,13 +44,24 @@ class StorageService {
 
     // Strict cleanup of legacy placeholder students or mock progress from localStorage
     const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
-    if (!rawUsers || rawUsers.includes('teacher-kim') || rawUsers.includes('admin-dean') || rawUsers.includes('student-default') || rawUsers.includes('Min-ji') || rawUsers.includes('"attendancePercentage":100')) {
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(INITIAL_USERS));
+    if (
+      !rawUsers || 
+      rawUsers.includes('student-dhie') || 
+      rawUsers.includes('student-mhie') || 
+      rawUsers.includes('teacher-kim') || 
+      rawUsers.includes('admin-dean')
+    ) {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([DEFAULT_STARTER_STUDENT]));
     }
 
     const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
-    if (!currentId || currentId === 'teacher-kim' || currentId === 'admin-dean' || currentId === 'student-default' || currentId === 'student-2') {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, 'student-dhie');
+    if (
+      !currentId || 
+      currentId === 'student-dhie' || 
+      currentId === 'student-mhie' || 
+      currentId === 'teacher-kim'
+    ) {
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, DEFAULT_STARTER_STUDENT.id);
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.COURSES)) {
@@ -62,46 +73,38 @@ class StorageService {
       localStorage.setItem(STORAGE_KEYS.ASSIGNMENTS, JSON.stringify(INITIAL_ASSIGNMENTS));
     }
 
-    // Clean initial state: zero submissions for new scholars
     const rawSubmissions = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
-    if (!rawSubmissions || rawSubmissions.includes('sub-1') || rawSubmissions.includes('student-default')) {
+    if (!rawSubmissions || rawSubmissions.includes('student-dhie') || rawSubmissions.includes('student-mhie')) {
       localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify([]));
     }
 
-    // Initialize unstudied vocabulary deck for Dhie and Mhie independently (clean zero-progress baseline)
+    // Clean legacy vocabulary deck
     const existingVocab = localStorage.getItem(STORAGE_KEYS.VOCABULARY);
     if (
       !existingVocab || 
-      existingVocab.includes('student-default') || 
-      existingVocab.includes('"status":"learning"') || 
-      existingVocab.includes('"status":"review"') || 
-      existingVocab.includes('"timesCorrect":1') || 
-      existingVocab.includes('"timesCorrect":2')
+      existingVocab.includes('student-dhie') || 
+      existingVocab.includes('student-mhie')
     ) {
       const vocabMap: Record<string, VocabularyWord[]> = {
-        'student-dhie': INITIAL_VOCABULARY,
-        'student-mhie': INITIAL_VOCABULARY
+        [DEFAULT_STARTER_STUDENT.id]: INITIAL_VOCABULARY
       };
       localStorage.setItem(STORAGE_KEYS.VOCABULARY, JSON.stringify(vocabMap));
     }
 
-    // Initialize completed lessons map:
-    // Both Dhie and Mhie start fresh at Lesson 1 with zero lessons completed.
+    // Clean legacy completed lessons
     const rawCompleted = localStorage.getItem(STORAGE_KEYS.COMPLETED_LESSONS);
-    if (!rawCompleted || rawCompleted.includes('lesson-pre-a1-1') || rawCompleted.includes('student-default')) {
+    if (!rawCompleted || rawCompleted.includes('student-dhie') || rawCompleted.includes('student-mhie')) {
       const completed: Record<string, string[]> = {
-        'student-dhie': [],
-        'student-mhie': []
+        [DEFAULT_STARTER_STUDENT.id]: []
       };
       localStorage.setItem(STORAGE_KEYS.COMPLETED_LESSONS, JSON.stringify(completed));
     }
 
-    // Initialize attendance for Dhie and Mhie (starts at zero before first session)
+    // Clean legacy attendance
     const rawAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
-    if (!rawAttendance || rawAttendance.includes('2026-11-04') || rawAttendance.includes('student-default')) {
+    if (!rawAttendance || rawAttendance.includes('student-dhie') || rawAttendance.includes('student-mhie')) {
       const attendanceMap: Record<string, string[]> = {
-        'student-dhie': [],
-        'student-mhie': []
+        [DEFAULT_STARTER_STUDENT.id]: []
       };
       localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceMap));
     }
@@ -112,52 +115,57 @@ class StorageService {
   // --- Users & Roles ---
   getUsers(): UserProfile[] {
     const raw = localStorage.getItem(STORAGE_KEYS.USERS);
-    let users: UserProfile[] = raw ? JSON.parse(raw) : INITIAL_USERS;
+    let users: UserProfile[] = raw ? JSON.parse(raw) : [DEFAULT_STARTER_STUDENT];
     
-    // Strict enforcement: Dhie and Mhie only
-    users = users.filter(u => AUTHORIZED_STUDENT_IDS.includes(u.id as any));
+    // Filter out any legacy dhie/mhie
+    users = users.filter(u => u.id !== 'student-dhie' && u.id !== 'student-mhie');
 
     if (users.length === 0) {
-      users = INITIAL_USERS;
+      users = [DEFAULT_STARTER_STUDENT];
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
     }
 
     return users;
   }
 
+  getStudents(): UserProfile[] {
+    return this.getUsers().filter(u => u.role === 'student');
+  }
+
+  getAdminUser(): UserProfile {
+    return ADMIN_USER;
+  }
+
   getUserById(userId: string): UserProfile | undefined {
+    if (userId === ADMIN_USER.id) return ADMIN_USER;
     return this.getUsers().find(u => u.id === userId);
   }
 
   getCurrentUser(): UserProfile {
-    const users = this.getUsers();
-    let currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID) || 'student-dhie';
+    const currentId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID) || DEFAULT_STARTER_STUDENT.id;
     
-    // Fallback if legacy ID was present
-    if (!AUTHORIZED_STUDENT_IDS.includes(currentId as any)) {
-      currentId = 'student-dhie';
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, currentId);
+    if (currentId === ADMIN_USER.id) {
+      return ADMIN_USER;
     }
 
-    return users.find(u => u.id === currentId) || users[0];
+    const students = this.getStudents();
+    return students.find(u => u.id === currentId) || students[0] || DEFAULT_STARTER_STUDENT;
   }
 
   setCurrentUser(userId: string): UserProfile {
-    // Validate if student is in allowlist
-    if (!AUTHORIZED_STUDENT_IDS.includes(userId as any)) {
-      console.warn(`Unauthorized student access attempt: ${userId}`);
-      userId = 'student-dhie';
+    if (userId === ADMIN_USER.id) {
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, ADMIN_USER.id);
+      return ADMIN_USER;
     }
 
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, userId);
+    const student = this.getUserById(userId);
+    const targetId = student ? student.id : DEFAULT_STARTER_STUDENT.id;
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, targetId);
     return this.getCurrentUser();
   }
 
   saveUser(updatedUser: UserProfile): void {
-    // If student, strictly prevent creating non-allowlisted accounts
-    if (updatedUser.role === 'student' && !AUTHORIZED_STUDENT_IDS.includes(updatedUser.id as any)) {
-      throw new Error('Public registration is disabled. This is a private academy for Dhie and Mhie only.');
-    }
+    if (updatedUser.id === ADMIN_USER.id) return;
 
     const users = this.getUsers();
     const index = users.findIndex(u => u.id === updatedUser.id);
@@ -169,11 +177,80 @@ class StorageService {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
   }
 
+  // --- Free Student Registration ---
+  registerStudent(data: {
+    name: string;
+    email: string;
+    proficiency?: any;
+    dailyStudyMinutes?: number;
+    studyDaysPerWeek?: number;
+    filipinoSupport?: boolean;
+    bio?: string;
+    password?: string;
+  }): UserProfile {
+    const newId = `student-${Date.now()}`;
+    const randomCode = Math.floor(1000 + Math.random() * 9000);
+    const studentId = `CP-2026-${randomCode}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    const newStudent: UserProfile = {
+      id: newId,
+      name: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
+      role: 'student',
+      studentId,
+      enrolledDate: today,
+      proficiency: data.proficiency || 'Pre-A1',
+      immersionStage: 'beginner',
+      explanationLanguage: 'English',
+      filipinoSupport: Boolean(data.filipinoSupport),
+      dailyStudyMinutes: data.dailyStudyMinutes || 60,
+      studyDaysPerWeek: data.studyDaysPerWeek || 7,
+      assignedTeacherId: 'admin-faculty',
+      currentCourseId: 'course-pre-a1',
+      bio: data.bio || `${data.name.trim()}'s Korean Language Journey with ChinguPop.`,
+      attendancePercentage: 0,
+      currentAcademicGrade: 'Pending'
+    };
+
+    // If only the placeholder starter student exists, replace it
+    let users = this.getStudents();
+    if (users.length === 1 && users[0].id === 'student-chingu-1') {
+      users = [];
+    }
+    users.push(newStudent);
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+
+    // Set as active user
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, newId);
+
+    // Initialize clean student progress maps
+    const vocabRaw = localStorage.getItem(STORAGE_KEYS.VOCABULARY);
+    const vocabMap = vocabRaw ? JSON.parse(vocabRaw) : {};
+    vocabMap[newId] = INITIAL_VOCABULARY;
+    localStorage.setItem(STORAGE_KEYS.VOCABULARY, JSON.stringify(vocabMap));
+
+    const compRaw = localStorage.getItem(STORAGE_KEYS.COMPLETED_LESSONS);
+    const compMap = compRaw ? JSON.parse(compRaw) : {};
+    compMap[newId] = [];
+    localStorage.setItem(STORAGE_KEYS.COMPLETED_LESSONS, JSON.stringify(compMap));
+
+    const attRaw = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
+    const attMap = attRaw ? JSON.parse(attRaw) : {};
+    attMap[newId] = [];
+    localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attMap));
+
+    if (data.password) {
+      this.setPassword(newId, data.password);
+    }
+
+    return newStudent;
+  }
+
   // Password / Security Management (Mock Secure Storage)
   setPassword(userId: string, newPass: string): void {
     const raw = localStorage.getItem(STORAGE_KEYS.PASSWORDS);
     const map = raw ? JSON.parse(raw) : {};
-    // Store simple hash/encoded string
     map[userId] = btoa(newPass);
     localStorage.setItem(STORAGE_KEYS.PASSWORDS, JSON.stringify(map));
   }
@@ -205,7 +282,7 @@ class StorageService {
     localStorage.setItem(STORAGE_KEYS.TOUR_COMPLETED, JSON.stringify(map));
   }
 
-  // --- Strict Course & Lesson Progression ---
+  // --- Course & Lesson Progression ---
   isLessonUnlocked(studentId: string, lessonNumber: number, previousLessonId?: string): boolean {
     if (this.isAdminUnlockAll()) return true;
 

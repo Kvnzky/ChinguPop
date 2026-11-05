@@ -30,58 +30,34 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
   onSelectStudent,
   onNavigateTab
 }) => {
-  const dhie = storage.getUserById('student-dhie') || currentUser;
-  const mhie = storage.getUserById('student-mhie') || currentUser;
+  const registeredStudents = storage.getStudents();
+  const allStudents = registeredStudents.length > 0 ? registeredStudents : [currentUser];
 
-  // Compute individual stats for Dhie
-  const dhieCompletedLessons = storage.getCompletedLessons(dhie.id);
-  const dhieVocabulary = storage.getVocabulary(dhie.id);
-  const dhieSubmissions = storage.getSubmissions(dhie.id);
-  const dhieCourse = courses.find(c => c.id === dhie.currentCourseId) || courses[0];
-  const dhieCompletionRate = Math.min(100, Math.round((dhieCompletedLessons.length / (dhieCourse?.totalLessons || 12)) * 100));
-
-  // Compute individual stats for Mhie
-  const mhieCompletedLessons = storage.getCompletedLessons(mhie.id);
-  const mhieVocabulary = storage.getVocabulary(mhie.id);
-  const mhieSubmissions = storage.getSubmissions(mhie.id);
-  const mhieCourse = courses.find(c => c.id === mhie.currentCourseId) || courses[0];
-  const mhieCompletionRate = Math.min(100, Math.round((mhieCompletedLessons.length / (mhieCourse?.totalLessons || 12)) * 100));
-
-  // Collaborative metrics
   const isWordLearned = (w: any) => w.status === 'mastered' || (w.status !== 'new' && w.timesCorrect > 0);
-  const combinedLessonsCompleted = dhieCompletedLessons.length + mhieCompletedLessons.length;
-  const combinedVocabLearned = dhieVocabulary.filter(isWordLearned).length + mhieVocabulary.filter(isWordLearned).length;
-  const combinedSubmissions = dhieSubmissions.length + mhieSubmissions.length;
-  const combinedStudyHours = (
-    dhieCompletedLessons.length * 1.0 +
-    mhieCompletedLessons.length * 1.0 +
-    (storage.getAttendance(dhie.id).length + storage.getAttendance(mhie.id).length) * 0.5
-  ).toFixed(1);
 
-  const students = [
-    {
-      profile: dhie,
-      course: dhieCourse,
-      completedLessons: dhieCompletedLessons,
-      vocabulary: dhieVocabulary,
-      submissions: dhieSubmissions,
-      completionRate: dhieCompletionRate,
-      color: 'border-amber-300 bg-amber-50/30',
-      badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
-      topSkill: dhieCompletedLessons.length > 0 ? 'Hangul Vowels Articulation' : 'Enrolled • Ready to Begin'
-    },
-    {
-      profile: mhie,
-      course: mhieCourse,
-      completedLessons: mhieCompletedLessons,
-      vocabulary: mhieVocabulary,
-      submissions: mhieSubmissions,
-      completionRate: mhieCompletionRate,
-      color: 'border-emerald-300 bg-emerald-50/30',
-      badgeColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
-      topSkill: mhieCompletedLessons.length > 0 ? 'Consonant Architecture' : 'Enrolled • Ready to Begin'
-    }
-  ];
+  const students = allStudents.map((st, idx) => {
+    const completed = storage.getCompletedLessons(st.id);
+    const vocab = storage.getVocabulary(st.id);
+    const subs = storage.getSubmissions(st.id);
+    const c = courses.find(cr => cr.id === st.currentCourseId) || courses[0];
+    const rate = Math.min(100, Math.round((completed.length / (c?.totalLessons || 12)) * 100));
+    return {
+      profile: st,
+      course: c,
+      completedLessons: completed,
+      vocabulary: vocab,
+      submissions: subs,
+      completionRate: rate,
+      color: idx % 2 === 0 ? 'border-amber-300 bg-amber-50/30' : 'border-emerald-300 bg-emerald-50/30',
+      badgeColor: idx % 2 === 0 ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-emerald-100 text-emerald-900 border-emerald-300',
+      topSkill: completed.length > 0 ? 'Hangul Foundations Articulation' : 'Enrolled • Ready to Begin'
+    };
+  });
+
+  const combinedLessonsCompleted = students.reduce((acc, s) => acc + s.completedLessons.length, 0);
+  const combinedVocabLearned = students.reduce((acc, s) => acc + s.vocabulary.filter(isWordLearned).length, 0);
+  const combinedSubmissions = students.reduce((acc, s) => acc + s.submissions.length, 0);
+  const combinedStudyHours = students.reduce((acc, s) => acc + s.completedLessons.length * 1.0 + storage.getAttendance(s.profile.id).length * 0.5, 0).toFixed(1);
 
   return (
     <div className="space-y-6">
@@ -92,10 +68,10 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono tracking-widest text-[#55C8F5] uppercase font-bold">
-                Private Academy Cohort
+                Academy Scholars Cohort
               </span>
               <span className="text-[10px] bg-white/10 border border-purple-300/40 text-purple-200 px-2 py-0.5 rounded font-mono font-bold">
-                Dhie & Mhie
+                {students.length} Enrolled {students.length === 1 ? 'Scholar' : 'Scholars'}
               </span>
             </div>
             
@@ -104,7 +80,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
             </h1>
             
             <p className="text-xs sm:text-sm text-purple-100/90 max-w-2xl leading-relaxed">
-              A private, non-competitive academic dashboard displaying independent progress, course completion milestones, and shared learning objectives for both enrolled students.
+              An intentional academic dashboard displaying student progress, course completion milestones, and shared learning objectives across the academy.
             </p>
           </div>
 
@@ -159,7 +135,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
 
       {/* Side-by-Side Student Comparison Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {students.map((student) => {
+        {students.map((student, idx) => {
           const isCurrent = student.profile.id === currentUser.id;
           return (
             <div
@@ -232,7 +208,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
                 </div>
                 <ProgressBar
                   value={student.completionRate}
-                  color={student.profile.id === 'student-dhie' ? 'gold' : 'navy'}
+                  color={idx % 2 === 0 ? 'gold' : 'navy'}
                   height="h-2.5"
                 />
               </div>
@@ -290,7 +266,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
             Collaborative Peer Learning & Academic Accountability
           </h3>
           <p className="text-stone-600 leading-relaxed">
-            ChinguPop provides Dhie and Mhie with an intentional learning sanctuary. True to the spirit of Chingu (친구 - friend), both scholars support each other's pronunciation practice, share study continuity, and celebrate completing each unit together toward conversational fluency and TOPIK proficiency.
+            ChinguPop provides scholars with an intentional learning sanctuary. True to the spirit of Chingu (친구 - friend), scholars support each other's pronunciation practice, share study continuity, and celebrate completing each unit together toward conversational fluency and TOPIK proficiency.
           </p>
         </div>
       </div>

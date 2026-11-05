@@ -10,8 +10,8 @@ import {
   WifiOff, 
   Check, 
   ChevronDown,
-  Volume2,
-  ShieldCheck
+  Sparkles,
+  UserPlus
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -19,7 +19,7 @@ interface NavbarProps {
   onUserChange: (user: UserProfile) => void;
   onOpenMobileMenu?: () => void;
   onOpenTour?: () => void;
-  onOpenAdmin?: () => void;
+  onOpenRegister?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onUserChange, 
   onOpenMobileMenu,
   onOpenTour,
-  onOpenAdmin
+  onOpenRegister
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -140,20 +140,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Admin Portal Direct Launcher Button */}
-          {onOpenAdmin && (
+          {/* Free Sign Up Button */}
+          {onOpenRegister && (
             <button
               type="button"
-              onClick={onOpenAdmin}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2C1E6D]/80 hover:bg-[#2C1E6D] border border-purple-400/40 text-purple-200 text-xs font-semibold transition-all shadow-sm active:scale-95"
-              title="Open Academy Administrative & Faculty Portal"
+              onClick={onOpenRegister}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+              title="Create Free Student Account"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#FF5CA8]" />
-              <span className="hidden sm:inline">Admin Portal</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Free Sign Up</span>
             </button>
           )}
 
-          {/* Student Account Switcher Dropdown (Dhie & Mhie) */}
+          {/* Student Account Switcher Dropdown */}
           <div className="relative">
             <button
               type="button"
@@ -167,7 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="font-semibold text-white flex items-center gap-1.5">
                   <span>{currentUser.name}</span>
                   <span className="text-[10px] uppercase font-mono px-1.5 py-0.2 bg-white/20 rounded text-[#55C8F5] font-bold">
-                    Scholar
+                    {currentUser.role === 'admin' ? 'Faculty' : 'Scholar'}
                   </span>
                 </div>
                 <div className="text-[10px] text-purple-200">
@@ -180,13 +180,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Switch User Dropdown */}
             {showUserMenu && (
               <div className="absolute right-0 mt-2 w-72 bg-white text-academy-charcoal rounded-xl shadow-2xl border border-stone-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="px-3 py-2 border-b border-stone-100">
+                <div className="px-3.5 py-2 border-b border-stone-100">
                   <p className="text-xs font-semibold uppercase tracking-wider text-academy-navy flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-academy-gold-dark" />
-                    Private Academy Scholars
+                    ChinguPop Scholars
                   </p>
                   <p className="text-[11px] text-stone-500 mt-0.5">
-                    Switch between authorized accounts: Dhie & Mhie
+                    Switch active student learning account
                   </p>
                 </div>
 
@@ -199,39 +199,39 @@ export const Navbar: React.FC<NavbarProps> = ({
                         type="button"
                         onClick={() => handleSelectUser(u)}
                         className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between hover:bg-stone-50 transition-colors ${
-                          isSelected ? 'bg-amber-50/70 font-semibold' : ''
+                          isSelected ? 'bg-purple-50/70 font-semibold' : ''
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-amber-100 text-amber-900 border border-amber-300">
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-purple-100 text-[#2C1E6D] border border-purple-200">
                             {u.name.charAt(0)}
                           </div>
                           <div>
                             <div className="text-academy-navy font-bold">{u.name}</div>
                             <div className="text-[11px] text-stone-500 flex items-center gap-1.5">
-                              <span className="font-mono text-[10px] text-academy-gold-dark font-semibold">{u.studentId}</span>
+                              <span className="font-mono text-[10px] text-[#6C52EE] font-semibold">{u.studentId}</span>
                               <span>• {u.proficiency}</span>
                             </div>
                           </div>
                         </div>
-                        {isSelected && <Check className="w-4 h-4 text-academy-gold-dark font-bold" />}
+                        {isSelected && <Check className="w-4 h-4 text-[#6C52EE] font-bold" />}
                       </button>
                     );
                   })}
                 </div>
 
-                {onOpenAdmin && (
+                {onOpenRegister && (
                   <div className="p-2 border-t border-stone-100 bg-stone-50/70 mt-1">
                     <button
                       type="button"
                       onClick={() => {
                         setShowUserMenu(false);
-                        onOpenAdmin();
+                        onOpenRegister();
                       }}
-                      className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 font-semibold text-xs transition-colors"
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-[#6C52EE] font-bold text-xs transition-colors"
                     >
-                      <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
-                      <span>Open Admin & Faculty Portal</span>
+                      <UserPlus className="w-3.5 h-3.5 text-[#6C52EE]" />
+                      <span>+ Register New Student (Free)</span>
                     </button>
                   </div>
                 )}

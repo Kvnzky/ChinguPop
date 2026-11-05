@@ -206,30 +206,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
 
-        {/* Direct Admin & Faculty Portal Link */}
-        <div className="pt-3 mt-3 border-t border-stone-200 space-y-1">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-purple-900/60 px-3 py-1 flex items-center justify-between">
-            <span>Administration</span>
-            <span className="text-[9px] font-mono bg-purple-100 text-[#6C52EE] px-1.5 py-0.2 rounded font-bold">Portal</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => onSelectTab('admin-portal')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-              currentTab === 'admin-portal'
-                ? 'bg-[#2C1E6D] text-white shadow-md ring-2 ring-purple-400/40'
-                : 'text-stone-700 hover:bg-purple-50 hover:text-[#6C52EE]'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className={`w-4 h-4 ${currentTab === 'admin-portal' ? 'text-[#FF5CA8]' : 'text-[#6C52EE]'}`} />
-              <span className="font-semibold">Admin Portal</span>
+        {/* Faculty Admin Link (Only visible if authenticated as admin) */}
+        {userRole === 'admin' && (
+          <div className="pt-3 mt-3 border-t border-stone-200 space-y-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-purple-900/60 px-3 py-1 flex items-center justify-between">
+              <span>Administration</span>
+              <span className="text-[9px] font-mono bg-purple-100 text-[#6C52EE] px-1.5 py-0.2 rounded font-bold">Portal</span>
             </div>
-            <span className={`text-[10px] font-korean ${currentTab === 'admin-portal' ? 'text-purple-200 font-semibold' : 'text-stone-600 font-medium'}`}>
-              관리자 포털
-            </span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => onSelectTab('admin-portal')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                currentTab === 'admin-portal'
+                  ? 'bg-[#2C1E6D] text-white shadow-md ring-2 ring-purple-400/40'
+                  : 'text-stone-700 hover:bg-purple-50 hover:text-[#6C52EE]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className={`w-4 h-4 ${currentTab === 'admin-portal' ? 'text-[#FF5CA8]' : 'text-[#6C52EE]'}`} />
+                <span className="font-semibold">Admin Portal</span>
+              </div>
+              <span className={`text-[10px] font-korean ${currentTab === 'admin-portal' ? 'text-purple-200 font-semibold' : 'text-stone-600 font-medium'}`}>
+                관리자 포털
+              </span>
+            </button>
+          </div>
+        )}
 
       </div>
 
