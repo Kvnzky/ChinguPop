@@ -93,11 +93,13 @@ export const CertificateView: React.FC<CertificateViewProps> = ({ currentUser })
 
               {/* Academy Seal Header */}
               <div className="space-y-1">
-                <div className="w-14 h-14 mx-auto rounded-full bg-academy-navy border-2 border-academy-gold flex items-center justify-center font-serif text-2xl font-bold text-academy-gold shadow-md">
-                  한
-                </div>
-                <div className="text-xs font-serif uppercase tracking-widest text-academy-gold-dark font-bold mt-2">
-                  HANGUL ACADEMY SEOUL • KOREAN LANGUAGE INSTITUTE
+                <img
+                  src="/chingupop-logo.jpg"
+                  alt="ChinguPop Seal"
+                  className="w-16 h-16 mx-auto rounded-2xl border-2 border-purple-400 p-1 bg-white shadow-md object-contain"
+                />
+                <div className="text-xs font-serif uppercase tracking-widest text-[#7955E8] font-bold mt-2">
+                  CHINGUPOP KOREAN LANGUAGE ACADEMY • 친구팝
                 </div>
                 <div className="text-2xl sm:text-3xl font-serif font-bold text-academy-navy tracking-wider pt-2">
                   수료증서 (CERTIFICATE OF COMPLETION)
@@ -146,7 +148,7 @@ export const CertificateView: React.FC<CertificateViewProps> = ({ currentUser })
 
               {/* Disclaimer */}
               <div className="text-[9px] text-stone-400 border-t border-stone-200 pt-3">
-                * Note: This is an internal certificate of academic achievement issued by Hangul Academy. It is not an official government TOPIK examination credential.
+                * Note: This is an internal certificate of academic achievement issued by ChinguPop Korean Language Academy. It is not an official government TOPIK examination credential.
               </div>
 
             </div>

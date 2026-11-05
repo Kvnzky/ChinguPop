@@ -191,7 +191,7 @@ export const AssignmentView: React.FC<AssignmentViewProps> = ({ currentUser }) =
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-academy-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="w-4 h-4 text-academy-gold-dark" />
-                      SNU AI Calligraphy & Vision Assessment
+                      ChinguPop AI Calligraphy & Vision Assessment
                     </span>
                     <span className="font-mono font-bold text-emerald-800 text-xs px-2 py-0.5 bg-white rounded border border-amber-300">
                       Score: {currentSubmission.aiVisionEvaluation.overallScore} / 100

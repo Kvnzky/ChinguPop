@@ -65,11 +65,11 @@ export const MaterialsLibrary: React.FC = () => {
 
   const handleDownload = (item: MaterialItem) => {
     // Generate text/markdown document download
-    const content = `# HANGUL ACADEMY OFFICIAL STUDY MATERIAL
+    const content = `# CHINGUPOP OFFICIAL KOREAN STUDY MATERIAL
 Title: ${item.title}
 Category: ${item.category}
 Academic Level: ${item.level}
-Curriculum Affiliation: Seoul Institute Standard
+Curriculum Affiliation: ChinguPop Korean Language Academy
 
 DESCRIPTION:
 ${item.description}
@@ -79,7 +79,7 @@ CONTENTS & STUDY RECOMMENDATIONS:
 2. Practice speech shadowing with the Speaking Lab audio player.
 3. Complete the interactive exercises on the Virtual Classroom platform.
 
-© Hangul Academy. All rights reserved for enrolled academic students.`;
+© ChinguPop. All rights reserved for enrolled academic students.`;
 
     const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);

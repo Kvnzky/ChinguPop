@@ -72,20 +72,23 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
 
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-lg bg-academy-navy-light border border-academy-gold/40 flex items-center justify-center text-academy-gold shadow-inner font-serif font-bold text-xl">
-              한
-            </div>
+            <img
+              src="/chingupop-logo.jpg"
+              alt="ChinguPop Logo"
+              className="h-10 w-auto rounded-xl object-contain bg-white shadow-sm ring-2 ring-purple-300/40 p-0.5"
+            />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif font-bold text-lg tracking-wider text-academy-ivory">
-                  HANGUL ACADEMY
+                <span className="font-bold text-xl tracking-tight text-white flex items-center">
+                  <span className="text-[#A78BFA]">Chingu</span>
+                  <span className="text-[#FF5CA8]">Pop</span>
                 </span>
-                <span className="hidden sm:inline-block text-xs font-korean text-academy-gold border border-academy-gold/30 px-1.5 py-0.5 rounded">
-                  한글 아카데미
+                <span className="hidden sm:inline-block text-xs font-korean text-purple-200 border border-purple-400/40 px-1.5 py-0.2 rounded-full bg-purple-900/40 font-medium">
+                  친구팝
                 </span>
               </div>
-              <p className="text-[10px] uppercase tracking-widest text-stone-300">
-                Korean Institute of Language & Academic Management
+              <p className="text-[10px] tracking-wide text-purple-200/90 font-medium">
+                Korean Language Learning Academy • Learn Korean. Find Your Chingu.
               </p>
             </div>
           </div>

@@ -162,10 +162,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer Info */}
       <div className="p-3 border-t border-stone-200 bg-stone-50/80 text-[11px] text-stone-500">
         <div className="flex items-center justify-between">
-          <span className="font-semibold text-academy-navy">HANGUL ACADEMY</span>
+          <span className="font-bold text-academy-navy flex items-center">
+            <span className="text-[#7955E8]">Chingu</span>
+            <span className="text-[#FF5CA8]">Pop</span>
+          </span>
           <span className="font-mono text-[10px]">v1.0.0 PWA</span>
         </div>
-        <p className="text-[10px] mt-0.5 text-stone-500">Seoul Institute Standard Curriculum</p>
+        <p className="text-[10px] mt-0.5 text-stone-500">Korean Language Learning Academy</p>
       </div>
 
     </aside>

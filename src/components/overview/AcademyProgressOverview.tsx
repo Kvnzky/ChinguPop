@@ -290,7 +290,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
             Collaborative Peer Learning & Academic Accountability
           </h3>
           <p className="text-stone-600 leading-relaxed">
-            Hangul Academy provides Dhie and Mhie with an intentional learning sanctuary. Rather than competitive ranking, both scholars support each other's pronunciation practice, share study continuity, and celebrate completing each unit together toward TOPIK proficiency.
+            ChinguPop provides Dhie and Mhie with an intentional learning sanctuary. True to the spirit of Chingu (친구 - friend), both scholars support each other's pronunciation practice, share study continuity, and celebrate completing each unit together toward conversational fluency and TOPIK proficiency.
           </p>
         </div>
       </div>

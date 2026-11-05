@@ -1,16 +1,16 @@
 {
-  "name": "Hangul Academy - Korean Language LMS",
-  "short_name": "Hangul Academy",
-  "description": "Structured University-Style Korean Language Academy and AI Tutor",
+  "name": "ChinguPop - Korean Language Learning Academy",
+  "short_name": "ChinguPop",
+  "description": "Learn Korean. Find Your Chingu. Modern, fun, interactive Korean language learning academy inspired by K-pop, K-drama, and Korean culture.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0B1B3D",
-  "theme_color": "#0B1B3D",
+  "background_color": "#252343",
+  "theme_color": "#7955E8",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/chingupop-logo.jpg",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]

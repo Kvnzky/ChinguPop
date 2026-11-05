@@ -126,7 +126,7 @@ export const LessonAssignmentPortal: React.FC<LessonAssignmentPortalProps> = ({
     // Title on paper
     ctx.fillStyle = '#78716c';
     ctx.font = '14px serif';
-    ctx.fillText('Hangul Academy - Lesson 1 Homework Drill', 30, 30);
+    ctx.fillText('ChinguPop - Lesson 1 Homework Drill', 30, 30);
 
     // Handwritten Korean Characters
     ctx.fillStyle = '#1c1917';
@@ -180,7 +180,7 @@ export const LessonAssignmentPortal: React.FC<LessonAssignmentPortalProps> = ({
       alignmentScore: 96,
       detectedCharacters: ['아', '야', '어', '여', '오', '요', '우', '유', '으', '이', '우유', '아이'],
       analysisSummary: 'Exceptional stroke execution for all 10 basic vowels. The circular initial consonant (ㅇ) maintains centered positioning without skewing, and vertical vowel stems (ㅏ, ㅓ, ㅣ) exhibit stable downward stroke weight.',
-      strokeOrderFeedback: 'Orthographic directions strictly follow standard Seoul National University conventions: top-to-bottom vertical strokes followed by left-to-right horizontal notches.',
+      strokeOrderFeedback: 'Orthographic directions strictly follow standard Korean conventions: top-to-bottom vertical strokes followed by left-to-right horizontal notches.',
       strengths: [
         'Precise circular initial consonant (ㅇ) geometry across both vertical and horizontal vowels.',
         'Proper geometric positioning: vertical vowels placed to the right, horizontal vowels positioned below.',
@@ -347,7 +347,7 @@ export const LessonAssignmentPortal: React.FC<LessonAssignmentPortalProps> = ({
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-academy-gold-dark" />
                     <span className="font-serif font-bold text-academy-navy text-sm">
-                      SNU AI Calligraphy Examiner Report
+                      ChinguPop AI Calligraphy Examiner Report
                     </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-academy-navy px-2.5 py-1 rounded bg-academy-gold text-academy-navy">
@@ -533,7 +533,7 @@ export const LessonAssignmentPortal: React.FC<LessonAssignmentPortalProps> = ({
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold flex items-center gap-2">
                   <RefreshCw className="w-4 h-4 text-academy-gold animate-spin" />
-                  <span>SNU AI Vision Examiner in Progress...</span>
+                  <span>ChinguPop AI Vision Examiner in Progress...</span>
                 </span>
                 <span className="font-mono text-academy-gold text-[11px]">Processing</span>
               </div>

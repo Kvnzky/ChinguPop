@@ -47,7 +47,7 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ currentUser }) => {
       const welcome: AIMessage = {
         id: 'msg-welcome',
         sender: 'tutor',
-        text: `안녕하세요, ${currentUser.name} 씨! I am your AI Korean Language Teacher at Hangul Academy.
+        text: `안녕하세요, ${currentUser.name} 씨! I am your AI Korean Language Teacher at ChinguPop (친구팝).
 
 I am here to guide you from ${currentUser.proficiency} to advanced fluency. You can ask me any grammar questions, practice Korean dialogues, test particle usage (은/는 vs 이/가), or simulate real conversations in Seoul.
 

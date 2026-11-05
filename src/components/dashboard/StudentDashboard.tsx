@@ -131,8 +131,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono tracking-widest text-academy-gold uppercase">
-                Academic Dashboard • Student ID
+              <span className="text-xs font-mono tracking-widest text-[#8FE0FA] uppercase">
+                ChinguPop Dashboard • Student ID
               </span>
               <span className="text-[10px] bg-academy-navy-light border border-academy-gold/40 text-academy-gold px-2 py-0.5 rounded font-mono">
                 {currentUser.studentId}

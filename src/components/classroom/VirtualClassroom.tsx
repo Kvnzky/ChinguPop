@@ -45,9 +45,9 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
       <div className="bg-academy-navy text-academy-ivory rounded-2xl p-6 sm:p-8 shadow-md relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-academy-gold">
-              <GraduationCap className="w-4 h-4 text-academy-gold" />
-              <span>SEOUL NATIONAL UNIVERSITY AFFILIATED VIRTUAL HALL</span>
+            <div className="flex items-center gap-2 text-xs font-mono tracking-wider text-purple-300">
+              <GraduationCap className="w-4 h-4 text-purple-300" />
+              <span>CHINGUPOP KOREAN LANGUAGE ACADEMY • VIRTUAL CLASSROOM</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-academy-ivory">
               {currentLesson.title}

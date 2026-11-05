@@ -1,4 +1,4 @@
-// HANGUL ACADEMY - Core Type Definitions
+// CHINGUPOP - Core Type Definitions
 
 export type UserRole = 'student' | 'teacher' | 'admin';
 

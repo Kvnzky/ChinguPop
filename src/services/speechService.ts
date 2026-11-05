@@ -1,4 +1,4 @@
-// HANGUL ACADEMY - Speech Synthesis & Recognition Service
+// CHINGUPOP - Speech Synthesis & Recognition Service
 
 export interface SpeechVoiceInfo {
   hasKoreanVoice: boolean;
