@@ -305,14 +305,20 @@ export const ExamSystem: React.FC<ExamSystemProps> = ({ currentUser }) => {
                       key={idx}
                       type="button"
                       onClick={() => handleSelectOption(q.id, idx)}
-                      className={`w-full text-left p-4 rounded-xl border text-xs font-medium transition-all ${
+                      className={`w-full text-left p-4 rounded-xl border text-sm font-semibold transition-all flex items-center gap-3 min-h-[52px] active:scale-99 ${
                         currentSelected === idx
-                          ? 'border-academy-navy bg-academy-navy text-academy-ivory shadow-sm'
+                          ? 'border-[#6C52EE] bg-purple-50 text-[#2C1E6D] shadow-sm ring-2 ring-purple-400/50'
                           : 'border-stone-200 hover:border-stone-300 bg-white text-stone-800'
                       }`}
                     >
-                      <span className="font-bold mr-2">{String.fromCharCode(65 + idx)}.</span>
-                      {opt}
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                        currentSelected === idx
+                          ? 'bg-[#6C52EE] text-white shadow-xs'
+                          : 'bg-stone-100 text-stone-600 border border-stone-300'
+                      }`}>
+                        {String.fromCharCode(65 + idx)}
+                      </div>
+                      <span className="flex-1">{opt}</span>
                     </button>
                   ))}
                 </div>
@@ -321,21 +327,21 @@ export const ExamSystem: React.FC<ExamSystemProps> = ({ currentUser }) => {
           })()}
 
           {/* Navigation Controls */}
-          <div className="pt-6 border-t border-stone-200 flex items-center justify-between">
+          <div className="pt-4 border-t border-stone-200 flex items-center justify-between gap-3">
             <button
               type="button"
               disabled={currentQIndex === 0}
               onClick={() => setCurrentQIndex(prev => Math.max(0, prev - 1))}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-stone-600 text-xs font-semibold hover:bg-stone-50 disabled:opacity-40"
+              className="px-4 py-3 min-h-[44px] rounded-xl border border-stone-300 text-stone-700 text-xs font-bold hover:bg-stone-50 disabled:opacity-40 transition-colors"
             >
-              Previous Question
+              Previous
             </button>
 
             {currentQIndex < activeQuiz.questions.length - 1 ? (
               <button
                 type="button"
                 onClick={() => setCurrentQIndex(prev => prev + 1)}
-                className="px-5 py-2 rounded-lg bg-academy-navy text-academy-ivory text-xs font-semibold hover:bg-academy-navy-light"
+                className="px-6 py-3 min-h-[44px] rounded-xl bg-gradient-to-r from-[#6C52EE] to-[#8E77F7] text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 shadow-md active:scale-95 transition-all"
               >
                 Next Question
               </button>
@@ -343,7 +349,7 @@ export const ExamSystem: React.FC<ExamSystemProps> = ({ currentUser }) => {
               <button
                 type="button"
                 onClick={handleAutoSubmit}
-                className="px-6 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider shadow-md"
+                className="px-6 py-3 min-h-[44px] rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 text-white text-xs font-bold uppercase tracking-wider shadow-md active:scale-95 transition-all"
               >
                 Submit Examination Now
               </button>

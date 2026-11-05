@@ -127,15 +127,15 @@ export const VocabularySRS: React.FC<VocabularySRSProps> = ({ currentUser }) => 
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-stone-200 gap-4">
+      {/* Tabs (Mobile Scrollable) */}
+      <div className="flex border-b border-stone-200 gap-2 sm:gap-4 overflow-x-auto no-scrollbar scrollbar-none">
         <button
           type="button"
           onClick={() => setActiveTab('flashcards')}
-          className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition-all shrink-0 ${
             activeTab === 'flashcards'
-              ? 'border-academy-navy text-academy-navy'
-              : 'border-transparent text-stone-500 hover:text-academy-navy'
+              ? 'border-[#6C52EE] text-[#6C52EE]'
+              : 'border-transparent text-stone-600 hover:text-[#6C52EE]'
           }`}
         >
           Spaced Repetition Drill (플래시카드)
@@ -143,10 +143,10 @@ export const VocabularySRS: React.FC<VocabularySRSProps> = ({ currentUser }) => 
         <button
           type="button"
           onClick={() => setActiveTab('deck')}
-          className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition-all shrink-0 ${
             activeTab === 'deck'
-              ? 'border-academy-navy text-academy-navy'
-              : 'border-transparent text-stone-500 hover:text-academy-navy'
+              ? 'border-[#6C52EE] text-[#6C52EE]'
+              : 'border-transparent text-stone-600 hover:text-[#6C52EE]'
           }`}
         >
           My Academic Vocabulary Deck ({words.length})
@@ -154,10 +154,10 @@ export const VocabularySRS: React.FC<VocabularySRSProps> = ({ currentUser }) => 
         <button
           type="button"
           onClick={() => setActiveTab('add')}
-          className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3 text-xs sm:text-sm font-semibold border-b-2 whitespace-nowrap transition-all shrink-0 ${
             activeTab === 'add'
-              ? 'border-academy-navy text-academy-navy'
-              : 'border-transparent text-stone-500 hover:text-academy-navy'
+              ? 'border-[#6C52EE] text-[#6C52EE]'
+              : 'border-transparent text-stone-600 hover:text-[#6C52EE]'
           }`}
         >
           + Add New Vocabulary
@@ -166,32 +166,32 @@ export const VocabularySRS: React.FC<VocabularySRSProps> = ({ currentUser }) => 
 
       {/* Tab 1: Interactive Flashcard Drill */}
       {activeTab === 'flashcards' && currentWord && (
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-2xl mx-auto space-y-4">
           <div
             onClick={() => setIsFlipped(!isFlipped)}
-            className={`min-h-[340px] bg-white rounded-2xl border-2 cursor-pointer shadow-md p-8 flex flex-col justify-between transition-all duration-300 transform select-none relative ${
+            className={`min-h-[300px] sm:min-h-[340px] bg-white rounded-2xl border-2 cursor-pointer shadow-md p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 transform select-none relative active:scale-99 ${
               isFlipped
-                ? 'border-academy-gold/80 bg-stone-50/70'
-                : 'border-stone-200 hover:border-academy-navy'
+                ? 'border-[#FF5CA8]/80 bg-purple-50/30 ring-2 ring-pink-400/20'
+                : 'border-stone-200 hover:border-[#6C52EE]'
             }`}
           >
             {/* Card Header */}
-            <div className="flex items-center justify-between text-xs text-stone-400">
-              <span className="font-mono uppercase font-bold text-academy-gold-dark">
+            <div className="flex items-center justify-between text-xs text-stone-500 font-medium">
+              <span className="font-mono uppercase font-bold text-[#6C52EE]">
                 {currentWord.category} • {currentWord.difficulty}
               </span>
-              <span className="font-mono">
+              <span className="font-mono font-semibold">
                 Card {(currentCardIndex % activeDeck.length) + 1} of {activeDeck.length}
               </span>
             </div>
 
             {/* Front or Back Content */}
             {!isFlipped ? (
-              <div className="text-center my-8 space-y-4">
-                <span className="text-xs uppercase font-mono text-stone-400 tracking-widest block">
-                  Click card to reveal meaning
+              <div className="text-center my-6 space-y-4">
+                <span className="text-xs uppercase font-mono text-stone-500 font-semibold tracking-widest block">
+                  Tap card to reveal English meaning
                 </span>
-                <div className="text-6xl font-serif font-bold text-academy-navy tracking-wide">
+                <div className="text-5xl sm:text-6xl font-serif font-black text-[#2C1E6D] tracking-wide">
                   {currentWord.korean}
                 </div>
                 <div className="inline-block mt-2">
@@ -199,14 +199,14 @@ export const VocabularySRS: React.FC<VocabularySRSProps> = ({ currentUser }) => 
                 </div>
               </div>
             ) : (
-              <div className="text-center my-4 space-y-4 animate-in fade-in duration-150">
-                <div className="text-4xl font-serif font-bold text-academy-navy">
+              <div className="text-center my-4 space-y-3 animate-in fade-in duration-150">
+                <div className="text-3xl sm:text-4xl font-serif font-bold text-[#2C1E6D]">
                   {currentWord.korean}
                 </div>
-                <div className="text-sm font-mono text-academy-gold-dark">
+                <div className="text-sm font-mono text-[#FF5CA8] font-bold">
                   [{currentWord.romanization}] • {currentWord.partOfSpeech}
                 </div>
-                <div className="text-xl font-serif font-bold text-stone-800">
+                <div className="text-xl font-bold text-stone-800">
                   {currentWord.english}
                 </div>
                 {currentUser.filipinoSupport && currentWord.filipino && (
@@ -215,65 +215,98 @@ export const VocabularySRS: React.FC<VocabularySRSProps> = ({ currentUser }) => 
                   </div>
                 )}
 
-                <div className="p-3 bg-stone-100 rounded-lg text-xs space-y-1 text-left mt-4 border border-stone-200">
-                  <div className="text-academy-navy font-semibold font-serif text-sm">
+                <div className="p-3 bg-stone-50 rounded-xl text-xs space-y-1 text-left mt-3 border border-stone-200">
+                  <div className="text-[#2C1E6D] font-bold font-serif text-sm">
                     {currentWord.exampleKorean}
                   </div>
-                  <div className="text-stone-600">{currentWord.exampleEnglish}</div>
+                  <div className="text-stone-700 font-medium">{currentWord.exampleEnglish}</div>
                   {currentWord.exampleFilipino && (
-                    <div className="text-amber-800 text-[11px] italic">🇵🇭 {currentWord.exampleFilipino}</div>
+                    <div className="text-amber-800 text-[11px] italic font-medium">🇵🇭 {currentWord.exampleFilipino}</div>
                   )}
                 </div>
               </div>
             )}
 
             {/* Card Footer Hint */}
-            <div className="text-center text-[11px] text-stone-400 flex items-center justify-center gap-1">
-              <RotateCw className="w-3.5 h-3.5" />
-              <span>Tap anywhere on card to flip</span>
+            <div className="text-center text-xs text-stone-600 font-medium flex items-center justify-center gap-1.5 pt-2">
+              <RotateCw className="w-3.5 h-3.5 text-[#6C52EE]" />
+              <span>Tap anywhere to {isFlipped ? 'flip back' : 'reveal meaning'}</span>
             </div>
           </div>
 
+          {/* Quick One-Hand Card Navigation Controls */}
+          <div className="flex items-center justify-between gap-2 px-1">
+            <button
+              type="button"
+              onClick={() => {
+                setIsFlipped(false);
+                setCurrentCardIndex(prev => (prev - 1 + activeDeck.length) % activeDeck.length);
+              }}
+              className="px-4 py-2.5 min-h-[44px] rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold transition-all active:scale-95 shadow-2xs"
+            >
+              ← Previous Card
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsFlipped(!isFlipped)}
+              className="px-4 py-2.5 min-h-[44px] rounded-xl bg-purple-50 hover:bg-purple-100 text-[#6C52EE] border border-purple-200 text-xs font-bold transition-all active:scale-95"
+            >
+              🔄 Flip Card
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsFlipped(false);
+                setCurrentCardIndex(prev => (prev + 1) % activeDeck.length);
+              }}
+              className="px-4 py-2.5 min-h-[44px] rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold transition-all active:scale-95 shadow-2xs"
+            >
+              Next Card →
+            </button>
+          </div>
+
           {/* SM-2 Response Grading Buttons */}
-          <div className="space-y-2">
-            <span className="text-xs font-mono uppercase text-stone-500 block text-center">
+          <div className="space-y-2 pt-1">
+            <span className="text-[11px] font-mono uppercase font-bold text-stone-600 block text-center">
               Rate your recall quality (SM-2 Interval Scheduling):
             </span>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => handleGrade(0)}
-                className="p-3 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-900 font-bold text-xs flex flex-col items-center gap-1 transition-all active:scale-95 shadow-sm"
+                className="p-3 min-h-[52px] rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-900 font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 shadow-2xs"
               >
                 <span>Again</span>
-                <span className="text-[10px] font-normal font-mono text-rose-700">Review 1d</span>
+                <span className="text-[10px] font-semibold font-mono text-rose-700">1d</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleGrade(2)}
-                className="p-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs flex flex-col items-center gap-1 transition-all active:scale-95 shadow-sm"
+                className="p-3 min-h-[52px] rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 shadow-2xs"
               >
                 <span>Hard</span>
-                <span className="text-[10px] font-normal font-mono text-amber-700">Interval ~2d</span>
+                <span className="text-[10px] font-semibold font-mono text-amber-700">~2d</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleGrade(4)}
-                className="p-3 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-xs flex flex-col items-center gap-1 transition-all active:scale-95 shadow-sm"
+                className="p-3 min-h-[52px] rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 shadow-2xs"
               >
                 <span>Good</span>
-                <span className="text-[10px] font-normal font-mono text-emerald-700">Interval ~4d</span>
+                <span className="text-[10px] font-semibold font-mono text-emerald-700">~4d</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleGrade(5)}
-                className="p-3 rounded-xl border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold text-xs flex flex-col items-center gap-1 transition-all active:scale-95 shadow-sm"
+                className="p-3 min-h-[52px] rounded-xl border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 shadow-2xs"
               >
                 <span>Easy</span>
-                <span className="text-[10px] font-normal font-mono text-blue-700">Interval ~7d+</span>
+                <span className="text-[10px] font-semibold font-mono text-blue-700">~7d+</span>
               </button>
             </div>
           </div>
