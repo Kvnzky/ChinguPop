@@ -48,7 +48,7 @@ export const AcademicRecords: React.FC<AcademicRecordsProps> = ({ currentUser })
         <button
           type="button"
           onClick={handlePrintTranscript}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-academy-navy hover:bg-academy-navy-light text-academy-ivory text-xs font-bold uppercase tracking-wider transition-all"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] rounded-xl bg-gradient-to-r from-[#6C52EE] to-[#8E77F7] text-white text-xs font-bold uppercase tracking-wider hover:brightness-110 shadow-sm active:scale-95 transition-all"
         >
           <Printer className="w-4 h-4" />
           <span>Print Official Transcript</span>
@@ -56,38 +56,38 @@ export const AcademicRecords: React.FC<AcademicRecordsProps> = ({ currentUser })
       </div>
 
       {/* Academic Profile Snapshot */}
-      <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
-        <div>
-          <span className="text-stone-400 font-mono uppercase text-[10px] block">Student Name</span>
-          <div className="font-serif font-bold text-base text-academy-navy mt-1">{currentUser.name}</div>
-          <div className="text-[11px] text-stone-500 font-mono">{currentUser.studentId}</div>
+      <div className="bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 shadow-sm grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 text-xs">
+        <div className="p-3 bg-purple-50/40 rounded-xl border border-purple-100">
+          <span className="text-[#6C52EE] font-mono uppercase font-bold text-[10px] block">Student Name</span>
+          <div className="font-serif font-bold text-base text-[#2C1E6D] mt-1">{currentUser.name}</div>
+          <div className="text-[11px] text-stone-600 font-mono font-medium">{currentUser.studentId}</div>
         </div>
 
-        <div>
-          <span className="text-stone-400 font-mono uppercase text-[10px] block">Current Proficiency</span>
-          <div className="font-mono font-bold text-base text-academy-gold-dark mt-1">{currentUser.proficiency}</div>
-          <div className="text-[11px] text-stone-500 capitalize">{currentUser.immersionStage} Immersion</div>
+        <div className="p-3 bg-purple-50/40 rounded-xl border border-purple-100">
+          <span className="text-[#6C52EE] font-mono uppercase font-bold text-[10px] block">Current Proficiency</span>
+          <div className="font-mono font-bold text-base text-[#FF5CA8] mt-1">{currentUser.proficiency}</div>
+          <div className="text-[11px] text-stone-600 capitalize font-medium">{currentUser.immersionStage} Immersion</div>
         </div>
 
-        <div>
-          <span className="text-stone-400 font-mono uppercase text-[10px] block">Academic GPA / Standing</span>
-          <div className="font-serif font-bold text-base text-academy-navy mt-1">
+        <div className="p-3 bg-purple-50/40 rounded-xl border border-purple-100">
+          <span className="text-[#6C52EE] font-mono uppercase font-bold text-[10px] block">Academic GPA / Standing</span>
+          <div className="font-serif font-bold text-base text-[#2C1E6D] mt-1">
             {completedLessons.length > 0 || submissions.length > 0
               ? `Grade ${currentUser.currentAcademicGrade}`
-              : 'Pending Evaluation'}
+              : 'Enrolled'}
           </div>
-          <div className="text-[11px] text-stone-500">
-            {completedLessons.length > 0 ? "Dean's Honors List" : 'Awaiting First Term Assessments'}
+          <div className="text-[11px] text-stone-600 font-medium">
+            {completedLessons.length > 0 ? "Dean's Honors List" : 'Awaiting Assessments'}
           </div>
         </div>
 
-        <div>
-          <span className="text-stone-400 font-mono uppercase text-[10px] block">Institutional Attendance</span>
-          <div className="font-mono font-bold text-base text-academy-navy mt-1">
+        <div className="p-3 bg-purple-50/40 rounded-xl border border-purple-100">
+          <span className="text-[#6C52EE] font-mono uppercase font-bold text-[10px] block">Institutional Attendance</span>
+          <div className="font-mono font-bold text-base text-[#2C1E6D] mt-1">
             {attendance.length > 0 ? `${currentUser.attendancePercentage}% Verified` : '0 Recorded Days'}
           </div>
-          <div className="text-[11px] text-stone-500">
-            {attendance.length > 0 ? `${attendance.length} Sessions Logged` : 'Ready to Begin Lesson 1'}
+          <div className="text-[11px] text-stone-600 font-medium">
+            {attendance.length > 0 ? `${attendance.length} Sessions Logged` : 'Ready to Begin'}
           </div>
         </div>
       </div>

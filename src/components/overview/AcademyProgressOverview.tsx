@@ -269,7 +269,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
                 <button
                   type="button"
                   onClick={() => onSelectStudent(student.profile.id)}
-                  className="w-full py-2.5 px-4 rounded-xl border border-academy-navy hover:bg-academy-navy hover:text-academy-ivory text-academy-navy font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 min-h-[48px] rounded-xl border border-purple-200 bg-purple-50 hover:bg-[#6C52EE] hover:text-white text-[#6C52EE] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-98 shadow-2xs"
                 >
                   <span>Switch to {student.profile.name}'s Dashboard</span>
                   <ChevronRight className="w-4 h-4" />
