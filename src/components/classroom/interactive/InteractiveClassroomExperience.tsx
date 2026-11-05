@@ -214,7 +214,7 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
       {/* TAB 1: INTERACTIVE ALPHABET CLASSROOM (10 Basic Vowel Cards) */}
       {activeStudioTab === 'alphabet-classroom' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-stone-100">
             <div>
               <h3 className="font-serif font-bold text-lg text-academy-navy">
                 Interactive Vowel Alphabet Classroom (기본 모음 10자)
@@ -223,12 +223,12 @@ export const InteractiveClassroomExperience: React.FC<InteractiveClassroomExperi
                 Click any vowel card to preview audio, inspect articulation, and open its pronunciation studio.
               </p>
             </div>
-            <span className="text-xs font-mono text-stone-500 bg-white px-3 py-1.5 rounded-lg border border-stone-200">
+            <span className="text-xs font-mono text-stone-600 bg-white px-3 py-1.5 rounded-lg border border-stone-200 self-start sm:self-center shrink-0">
               Mastered: {masteredChars.length} / {BASIC_VOWELS_INTERACTIVE_DATA.length}
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {BASIC_VOWELS_INTERACTIVE_DATA.map((item) => (
               <HangulCharacterCard
                 key={item.char}
