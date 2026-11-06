@@ -30,7 +30,7 @@ export const DHIE_USER: UserProfile = {
   role: 'student',
   status: 'active',
   emailVerified: true,
-  lastLoginAt: '2026-11-05T08:00:00.000Z',
+  lastLoginAt: '',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
   studentId: 'CP-2026-DHIE',
   enrolledDate: '2026-11-01',
@@ -43,8 +43,8 @@ export const DHIE_USER: UserProfile = {
   assignedTeacherId: 'admin-faculty',
   currentCourseId: 'course-pre-a1',
   bio: 'Dhie’s Korean Learning Odyssey: Master Hangul foundations, grammar patterns, conversational confidence, and K-culture.',
-  attendancePercentage: 100,
-  currentAcademicGrade: 'A'
+  attendancePercentage: 0,
+  currentAcademicGrade: 'Not Graded'
 };
 
 export const MHIE_USER: UserProfile = {
@@ -55,7 +55,7 @@ export const MHIE_USER: UserProfile = {
   role: 'student',
   status: 'active',
   emailVerified: true,
-  lastLoginAt: '2026-11-05T08:00:00.000Z',
+  lastLoginAt: '',
   avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80',
   studentId: 'CP-2026-MHIE',
   enrolledDate: '2026-11-01',
@@ -68,8 +68,8 @@ export const MHIE_USER: UserProfile = {
   assignedTeacherId: 'admin-faculty',
   currentCourseId: 'course-pre-a1',
   bio: 'Mhie’s Korean Language Journey: Focusing on pronunciation shadowing, everyday life expressions, and vocabulary retention.',
-  attendancePercentage: 100,
-  currentAcademicGrade: 'A'
+  attendancePercentage: 0,
+  currentAcademicGrade: 'Not Graded'
 };
 
 export const DEFAULT_STARTER_STUDENT: UserProfile = DHIE_USER;

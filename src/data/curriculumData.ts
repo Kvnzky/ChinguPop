@@ -17,7 +17,7 @@ export const COURSES_DATA: Course[] = [
       'Follow university classroom commands in spoken and written Korean'
     ],
     unitsCount: 4,
-    totalLessons: 12,
+    totalLessons: 8,
     status: 'published',
     units: [
       {
@@ -878,7 +878,7 @@ When a syllable ending in a Batchim is followed by a syllable beginning with the
       'Read short daily passages and comprehend native beginner dialogues'
     ],
     unitsCount: 4,
-    totalLessons: 12,
+    totalLessons: 8,
     status: 'published',
     units: [
       {

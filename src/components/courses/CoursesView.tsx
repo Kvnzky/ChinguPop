@@ -47,6 +47,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
       <div className="flex flex-wrap gap-2 pb-2 no-scrollbar scrollbar-none">
         {courses.map((course) => {
           const isSelected = selectedCourseId === course.id;
+          const courseProg = storage.getCourseProgress(currentUser.id, course.id);
           return (
             <button
               key={course.id}
@@ -58,15 +59,27 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                   : 'border-stone-200 hover:border-stone-300 bg-white text-stone-700'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono uppercase font-bold tracking-wider opacity-80">
-                  {course.level}
-                </span>
-                {course.topikLevel && (
-                  <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${isSelected ? 'bg-academy-navy-light text-academy-gold' : 'bg-stone-100 text-stone-600'}`}>
-                    {course.topikLevel}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase font-bold tracking-wider opacity-80">
+                    {course.level}
                   </span>
-                )}
+                  {course.topikLevel && (
+                    <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${isSelected ? 'bg-academy-navy-light text-academy-gold' : 'bg-stone-100 text-stone-600'}`}>
+                      {course.topikLevel}
+                    </span>
+                  )}
+                </div>
+
+                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  courseProg.status === 'Completed'
+                    ? 'bg-emerald-500 text-white'
+                    : courseProg.status === 'In Progress'
+                    ? 'bg-amber-400 text-amber-950'
+                    : 'bg-stone-200 text-stone-600'
+                }`}>
+                  {courseProg.status === 'Completed' ? '100% Done' : courseProg.status === 'In Progress' ? `${courseProg.completionPercent}%` : 'Not Started'}
+                </span>
               </div>
               <div className="font-serif font-bold text-xs mt-1 truncate max-w-[200px]">
                 {course.title}
@@ -93,10 +106,30 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-mono text-stone-500 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200">
-              {activeCourse.totalLessons} Lessons • {activeCourse.unitsCount} Units
-            </span>
+          <div className="flex items-center flex-wrap gap-2.5">
+            {(() => {
+              const prog = storage.getCourseProgress(currentUser.id, activeCourse.id);
+              return (
+                <>
+                  <span className="text-xs font-mono text-stone-600 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200 font-semibold">
+                    {prog.completedLessonsCount} / {prog.totalLessons} Lessons ({prog.completionPercent}%)
+                  </span>
+                  <span className={`text-xs font-bold px-3 py-1.5 rounded-lg border ${
+                    prog.status === 'Completed'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                      : prog.status === 'In Progress'
+                      ? 'bg-purple-50 text-purple-700 border-purple-300'
+                      : 'bg-stone-100 text-stone-600 border-stone-200'
+                  }`}>
+                    {prog.status === 'Completed'
+                      ? '✓ Course Completed (100%)'
+                      : prog.status === 'In Progress'
+                      ? `In Progress (${prog.completionPercent}%)`
+                      : 'Not Started (0%)'}
+                  </span>
+                </>
+              );
+            })()}
           </div>
         </div>
 

@@ -81,6 +81,17 @@ export function App() {
   const handleCompleteLesson = (lessonId: string) => {
     storage.markLessonCompleted(currentUser.id, lessonId);
     storage.recordAttendanceToday(currentUser.id);
+    storage.addXP(currentUser.id, 10, 'Completed Korean Lesson');
+    storage.recordDailyActivity(currentUser.id);
+
+    const completed = storage.getCompletedLessons(currentUser.id);
+    if (completed.length >= 1) {
+      storage.unlockAchievement(currentUser.id, 'first-steps');
+    }
+    if (completed.length >= 10) {
+      storage.unlockAchievement(currentUser.id, 'hangul-hero');
+    }
+
     setCurrentUser(storage.getCurrentUser());
   };
 

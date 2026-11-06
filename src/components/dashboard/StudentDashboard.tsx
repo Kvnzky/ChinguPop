@@ -67,15 +67,19 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const currentCourse = courses.find(c => c.id === currentUser.currentCourseId) || courses[0];
   const nextLesson = currentCourse?.units[0]?.lessons.find(l => !completedLessons.includes(l.id)) || currentCourse?.units[0]?.lessons[0];
 
-  const totalLessonsInCourse = currentCourse?.totalLessons || 12;
-  const completedInCourse = completedLessons.length;
+  const courseProgress = storage.getCourseProgress(currentUser.id, currentCourse?.id || 'course-pre-a1');
+  const totalLessonsInCourse = courseProgress.totalLessons;
+  const completedInCourse = courseProgress.completedLessonsCount;
+  const completionPercent = courseProgress.completionPercent;
+  const courseStatus = courseProgress.status;
+  const completedCourses = storage.getCompletedCourses(currentUser.id);
+  const completedCoursesCount = completedCourses.length;
   const gamification = storage.getGamificationState(currentUser.id);
   const levelInfo = storage.getLevel(currentUser.id);
   const streakInfo = storage.getStreak(currentUser.id);
   const reviewQueue = storage.getReviewQueue(currentUser.id);
   const dueReviewCount = reviewQueue.filter(r => r.nextReviewDate <= new Date().toISOString().split('T')[0]).length;
   const achievementsList = storage.getAchievements(currentUser.id);
-  const completionPercent = Math.min(100, Math.round((completedInCourse / totalLessonsInCourse) * 100));
 
   // Compute 9 authentic competencies based strictly on actual completed activity
   const vocabLearnedCount = vocabulary.filter(w => w.status === 'mastered' || (w.status !== 'new' && w.timesCorrect > 0)).length;
@@ -95,7 +99,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
   // Weekly study stats strictly based on actual sessions
   const activeDaysThisWeek = attendanceDates.length;
-  const weeklyStudyHours = ((completedInCourse * 1.0) + (activeDaysThisWeek * (currentUser.dailyStudyMinutes / 60))).toFixed(1);
+  const todayIso = new Date().toISOString().split('T')[0];
+  const hasLearnedToday = attendanceDates.includes(todayIso);
+  const todayLearnedMinutes = hasLearnedToday ? Math.max(15, completedInCourse * 15) : 0;
+  const weeklyStudyHours = ((completedInCourse * 0.5) + (activeDaysThisWeek * 0.5)).toFixed(1);
   const weeklyTargetHours = (currentUser.dailyStudyMinutes * currentUser.studyDaysPerWeek / 60).toFixed(1);
   const pendingAssignments = assignments.filter(a => !submissions.some(s => s.assignmentId === a.id));
   const pendingLessonsCount = Math.max(0, totalLessonsInCourse - completedInCourse);
@@ -376,10 +383,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
         >
           <div className="space-y-1">
             <h2 className="text-lg font-bold text-[#2C1E6D] tracking-tight">
-              {completionPercent >= 50 ? 'Outstanding!' : 'Excellent'}
+              {completionPercent === 100 ? 'Course Completed! 🎉' : completionPercent >= 70 ? 'Outstanding!' : completionPercent > 0 ? 'Good Progress!' : 'Ready to Start!'}
             </h2>
             <p className="text-xs text-stone-600 font-medium">
-              Today Learned <strong className="text-[#2C1E6D] font-bold">{currentUser.dailyStudyMinutes} Mins</strong>
+              Today Learned <strong className="text-[#2C1E6D] font-bold">{todayLearnedMinutes} Mins</strong>
             </p>
             <div className="flex items-center gap-1.5 pt-1 text-[11px] font-semibold text-[#6C52EE]">
               <span>🔥 {activeDaysThisWeek}/7 Days Active</span>
@@ -406,14 +413,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 stroke="#38BDF8"
                 strokeWidth="5.5"
                 strokeDasharray={163.36}
-                strokeDashoffset={163.36 - (163.36 * Math.max(12, completionPercent)) / 100}
+                strokeDashoffset={163.36 - (163.36 * completionPercent) / 100}
                 strokeLinecap="round"
                 fill="none"
               />
             </svg>
             <div className="absolute text-center leading-none">
               <span className="font-extrabold text-sm text-[#2C1E6D] font-mono block">
-                {Math.max(12, completionPercent)}%
+                {completionPercent}%
               </span>
             </div>
           </div>
@@ -479,7 +486,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[#7C5CF6] rounded-full" 
-                      style={{ width: `${Math.max(15, competencies.hangulReading)}%` }} 
+                      style={{ width: `${competencies.hangulReading}%` }} 
                     />
                   </div>
                   <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
@@ -526,12 +533,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[#FF8A00] rounded-full" 
-                      style={{ width: `${Math.max(20, competencies.grammar)}%` }} 
+                      style={{ width: `${competencies.grammar}%` }} 
                     />
                   </div>
                   <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
-                    <span>{Math.max(2, Math.round(competencies.grammar / 10))}/10 Lesson</span>
-                    <span className="text-[#FF8A00]">{Math.max(20, competencies.grammar)}%</span>
+                    <span>{Math.min(10, completedInCourse)}/10 Lesson</span>
+                    <span className="text-[#FF8A00]">{competencies.grammar}%</span>
                   </div>
                 </div>
               </div>
@@ -577,12 +584,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[#22C55E] rounded-full" 
-                      style={{ width: `${Math.max(25, competencies.hangulWriting)}%` }} 
+                      style={{ width: `${competencies.hangulWriting}%` }} 
                     />
                   </div>
                   <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
-                    <span>{Math.max(1, submissions.length)}/12 Lesson</span>
-                    <span className="text-[#22C55E]">{Math.max(25, competencies.hangulWriting)}%</span>
+                    <span>{submissions.length}/12 Lesson</span>
+                    <span className="text-[#22C55E]">{competencies.hangulWriting}%</span>
                   </div>
                 </div>
               </div>
@@ -626,12 +633,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[#FF5CA8] rounded-full" 
-                      style={{ width: `${Math.max(30, competencies.vocabulary)}%` }} 
+                      style={{ width: `${competencies.vocabulary}%` }} 
                     />
                   </div>
                   <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
-                    <span>{Math.max(5, vocabLearnedCount)}/20 Lesson</span>
-                    <span className="text-[#FF5CA8]">{Math.max(30, competencies.vocabulary)}%</span>
+                    <span>{vocabLearnedCount}/20 Lesson</span>
+                    <span className="text-[#FF5CA8]">{competencies.vocabulary}%</span>
                   </div>
                 </div>
               </div>
@@ -958,28 +965,28 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="space-y-2.5">
                     <div className="space-y-1">
                       <div className="text-[9.5px] font-semibold text-stone-600 truncate">
-                        Unit 30 • may and might 2
+                        Unit 1 • Hangul Basic Vowels (기본 모음)
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#6C52EE] rounded-full" style={{ width: '75%' }} />
+                        <div className="h-full bg-[#6C52EE] rounded-full" style={{ width: `${competencies.hangulReading}%` }} />
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <div className="text-[9.5px] font-semibold text-stone-600 truncate">
-                        Unit 48 • question tags
+                        Unit 2 • Basic Consonants (기본 자음)
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#B4A0FF] rounded-full" style={{ width: '48%' }} />
+                        <div className="h-full bg-[#B4A0FF] rounded-full" style={{ width: `${competencies.grammar}%` }} />
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <div className="text-[9.5px] font-semibold text-stone-600 truncate">
-                        Unit 51 • if I do ... and if I did
+                        Unit 3 • Final Consonants (받침 Batchim)
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#F59E0B] rounded-full" style={{ width: '32%' }} />
+                        <div className="h-full bg-[#F59E0B] rounded-full" style={{ width: `${competencies.hangulWriting}%` }} />
                       </div>
                     </div>
                   </div>
@@ -1029,7 +1036,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                         stroke="#6C52EE"
                         strokeWidth="9"
                         strokeDasharray="238.76"
-                        strokeDashoffset="100"
+                        strokeDashoffset={238.76 - (238.76 * completionPercent) / 100}
                         strokeLinecap="round"
                         transform="rotate(-90 50 50)"
                       />
@@ -1048,7 +1055,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     </svg>
 
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-sm font-black text-[#1E1B4B]">58%</span>
+                      <span className="text-sm font-black text-[#1E1B4B]">{completionPercent}%</span>
                     </div>
 
                     <div className="absolute top-0.5 right-3 text-amber-500">
@@ -1080,7 +1087,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="font-bold text-xs text-[#1E1B4B] group-hover:text-[#6C52EE] transition-colors truncate">
-                          Introduction to German
+                          Korean Foundations & Hangul
                         </h4>
                         <MoreHorizontal className="w-3.5 h-3.5 text-stone-400 shrink-0" />
                       </div>
@@ -1090,7 +1097,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                           alt="Teacher"
                           className="w-4 h-4 rounded-full object-cover"
                         />
-                        <span className="truncate">Andreas Ackermann</span>
+                        <span className="truncate">Prof. Min-jun Kim (김민준)</span>
                       </div>
                     </div>
 
@@ -1113,7 +1120,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="font-bold text-xs text-[#1E1B4B] group-hover:text-[#6C52EE] transition-colors truncate">
-                          Business English
+                          Essential Korean Grammar
                         </h4>
                         <MoreHorizontal className="w-3.5 h-3.5 text-stone-400 shrink-0" />
                       </div>
@@ -1123,7 +1130,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                           alt="Teacher"
                           className="w-4 h-4 rounded-full object-cover"
                         />
-                        <span className="truncate">Emilia Smith</span>
+                        <span className="truncate">Prof. Ji-won Park (박지원)</span>
                       </div>
                     </div>
 
@@ -1282,7 +1289,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[10px] font-bold text-[#1E1B4B] truncate">
-                        English Grammar Test
+                        Hangul Stroke & Calligraphy
                       </div>
                       <div className="text-[8.5px] text-stone-400 font-medium">
                         08 Feb 2026, Friday
@@ -1299,7 +1306,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[10px] font-bold text-[#1E1B4B] truncate">
-                        French - Essay
+                        Self-Introduction Essay (자기소개서)
                       </div>
                       <div className="text-[8.5px] text-stone-400 font-medium">
                         13 Feb 2026, Thursday
@@ -1540,12 +1547,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="space-y-1.5 pt-1">
                     <div className="flex items-center justify-between text-[11px] font-bold text-[#1E1B4B]">
                       <span className="text-[10px] text-[#312E81]/70 font-medium">Progress</span>
-                      <span>{Math.max(15, competencies.hangulReading)}%</span>
+                      <span>{competencies.hangulReading}%</span>
                     </div>
                     <div className="w-full h-1.5 bg-[#1E1B4B]/10 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-[#1E1B4B] rounded-full transition-all"
-                        style={{ width: `${Math.max(15, competencies.hangulReading)}%` }}
+                        style={{ width: `${competencies.hangulReading}%` }}
                       />
                     </div>
                   </div>
@@ -1578,12 +1585,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="space-y-1.5 pt-1">
                     <div className="flex items-center justify-between text-[11px] font-bold text-[#431407]">
                       <span className="text-[10px] text-[#7C2D12]/70 font-medium">Progress</span>
-                      <span>{Math.max(20, competencies.grammar)}%</span>
+                      <span>{competencies.grammar}%</span>
                     </div>
                     <div className="w-full h-1.5 bg-[#431407]/10 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-[#431407] rounded-full transition-all"
-                        style={{ width: `${Math.max(20, competencies.grammar)}%` }}
+                        style={{ width: `${competencies.grammar}%` }}
                       />
                     </div>
                   </div>
@@ -1616,12 +1623,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="space-y-1.5 pt-1">
                     <div className="flex items-center justify-between text-[11px] font-bold text-[#500724]">
                       <span className="text-[10px] text-[#831843]/70 font-medium">Progress</span>
-                      <span>{Math.max(10, competencies.vocabulary)}%</span>
+                      <span>{competencies.vocabulary}%</span>
                     </div>
                     <div className="w-full h-1.5 bg-[#500724]/10 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-[#500724] rounded-full transition-all"
-                        style={{ width: `${Math.max(10, competencies.vocabulary)}%` }}
+                        style={{ width: `${competencies.vocabulary}%` }}
                       />
                     </div>
                   </div>

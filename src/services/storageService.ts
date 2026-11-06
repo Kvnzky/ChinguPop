@@ -1,4 +1,6 @@
-import { 
+import {
+  CourseCompletionStatus,
+  CourseProgressInfo,
   UserProfile, 
   UserRole,
   AccountStatus,
@@ -304,7 +306,7 @@ class StorageService {
   private init() {
     if (typeof window === 'undefined') return;
 
-    // Clean legacy placeholder students if present, and ensure ADMIN_USER and DEFAULT_STARTER_STUDENT are synchronized
+    // Synchronize protected students and admin
     const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
     let parsedUsers: UserProfile[] = [];
     if (rawUsers) {
@@ -315,27 +317,25 @@ class StorageService {
       }
     }
 
-    // Filter out obsolete mock IDs
+    // Filter out obsolete legacy IDs
     parsedUsers = parsedUsers.filter(
-      u => u && u.id !== 'student-dhie' && u.id !== 'student-mhie' && u.id !== 'teacher-kim' && u.id !== 'admin-dean'
+      u => u && u.id !== 'teacher-kim' && u.id !== 'admin-dean' && u.id !== 'student-01'
     );
 
-    // Ensure both ADMIN_USER and DEFAULT_STARTER_STUDENT are in the database without removing any registered user
-    if (parsedUsers.length === 0) {
-      parsedUsers = [normalizeUser(DEFAULT_STARTER_STUDENT), normalizeUser(ADMIN_USER)];
-    } else {
-      if (!parsedUsers.some(u => u.id === DEFAULT_STARTER_STUDENT.id)) {
-        parsedUsers.unshift(normalizeUser(DEFAULT_STARTER_STUDENT));
-      }
-      if (!parsedUsers.some(u => u.id === ADMIN_USER.id)) {
-        parsedUsers.push(normalizeUser(ADMIN_USER));
-      }
-      parsedUsers = parsedUsers.map(normalizeUser);
+    // Ensure DHIE_USER, MHIE_USER, and ADMIN_USER are all registered
+    if (!parsedUsers.some(u => u.id === DHIE_USER.id)) {
+      parsedUsers.unshift(normalizeUser(DHIE_USER));
     }
-
+    if (!parsedUsers.some(u => u.id === MHIE_USER.id)) {
+      parsedUsers.push(normalizeUser(MHIE_USER));
+    }
+    if (!parsedUsers.some(u => u.id === ADMIN_USER.id)) {
+      parsedUsers.push(normalizeUser(ADMIN_USER));
+    }
+    parsedUsers = parsedUsers.map(normalizeUser);
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(parsedUsers));
 
-    // Seed default passwords for ADMIN_USER and DEFAULT_STARTER_STUDENT if not already set
+    // Seed default passwords for DHIE, MHIE, and ADMIN
     const rawPasswords = localStorage.getItem(STORAGE_KEYS.PASSWORDS);
     let pwdMap: Record<string, string> = {};
     if (rawPasswords) {
@@ -350,8 +350,12 @@ class StorageService {
       pwdMap[ADMIN_USER.id] = computeSaltedHash(ADMIN_DEFAULT_PASSWORD, ADMIN_USER.id);
       pwdChanged = true;
     }
-    if (!pwdMap[DEFAULT_STARTER_STUDENT.id]) {
-      pwdMap[DEFAULT_STARTER_STUDENT.id] = computeSaltedHash(STARTER_STUDENT_DEFAULT_PASSWORD, DEFAULT_STARTER_STUDENT.id);
+    if (!pwdMap[DHIE_USER.id]) {
+      pwdMap[DHIE_USER.id] = computeSaltedHash(STARTER_STUDENT_DEFAULT_PASSWORD, DHIE_USER.id);
+      pwdChanged = true;
+    }
+    if (!pwdMap[MHIE_USER.id]) {
+      pwdMap[MHIE_USER.id] = computeSaltedHash(STARTER_STUDENT_DEFAULT_PASSWORD, MHIE_USER.id);
       pwdChanged = true;
     }
     if (pwdChanged || !rawPasswords) {
@@ -359,7 +363,6 @@ class StorageService {
     }
 
     // CRITICAL FIX: Do NOT auto-populate CURRENT_USER_ID when there is no valid authenticated session.
-    // If no active session exists, remove any stale CURRENT_USER_ID so signed-out visitors never display a registered user.
     const activeSessionRaw = localStorage.getItem(STORAGE_KEYS.AUTH_SESSION);
     if (!activeSessionRaw) {
       localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
@@ -374,42 +377,6 @@ class StorageService {
       localStorage.setItem(STORAGE_KEYS.ASSIGNMENTS, JSON.stringify(INITIAL_ASSIGNMENTS));
     }
 
-    const rawSubmissions = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
-    if (!rawSubmissions || rawSubmissions.includes('student-dhie') || rawSubmissions.includes('student-mhie')) {
-      localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify([]));
-    }
-
-    // Clean legacy vocabulary deck
-    const existingVocab = localStorage.getItem(STORAGE_KEYS.VOCABULARY);
-    if (
-      !existingVocab || 
-      existingVocab.includes('student-dhie') || 
-      existingVocab.includes('student-mhie')
-    ) {
-      const vocabMap: Record<string, VocabularyWord[]> = {
-        [DEFAULT_STARTER_STUDENT.id]: INITIAL_VOCABULARY
-      };
-      localStorage.setItem(STORAGE_KEYS.VOCABULARY, JSON.stringify(vocabMap));
-    }
-
-    // Clean legacy completed lessons
-    const rawCompleted = localStorage.getItem(STORAGE_KEYS.COMPLETED_LESSONS);
-    if (!rawCompleted || rawCompleted.includes('student-dhie') || rawCompleted.includes('student-mhie')) {
-      const completed: Record<string, string[]> = {
-        [DEFAULT_STARTER_STUDENT.id]: []
-      };
-      localStorage.setItem(STORAGE_KEYS.COMPLETED_LESSONS, JSON.stringify(completed));
-    }
-
-    // Clean legacy attendance
-    const rawAttendance = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
-    if (!rawAttendance || rawAttendance.includes('student-dhie') || rawAttendance.includes('student-mhie')) {
-      const attendanceMap: Record<string, string[]> = {
-        [DEFAULT_STARTER_STUDENT.id]: []
-      };
-      localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceMap));
-    }
-
     if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) {
       const initialLog: AuditLogEntry = {
         id: 'audit-init-1',
@@ -421,6 +388,13 @@ class StorageService {
         details: 'ChinguPop Academy Authentication & User Management database initialized.'
       };
       localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([initialLog]));
+    }
+
+    // CLEAN RESET TRIGGER: Ensure both Dhie and Mhie start from true zero
+    const CLEAN_RESET_STAMP = 'ha_clean_zero_reset_v4';
+    if (localStorage.getItem(CLEAN_RESET_STAMP) !== 'applied') {
+      this.resetAllStudentLearningData();
+      localStorage.setItem(CLEAN_RESET_STAMP, 'applied');
     }
 
     this.isInitialized = true;
@@ -459,11 +433,24 @@ class StorageService {
     }
 
     users = users
-      .filter(u => u && u.id !== 'student-dhie' && u.id !== 'student-mhie')
+      .filter(u => u && u.id !== 'teacher-kim' && u.id !== 'admin-dean' && u.id !== 'student-01')
       .map(normalizeUser);
 
+    let changed = false;
+    if (!users.some(u => u.id === DHIE_USER.id)) {
+      users.unshift(normalizeUser(DHIE_USER));
+      changed = true;
+    }
+    if (!users.some(u => u.id === MHIE_USER.id)) {
+      users.push(normalizeUser(MHIE_USER));
+      changed = true;
+    }
     if (!users.some(u => u.id === ADMIN_USER.id || u.role === 'admin')) {
       users.push(normalizeUser(ADMIN_USER));
+      changed = true;
+    }
+
+    if (changed) {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
     }
 
@@ -642,7 +629,11 @@ class StorageService {
     if (cleanId.toLowerCase() === ADMIN_DEFAULT_USERNAME.toLowerCase()) {
       targetUser = this.getAdminUser();
     } else {
-      targetUser = this.getUserByEmail(cleanId);
+      targetUser = this.getUserByEmail(cleanId) || this.getUsers().find(u => 
+        u.name.toLowerCase() === cleanId.toLowerCase() ||
+        u.id.toLowerCase() === cleanId.toLowerCase() ||
+        (u.studentId && u.studentId.toLowerCase() === cleanId.toLowerCase())
+      );
     }
 
     if (!targetUser) {
@@ -1817,6 +1808,7 @@ class StorageService {
   }
 
   getStreak(studentId: string): { 
+    streak: number;
     currentStreak: number; 
     maxStreak: number; 
     lastActiveDate: string; 
@@ -1835,12 +1827,14 @@ class StorageService {
 
     const activeThisWeek = (state.activeDates || []).filter((d: string) => d >= startIso).length;
 
+    const currentStreak = Number(state.streak) || 0;
     return {
-      currentStreak: state.streak || 1,
-      maxStreak: Math.max(state.streak || 1, 7),
-      lastActiveDate: state.lastActiveDate || today,
-      activeDaysThisWeek: Math.max(1, activeThisWeek),
-      activeDates: state.activeDates || [today]
+      streak: currentStreak,
+      currentStreak,
+      maxStreak: currentStreak,
+      lastActiveDate: state.lastActiveDate || '',
+      activeDaysThisWeek: activeThisWeek,
+      activeDates: state.activeDates || []
     };
   }
 
@@ -1921,14 +1915,10 @@ class StorageService {
     const raw = localStorage.getItem(STORAGE_KEYS.REVIEW_QUEUE);
     const map = raw ? JSON.parse(raw) : {};
     if (!map[studentId]) {
-      map[studentId] = INITIAL_REVIEW_ITEMS.map((item, idx) => ({
-        ...item,
-        id: `${item.id}-${studentId}`,
-        studentId
-      }));
+      map[studentId] = [];
       localStorage.setItem(STORAGE_KEYS.REVIEW_QUEUE, JSON.stringify(map));
     }
-    return map[studentId];
+    return map[studentId] || [];
   }
 
   addReviewItem(studentId: string, item: Omit<ReviewItem, 'id' | 'studentId' | 'intervalDays' | 'easeFactor' | 'consecutiveCorrect' | 'nextReviewDate' | 'mistakeCount'>): void {
@@ -2094,6 +2084,215 @@ class StorageService {
       }
     });
     return JSON.stringify(dump, null, 2);
+  }
+
+  
+  // --- Clean Student Data Reset & Isolation ---
+  resetAllStudentLearningData(): void {
+    const studentIds = [DHIE_USER.id, MHIE_USER.id];
+
+    // 1. Reset Completed Lessons
+    const completedMap: Record<string, string[]> = {};
+    studentIds.forEach(id => { completedMap[id] = []; });
+    localStorage.setItem(STORAGE_KEYS.COMPLETED_LESSONS, JSON.stringify(completedMap));
+
+    // 2. Reset Gamification (XP = 0, Streak = 0, LastActive = '')
+    const gamificationMap: Record<string, StudentGamificationState> = {};
+    studentIds.forEach(id => {
+      gamificationMap[id] = {
+        xp: 0,
+        level: 1,
+        streak: 0,
+        lastActiveDate: '',
+        activeDates: [],
+        awardedActivities: {},
+        unlockedAchievements: []
+      };
+    });
+    localStorage.setItem(STORAGE_KEYS.GAMIFICATION, JSON.stringify(gamificationMap));
+
+    // 3. Reset Achievements (All locked, 0 unlocked)
+    const achievementsMap: Record<string, Achievement[]> = {};
+    studentIds.forEach(id => {
+      achievementsMap[id] = INITIAL_ACHIEVEMENTS.map(a => ({ ...a, unlockedAt: undefined }));
+    });
+    localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(achievementsMap));
+
+    // 4. Reset Review Queue (0 review items due)
+    const reviewMap: Record<string, ReviewItem[]> = {};
+    studentIds.forEach(id => { reviewMap[id] = []; });
+    localStorage.setItem(STORAGE_KEYS.REVIEW_QUEUE, JSON.stringify(reviewMap));
+
+    // 5. Reset Arcade Scores
+    const arcadeMap: Record<string, ArcadeScoreRecord[]> = {};
+    studentIds.forEach(id => { arcadeMap[id] = []; });
+    localStorage.setItem(STORAGE_KEYS.ARCADE_SCORES, JSON.stringify(arcadeMap));
+
+    // 6. Reset Boss Results
+    const bossMap: Record<string, Record<string, { passed: boolean; score: number; date: string }>> = {};
+    studentIds.forEach(id => { bossMap[id] = {}; });
+    localStorage.setItem(STORAGE_KEYS.BOSS_RESULTS, JSON.stringify(bossMap));
+
+    // 7. Reset Attendance
+    const attendanceMap: Record<string, string[]> = {};
+    studentIds.forEach(id => { attendanceMap[id] = []; });
+    localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendanceMap));
+
+    // 8. Reset Submissions
+    localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify([]));
+
+    // 9. Reset Exam Attempts
+    localStorage.setItem(STORAGE_KEYS.EXAM_ATTEMPTS, JSON.stringify([]));
+
+    // 10. Reset Certificates
+    localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify([]));
+
+    // 11. Reset AI Conversations
+    const aiMap: Record<string, AIMessage[]> = {};
+    studentIds.forEach(id => { aiMap[id] = []; });
+    localStorage.setItem(STORAGE_KEYS.AI_CONVERSATIONS, JSON.stringify(aiMap));
+
+    // 12. Reset Study Plans
+    const plansMap: Record<string, StudyPlanItem[]> = {};
+    studentIds.forEach(id => { plansMap[id] = []; });
+    localStorage.setItem(STORAGE_KEYS.STUDY_PLANS, JSON.stringify(plansMap));
+
+    // 13. Reset Vocabulary (Fresh unstudied deck: status 'new', 0 times reviewed)
+    const vocabMap: Record<string, VocabularyWord[]> = {};
+    studentIds.forEach(id => {
+      vocabMap[id] = INITIAL_VOCABULARY.map(w => ({
+        ...w,
+        repetitionNumber: 0,
+        intervalDays: 1,
+        easeFactor: 2.5,
+        status: 'new' as const,
+        timesCorrect: 0,
+        timesIncorrect: 0,
+        nextReviewDate: new Date().toISOString().split('T')[0]
+      }));
+    });
+    localStorage.setItem(STORAGE_KEYS.VOCABULARY, JSON.stringify(vocabMap));
+  }
+
+  resetStudentProgress(studentId: string): void {
+    const rawComp = localStorage.getItem(STORAGE_KEYS.COMPLETED_LESSONS);
+    const compMap = rawComp ? JSON.parse(rawComp) : {};
+    compMap[studentId] = [];
+    localStorage.setItem(STORAGE_KEYS.COMPLETED_LESSONS, JSON.stringify(compMap));
+
+    const rawGam = localStorage.getItem(STORAGE_KEYS.GAMIFICATION);
+    const gamMap = rawGam ? JSON.parse(rawGam) : {};
+    gamMap[studentId] = {
+      xp: 0,
+      level: 1,
+      streak: 0,
+      lastActiveDate: '',
+      activeDates: [],
+      awardedActivities: {},
+      unlockedAchievements: []
+    };
+    localStorage.setItem(STORAGE_KEYS.GAMIFICATION, JSON.stringify(gamMap));
+
+    const rawAch = localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS);
+    const achMap = rawAch ? JSON.parse(rawAch) : {};
+    achMap[studentId] = INITIAL_ACHIEVEMENTS.map(a => ({ ...a, unlockedAt: undefined }));
+    localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(achMap));
+
+    const rawRev = localStorage.getItem(STORAGE_KEYS.REVIEW_QUEUE);
+    const revMap = rawRev ? JSON.parse(rawRev) : {};
+    revMap[studentId] = [];
+    localStorage.setItem(STORAGE_KEYS.REVIEW_QUEUE, JSON.stringify(revMap));
+
+    const rawAtt = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
+    const attMap = rawAtt ? JSON.parse(rawAtt) : {};
+    attMap[studentId] = [];
+    localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attMap));
+
+    const rawArc = localStorage.getItem(STORAGE_KEYS.ARCADE_SCORES);
+    const arcMap = rawArc ? JSON.parse(rawArc) : {};
+    arcMap[studentId] = [];
+    localStorage.setItem(STORAGE_KEYS.ARCADE_SCORES, JSON.stringify(arcMap));
+
+    const rawBoss = localStorage.getItem(STORAGE_KEYS.BOSS_RESULTS);
+    const bossMap = rawBoss ? JSON.parse(rawBoss) : {};
+    bossMap[studentId] = {};
+    localStorage.setItem(STORAGE_KEYS.BOSS_RESULTS, JSON.stringify(bossMap));
+
+    const rawSub = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
+    const subList = rawSub ? JSON.parse(rawSub) : [];
+    localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(subList.filter((s: any) => s.studentId !== studentId)));
+
+    const rawExam = localStorage.getItem(STORAGE_KEYS.EXAM_ATTEMPTS);
+    const examList = rawExam ? JSON.parse(rawExam) : [];
+    localStorage.setItem(STORAGE_KEYS.EXAM_ATTEMPTS, JSON.stringify(examList.filter((e: any) => e.studentId !== studentId)));
+
+    const rawCert = localStorage.getItem(STORAGE_KEYS.CERTIFICATES);
+    const certList = rawCert ? JSON.parse(rawCert) : [];
+    localStorage.setItem(STORAGE_KEYS.CERTIFICATES, JSON.stringify(certList.filter((c: any) => c.studentId !== studentId)));
+
+    const rawVoc = localStorage.getItem(STORAGE_KEYS.VOCABULARY);
+    const vocMap = rawVoc ? JSON.parse(rawVoc) : {};
+    vocMap[studentId] = INITIAL_VOCABULARY.map(w => ({
+      ...w,
+      repetitionNumber: 0,
+      intervalDays: 1,
+      easeFactor: 2.5,
+      status: 'new' as const,
+      timesCorrect: 0,
+      timesIncorrect: 0,
+      nextReviewDate: new Date().toISOString().split('T')[0]
+    }));
+    localStorage.setItem(STORAGE_KEYS.VOCABULARY, JSON.stringify(vocMap));
+  }
+
+  // --- Strict Course Progress & Completion Calculation ---
+  getCourseProgress(studentId: string, courseId: string): CourseProgressInfo {
+    const courses = this.getCourses();
+    const course = courses.find(c => c.id === courseId);
+    const completedLessons = this.getCompletedLessons(studentId);
+
+    if (!course) {
+      return {
+        courseId,
+        totalLessons: 0,
+        completedLessonsCount: 0,
+        completionPercent: 0,
+        status: 'Not Started'
+      };
+    }
+
+    const lessonIds: string[] = [];
+    course.units?.forEach(u => {
+      u.lessons?.forEach(l => lessonIds.push(l.id));
+    });
+
+    const total = lessonIds.length || course.totalLessons || 1;
+    const completedCount = lessonIds.filter(id => completedLessons.includes(id)).length;
+    const percent = Math.min(100, Math.floor((completedCount / total) * 100));
+
+    let status: CourseCompletionStatus = 'Not Started';
+    if (completedCount === 0) {
+      status = 'Not Started';
+    } else if (completedCount >= total && percent === 100) {
+      status = 'Completed';
+    } else {
+      status = 'In Progress';
+    }
+
+    return {
+      courseId,
+      totalLessons: total,
+      completedLessonsCount: completedCount,
+      completionPercent: percent,
+      status
+    };
+  }
+
+  getCompletedCourses(studentId: string): string[] {
+    const courses = this.getCourses();
+    return courses
+      .filter(c => this.getCourseProgress(studentId, c.id).status === 'Completed')
+      .map(c => c.id);
   }
 
   resetToInitialDefaults(): void {
