@@ -112,8 +112,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<number>(26);
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState('March 2026');
   const [showAcademicDrawer, setShowAcademicDrawer] = useState(false);
-  const [devicePreviewMode, setDevicePreviewMode] = useState<'auto' | 'mobile' | 'tablet' | 'desktop'>('auto');
-  const [tabletSearchQuery, setTabletSearchQuery] = useState('');
+    const [tabletSearchQuery, setTabletSearchQuery] = useState('');
   const [tabletPeriod, setTabletPeriod] = useState<'Today' | 'Week' | 'Month'>('Today');
   const [showTabletPeriodMenu, setShowTabletPeriodMenu] = useState(false);
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
@@ -181,63 +180,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   return (
     <div className="space-y-5">
       
-      {/* 🧭 Device View Mode Switcher Pill */}
-      <div className="flex items-center justify-between flex-wrap gap-2 pb-1 border-b border-stone-200/60">
-        <div className="flex items-center gap-1.5 bg-stone-100/90 p-1 rounded-2xl border border-stone-200/70 text-xs shadow-2xs">
-          <span className="text-[10px] font-extrabold text-stone-500 uppercase tracking-wider px-2">Preview Experience:</span>
-          <button
-            type="button"
-            onClick={() => setDevicePreviewMode('auto')}
-            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
-              devicePreviewMode === 'auto'
-                ? 'bg-white text-[#2C1E6D] shadow-xs'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            Auto Responsive
-          </button>
-          <button
-            type="button"
-            onClick={() => setDevicePreviewMode('mobile')}
-            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              devicePreviewMode === 'mobile'
-                ? 'bg-[#FF5CA8] text-white shadow-xs'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <span>📱</span> Mobile View
-          </button>
-          <button
-            type="button"
-            onClick={() => setDevicePreviewMode('tablet')}
-            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              devicePreviewMode === 'tablet'
-                ? 'bg-[#6C52EE] text-white shadow-xs'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <span>📟</span> Tablet (iPad) View
-          </button>
-          <button
-            type="button"
-            onClick={() => setDevicePreviewMode('desktop')}
-            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              devicePreviewMode === 'desktop'
-                ? 'bg-[#2C1E6D] text-white shadow-xs'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <span>💻</span> Desktop View
-          </button>
-        </div>
-
-        <div className="text-[11px] font-medium text-stone-400 hidden sm:block">
-          {devicePreviewMode === 'auto' && 'Screen-adaptive (Mobile < 768px • Tablet 768px-1279px • Desktop ≥ 1280px)'}
-          {devicePreviewMode === 'mobile' && 'Simulating Mobile Learning UX (Phone)'}
-          {devicePreviewMode === 'tablet' && 'Simulating Tablet Learning UX (iPad landscape)'}
-          {devicePreviewMode === 'desktop' && 'Simulating Classroom Studio UX (Desktop)'}
-        </div>
-      </div>
+      
 
       {isGuestVisitor && (
         <div className="bg-gradient-to-r from-[#2C1E6D] via-[#4F35C8] to-[#6C52EE] rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-purple-300/30">
@@ -342,7 +285,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
       </div>
 
       {/* 📱 1. DEDICATED MOBILE LEARNING APP DASHBOARD VIEW (< 768px) - MATCHING CHINGUPOP UX */}
-      <div className={`${devicePreviewMode === 'mobile' ? 'block' : devicePreviewMode === 'auto' ? 'md:hidden' : 'hidden'} space-y-4`}>
+      <div className="block md:hidden space-y-4">
         
         {/* Top Header: User Avatar + Greeting + Notification Bell */}
         <div className="flex items-center justify-between pt-1 pb-1">
@@ -709,7 +652,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
       </div>
 
       {/* 📟 2. DEDICATED TABLET (iPAD) LEARNING DASHBOARD VIEW (768px - 1279px) - MATCHING CHINGUPOP TABLET UX */}
-      <div className={`${devicePreviewMode === 'tablet' ? 'block' : devicePreviewMode === 'auto' ? 'hidden md:block xl:hidden' : 'hidden'} space-y-4`}>
+      <div className="hidden md:block xl:hidden space-y-4">
         <div className="bg-white rounded-[32px] p-5 lg:p-6 shadow-sm border border-stone-200/80">
           <div className="flex gap-5 items-stretch">
             
@@ -1323,7 +1266,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
       </div>
 
       {/* 💻 3. DESKTOP CLASSROOM VIEW (Visible on screens >= 1280px) - MATCHING CHINGUPOP DESKTOP UX */}
-      <div className={`${devicePreviewMode === 'desktop' ? 'block' : devicePreviewMode === 'auto' ? 'hidden xl:block' : 'hidden'} space-y-6`}>
+      <div className="hidden xl:block space-y-6">
         
         {/* TOP BAR: Search Input + Quick Actions (Folder, Notifications, Profile) */}
         <div className="flex items-center justify-between gap-4">
