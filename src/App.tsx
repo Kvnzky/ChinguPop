@@ -359,7 +359,7 @@ export function App() {
 
           {currentTab === 'ai-tutor' && <AITutorChat currentUser={currentUser} />}
 
-          {currentTab === 'speaking-lab' && <SpeechLab />}
+          {currentTab === 'speaking-lab' && <SpeechLab currentUser={currentUser} />}
 
           {currentTab === 'vocabulary' && <VocabularySRS currentUser={currentUser} />}
 

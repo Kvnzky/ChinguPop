@@ -47,6 +47,9 @@ export const VocabularySRS: React.FC<VocabularySRSProps> = ({ currentUser }) => 
     if (!currentWord) return;
     const updated = calculateSM2(currentWord, grade);
     storage.saveVocabularyWord(currentUser.id, updated);
+    if (currentUser.id !== 'guest-visitor') {
+      storage.addXP(currentUser.id, 5, `Vocabulary Review: ${currentWord.korean}`);
+    }
     setWords(storage.getVocabulary(currentUser.id));
     setIsFlipped(false);
     setCurrentCardIndex(prev => (prev + 1) % activeDeck.length);

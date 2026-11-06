@@ -391,10 +391,22 @@ class StorageService {
     }
 
     // CLEAN RESET TRIGGER: Ensure both Dhie and Mhie start from true zero
-    const CLEAN_RESET_STAMP = 'ha_clean_zero_reset_v4';
+    const CLEAN_RESET_STAMP = 'ha_clean_zero_reset_v5';
     if (localStorage.getItem(CLEAN_RESET_STAMP) !== 'applied') {
       this.resetAllStudentLearningData();
       localStorage.setItem(CLEAN_RESET_STAMP, 'applied');
+    }
+
+    // Ensure guest-visitor never has gamification data in storage
+    const rawGam = localStorage.getItem(STORAGE_KEYS.GAMIFICATION);
+    if (rawGam) {
+      try {
+        const gamMap = JSON.parse(rawGam);
+        if (gamMap['guest-visitor']) {
+          delete gamMap['guest-visitor'];
+          localStorage.setItem(STORAGE_KEYS.GAMIFICATION, JSON.stringify(gamMap));
+        }
+      } catch {}
     }
 
     this.isInitialized = true;
@@ -935,6 +947,20 @@ class StorageService {
       const attMap = attRaw ? JSON.parse(attRaw) : {};
       attMap[newId] = [today];
       localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attMap));
+
+      // Explicitly initialize 0 XP gamification state for newly registered student
+      const gamRaw = localStorage.getItem(STORAGE_KEYS.GAMIFICATION);
+      const gamMap = gamRaw ? JSON.parse(gamRaw) : {};
+      gamMap[newId] = {
+        xp: 0,
+        level: 1,
+        streak: 0,
+        lastActiveDate: '',
+        activeDates: [],
+        awardedActivities: {},
+        unlockedAchievements: []
+      };
+      localStorage.setItem(STORAGE_KEYS.GAMIFICATION, JSON.stringify(gamMap));
 
       // Establish authenticated session for newly registered student
       this.createSession(newStudent, false);
@@ -1536,6 +1562,7 @@ class StorageService {
   }
 
   markLessonCompleted(studentId: string, lessonId: string): void {
+    if (!studentId || studentId === 'guest-visitor') return;
     const raw = localStorage.getItem(STORAGE_KEYS.COMPLETED_LESSONS);
     const map = raw ? JSON.parse(raw) : {};
     const list: string[] = map[studentId] || [];
@@ -1543,6 +1570,20 @@ class StorageService {
       list.push(lessonId);
       map[studentId] = list;
       localStorage.setItem(STORAGE_KEYS.COMPLETED_LESSONS, JSON.stringify(map));
+
+      // Award 20 XP for completing a Korean lesson to registered user
+      this.addXP(studentId, 20, `Completed Lesson (${lessonId})`, `lesson-${lessonId}`);
+
+      // Check if this completion completes an entire course!
+      const courses = this.getCourses();
+      for (const course of courses) {
+        const progress = this.getCourseProgress(studentId, course.id);
+        if (progress.status === 'Completed') {
+          // Award course completion bonus: 100 XP!
+          this.addXP(studentId, 100, `Graduated Course: ${course.title}`, `course-${course.id}`);
+          this.unlockAchievement(studentId, 'hangul-master');
+        }
+      }
     }
   }
 
@@ -1595,6 +1636,7 @@ class StorageService {
   }
 
   saveSubmission(submission: AssignmentSubmission): void {
+    if (!submission.studentId || submission.studentId === 'guest-visitor') return;
     const list = this.getSubmissions();
     const idx = list.findIndex(s => s.id === submission.id);
     if (idx >= 0) {
@@ -1603,6 +1645,9 @@ class StorageService {
       list.push(submission);
     }
     localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(list));
+
+    // Award 40 XP for completing an assignment task
+    this.addXP(submission.studentId, 40, `Completed Assignment Task`, `asg-${submission.assignmentId}`);
   }
 
   // --- Exam Attempts ---
@@ -1613,10 +1658,17 @@ class StorageService {
   }
 
   saveExamAttempt(attempt: ExamAttempt): void {
+    if (!attempt.studentId || attempt.studentId === 'guest-visitor') return;
     const raw = localStorage.getItem(STORAGE_KEYS.EXAM_ATTEMPTS);
     const list: ExamAttempt[] = raw ? JSON.parse(raw) : [];
     list.push(attempt);
     localStorage.setItem(STORAGE_KEYS.EXAM_ATTEMPTS, JSON.stringify(list));
+
+    // Award 50 XP base + score bonus for completing examination
+    const percentage = attempt.totalQuestions > 0 ? Math.round((attempt.score / attempt.totalQuestions) * 100) : 0;
+    const scoreBonus = Math.round((percentage / 100) * 25);
+    const xpEarned = 50 + scoreBonus;
+    this.addXP(attempt.studentId, xpEarned, `Completed Exam: ${attempt.quizTitle} (${percentage}%)`, `exam-${attempt.quizId}-${attempt.id}`);
   }
 
   // --- Certificates ---
@@ -1711,17 +1763,29 @@ class StorageService {
   // ==========================================
 
   getGamificationState(studentId: string): StudentGamificationState {
+    // CRITICAL: Guests never have XP or persistent gamification data
+    if (!studentId || studentId === 'guest-visitor') {
+      return {
+        xp: 0,
+        level: 1,
+        streak: 0,
+        lastActiveDate: '',
+        activeDates: [],
+        awardedActivities: {},
+        unlockedAchievements: []
+      };
+    }
     const raw = localStorage.getItem(STORAGE_KEYS.GAMIFICATION);
     const map = raw ? JSON.parse(raw) : {};
     if (!map[studentId]) {
       map[studentId] = {
-        xp: 120, // initial base XP for established students
-        level: 2,
-        streak: 3,
-        lastActiveDate: new Date().toISOString().split('T')[0],
-        activeDates: [new Date().toISOString().split('T')[0]],
+        xp: 0, // Registered users start cleanly at 0 XP
+        level: 1,
+        streak: 0,
+        lastActiveDate: '',
+        activeDates: [],
         awardedActivities: {},
-        unlockedAchievements: ['first-steps']
+        unlockedAchievements: []
       };
       localStorage.setItem(STORAGE_KEYS.GAMIFICATION, JSON.stringify(map));
     }
@@ -1729,6 +1793,7 @@ class StorageService {
   }
 
   saveGamificationState(studentId: string, state: StudentGamificationState): void {
+    if (!studentId || studentId === 'guest-visitor') return;
     const raw = localStorage.getItem(STORAGE_KEYS.GAMIFICATION);
     const map = raw ? JSON.parse(raw) : {};
     map[studentId] = state;
@@ -1736,6 +1801,7 @@ class StorageService {
   }
 
   getXP(studentId: string): number {
+    if (!studentId || studentId === 'guest-visitor') return 0;
     return this.getGamificationState(studentId).xp || 0;
   }
 
@@ -1746,6 +1812,15 @@ class StorageService {
     nextLevelXP: number; 
     progressPercent: number 
   } {
+    if (!studentId || studentId === 'guest-visitor') {
+      return {
+        level: 1,
+        title: 'Guest Scholar (게스트)',
+        currentLevelXP: 0,
+        nextLevelXP: 100,
+        progressPercent: 0
+      };
+    }
     const xp = this.getXP(studentId);
     let currentTier = LEVEL_TIERS[0];
     for (let i = LEVEL_TIERS.length - 1; i >= 0; i--) {
@@ -1773,16 +1848,24 @@ class StorageService {
     levelUp: boolean; 
     newLevel: number 
   } {
+    // CRITICAL: Guests NEVER earn or accumulate XP
+    if (!studentId || studentId === 'guest-visitor') {
+      return { totalXP: 0, earnedXP: 0, levelUp: false, newLevel: 1 };
+    }
     const state = this.getGamificationState(studentId);
     
     // Anti-farming check: If an activity key is provided, prevent duplicate award
-    if (activityKey && state.awardedActivities[activityKey]) {
+    if (activityKey && state.awardedActivities && state.awardedActivities[activityKey]) {
       const currentLevelInfo = this.getLevel(studentId);
       return { totalXP: state.xp, earnedXP: 0, levelUp: false, newLevel: currentLevelInfo.level };
     }
 
+    if (!state.awardedActivities) {
+      state.awardedActivities = {};
+    }
+
     const previousLevel = this.getLevel(studentId).level;
-    state.xp += amount;
+    state.xp = (state.xp || 0) + amount;
     if (activityKey) {
       state.awardedActivities[activityKey] = true;
     }
@@ -1795,6 +1878,9 @@ class StorageService {
     this.recordDailyActivity(studentId);
 
     // Auto-check XP-based achievements
+    if (state.xp >= 100) {
+      this.unlockAchievement(studentId, 'first-steps');
+    }
     if (state.xp >= 500) {
       this.unlockAchievement(studentId, 'word-collector');
     }
@@ -1815,6 +1901,16 @@ class StorageService {
     activeDaysThisWeek: number;
     activeDates: string[] 
   } {
+    if (!studentId || studentId === 'guest-visitor') {
+      return {
+        streak: 0,
+        currentStreak: 0,
+        maxStreak: 0,
+        lastActiveDate: '',
+        activeDaysThisWeek: 0,
+        activeDates: []
+      };
+    }
     const state = this.getGamificationState(studentId);
     const today = new Date().toISOString().split('T')[0];
     

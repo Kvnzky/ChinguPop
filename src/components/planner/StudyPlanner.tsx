@@ -41,7 +41,11 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({ currentUser }) => {
   const handleToggleItem = (id: string) => {
     const updated = planItems.map(item => {
       if (item.id === id) {
-        return { ...item, completed: !item.completed };
+        const nextCompleted = !item.completed;
+        if (nextCompleted && currentUser.id !== 'guest-visitor') {
+          storage.addXP(currentUser.id, 15, `Completed Study Plan Task: ${item.title}`, `planner-${item.id}`);
+        }
+        return { ...item, completed: nextCompleted };
       }
       return item;
     });

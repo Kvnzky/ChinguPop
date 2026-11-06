@@ -201,36 +201,66 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
       {/* 🌟 Gamified Quest Bar: Level, XP Progress, Streak Flame, Arcade & Review Room Shortcuts */}
       <div className="bg-white rounded-3xl p-4 lg:p-5 border border-stone-200/90 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#6C52EE] to-[#FF5CA8] p-0.5 shadow-xs shrink-0 flex items-center justify-center">
-            <div className="w-full h-full rounded-2xl bg-white flex flex-col items-center justify-center text-[#2C1E6D] font-black text-xs">
-              <span>Lv.{levelInfo.level}</span>
+        {isGuestVisitor ? (
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-stone-100 p-0.5 shadow-xs shrink-0 flex items-center justify-center border border-stone-200">
+              <div className="w-full h-full rounded-2xl bg-white flex flex-col items-center justify-center text-stone-400 font-bold text-xs">
+                <span>Guest</span>
+              </div>
+            </div>
+            <div className="space-y-1 flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-xs text-stone-700 truncate">
+                  Guest Visitor Mode
+                </span>
+                <span className="text-[10px] font-bold text-stone-400">
+                  0 XP • No XP in Guest Mode
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-500">
+                Sign in to your account to earn XP, track lesson mastery, level up, and maintain streaks!
+              </p>
             </div>
           </div>
-          <div className="space-y-1 flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-xs text-[#1E1B4B] truncate">
-                {levelInfo.title}
-              </span>
-              <span className="text-[10px] font-bold text-stone-400">
-                {levelInfo.currentLevelXP} / {levelInfo.nextLevelXP} XP
-              </span>
+        ) : (
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#6C52EE] to-[#FF5CA8] p-0.5 shadow-xs shrink-0 flex items-center justify-center">
+              <div className="w-full h-full rounded-2xl bg-white flex flex-col items-center justify-center text-[#2C1E6D] font-black text-xs">
+                <span>Lv.{levelInfo.level}</span>
+              </div>
             </div>
-            <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden max-w-xs">
-              <div 
-                className="h-full bg-gradient-to-r from-[#6C52EE] to-[#FF5CA8] rounded-full transition-all duration-500" 
-                style={{ width: `${levelInfo.progressPercent}%` }} 
-              />
+            <div className="space-y-1 flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-xs text-[#1E1B4B] truncate">
+                  {levelInfo.title}
+                </span>
+                <span className="text-[10px] font-bold text-stone-400">
+                  {levelInfo.currentLevelXP} / {levelInfo.nextLevelXP} XP
+                </span>
+              </div>
+              <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden max-w-xs">
+                <div 
+                  className="h-full bg-gradient-to-r from-[#6C52EE] to-[#FF5CA8] rounded-full transition-all duration-500" 
+                  style={{ width: `${levelInfo.progressPercent}%` }} 
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Action Shortcuts: Streak, Arcade & Review Room */}
         <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 border border-orange-200/80 text-orange-600 font-extrabold text-xs">
-            <Flame className="w-4 h-4 fill-orange-500 text-orange-500" />
-            <span>{streakInfo.currentStreak} Day Streak</span>
-          </div>
+          {isGuestVisitor ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 border border-stone-200 text-stone-500 font-bold text-xs" title="No streak in Guest Mode">
+              <Flame className="w-4 h-4 text-stone-400" />
+              <span>0 Day Streak</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 border border-orange-200/80 text-orange-600 font-extrabold text-xs">
+              <Flame className="w-4 h-4 fill-orange-500 text-orange-500" />
+              <span>{streakInfo.currentStreak} Day Streak</span>
+            </div>
+          )}
 
           <button
             type="button"

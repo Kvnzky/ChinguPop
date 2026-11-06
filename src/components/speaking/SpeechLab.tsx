@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { SpeakingExercise } from '../../types';
+import { SpeakingExercise, UserProfile } from '../../types';
 import { SPEAKING_EXERCISES } from '../../data/speakingData';
 import { speech } from '../../services/speechService';
+import { storage } from '../../services/storageService';
 import { AudioButton } from '../common/AudioButton';
 import { Mic, MicOff, AlertCircle, CheckCircle2, RotateCcw, Info } from 'lucide-react';
 
-export const SpeechLab: React.FC = () => {
+interface SpeechLabProps {
+  currentUser?: UserProfile;
+}
+
+export const SpeechLab: React.FC<SpeechLabProps> = ({ currentUser }) => {
   const [exercises] = useState<SpeakingExercise[]>(SPEAKING_EXERCISES);
   const [selectedEx, setSelectedEx] = useState<SpeakingExercise>(SPEAKING_EXERCISES[0]);
   const [isRecording, setIsRecording] = useState(false);
@@ -34,6 +39,9 @@ export const SpeechLab: React.FC = () => {
         setIsRecording(false);
         const result = speech.evaluatePronunciation(selectedEx.koreanTarget, text);
         setEvalResult(result);
+        if (result.accuracyScore >= 50 && currentUser && currentUser.id !== 'guest-visitor') {
+          storage.addXP(currentUser.id, 20, `Completed Speaking Practice: ${selectedEx.title}`, `speech-${selectedEx.id}`);
+        }
       },
       (err) => {
         setErrorMsg(err);
