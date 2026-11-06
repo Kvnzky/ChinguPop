@@ -96,13 +96,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside className={`w-20 bg-white border-r border-stone-200/90 flex flex-col justify-between items-center h-[calc(100vh-4rem)] sticky top-16 py-4 select-none ${className}`}>
         
         {/* Top Mini Logo Mark */}
-        <div className="flex flex-col items-center gap-3">
+        <button
+          type="button"
+          onClick={() => onSelectTab('dashboard')}
+          title="Return to ChinguPop Home Dashboard"
+          className="flex flex-col items-center gap-3 cursor-pointer group hover:scale-105 transition-transform focus:outline-none"
+        >
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#6C52EE] to-[#FF5CA8] p-0.5 flex items-center justify-center shadow-xs">
-            <div className="w-full h-full rounded-2xl bg-white flex items-center justify-center text-xs font-black text-[#2C1E6D]">
+            <div className="w-full h-full rounded-2xl bg-white flex items-center justify-center text-xs font-black text-[#2C1E6D] group-hover:text-[#6C52EE] transition-colors">
               친구
             </div>
           </div>
-        </div>
+        </button>
 
         {/* Scrollable Compact Icon Column */}
         <div className="overflow-y-auto px-2 py-2 space-y-2 flex flex-col items-center w-full">

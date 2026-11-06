@@ -92,15 +92,27 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              if (onNavigateTab) {
+                onNavigateTab('dashboard');
+              } else {
+                window.location.hash = '';
+              }
+            }}
+            className="flex items-center gap-2.5 text-left focus:outline-none group cursor-pointer transition-transform active:scale-95"
+            aria-label="Return to ChinguPop Home"
+            title="Return to ChinguPop Home Dashboard"
+          >
             <img
               src="/chingupop-logo.jpg"
               alt="ChinguPop Logo"
-              className="h-10 w-auto rounded-xl object-contain bg-white shadow-sm ring-2 ring-purple-300/40 p-0.5"
+              className="h-10 w-auto rounded-xl object-contain bg-white shadow-sm ring-2 ring-purple-300/40 p-0.5 group-hover:ring-purple-200 transition-all"
             />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-xl tracking-tight text-white flex items-center">
+                <span className="font-bold text-xl tracking-tight text-white flex items-center group-hover:opacity-95 transition-opacity">
                   <span className="text-[#8E77F7]">Chingu</span>
                   <span className="text-[#FF5CA8]">Pop</span>
                 </span>
@@ -112,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Korean Language Learning Academy • Learn Korean. Find Your Chingu.
               </p>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Center / Right: Academic Status & Auth Controls */}

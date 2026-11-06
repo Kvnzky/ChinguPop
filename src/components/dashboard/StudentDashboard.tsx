@@ -195,24 +195,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               Sign in to your account or register a free scholar profile to save your lesson progress, track vocabulary flashcards, and earn certificates.
             </p>
           </div>
-          {onOpenAuth && (
-            <div className="flex items-center gap-2.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => onOpenAuth('signin')}
-                className="px-4 py-2.5 rounded-xl bg-white text-[#2C1E6D] hover:bg-purple-50 font-extrabold text-xs shadow-sm transition-all cursor-pointer"
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => onOpenAuth('register')}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF3D9A] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer"
-              >
-                Free Sign Up
-              </button>
-            </div>
-          )}
+          
         </div>
       )}
 
