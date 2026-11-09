@@ -17,20 +17,25 @@ interface CertificateViewProps {
 
 export const CertificateView: React.FC<CertificateViewProps> = ({ currentUser }) => {
   const [certs, setCerts] = useState<Certificate[]>(() => {
-    const list = storage.getCertificates(currentUser.id);
-    if (list.length === 0 && currentUser.role === 'student') {
-      // Issue honorary initial Pre-A1 Foundation certificate for current student if eligible
-      const initialCert = certificateService.issueCertificate(
-        currentUser,
-        'Korean Foundations & Hangul Mastery (Level 0)',
-        'Pre-A1',
-        'A',
-        98
-      );
-      return [initialCert];
-    }
-    return list;
+    // Only legitimate, earned certificates are loaded
+    return storage.getCertificates(currentUser.id);
   });
+
+  const courses = storage.getCourses();
+
+  const handleClaimCertificate = (course: any) => {
+    if (!storage.canIssueCertificate(currentUser.id, course.id)) return;
+    const cert = certificateService.issueCertificate(
+      currentUser,
+      course.title,
+      course.level,
+      'A',
+      95
+    );
+    const updated = storage.getCertificates(currentUser.id);
+    setCerts(updated);
+    setSelectedCert(cert);
+  };
 
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(certs[0] || null);
   const [verifyInput, setVerifyInput] = useState('');
@@ -153,8 +158,73 @@ export const CertificateView: React.FC<CertificateViewProps> = ({ currentUser })
 
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-stone-200 p-8 text-center text-stone-500 text-xs">
-              No certificate selected.
+            <div className="bg-white rounded-2xl border border-stone-200/90 p-8 shadow-sm space-y-6">
+              <div className="text-center max-w-md mx-auto space-y-2">
+                <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-xs">
+                  <Award className="w-8 h-8" />
+                </div>
+                <h3 className="font-serif font-bold text-lg text-academy-navy">
+                  Academic Graduation Credentials
+                </h3>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Official certificates of completion are awarded when you achieve 100% mastery of all mandatory course lessons, pass all written assignments, and score 70%+ on course examinations.
+                </p>
+              </div>
+
+              {/* Course Eligibility Matrix */}
+              <div className="space-y-3 pt-2">
+                <span className="text-[11px] font-mono font-bold text-stone-500 uppercase tracking-wider block">
+                  Curriculum Progress & Certificate Status:
+                </span>
+                <div className="grid grid-cols-1 gap-3">
+                  {courses.map(course => {
+                    const prog = storage.getCourseProgress(currentUser.id, course.id);
+                    const isCompleted = prog.status === 'Completed';
+                    const alreadyIssued = certs.some(c => c.courseTitle.includes(course.title));
+
+                    return (
+                      <div key={course.id} className="p-4 rounded-xl border border-stone-200/90 bg-stone-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-serif font-bold text-[#1E1B4B]">{course.title}</span>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 text-[#6C52EE] font-bold">
+                              {course.level}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-stone-500 flex items-center gap-3">
+                            <span>Lessons: {prog.completedLessonsCount} / {prog.totalLessons} ({prog.completionPercent}%)</span>
+                            <span>•</span>
+                            <span className={isCompleted ? 'text-emerald-600 font-bold' : 'text-stone-500'}>
+                              Status: {prog.status}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          {isCompleted && !alreadyIssued ? (
+                            <button
+                              type="button"
+                              onClick={() => handleClaimCertificate(course)}
+                              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+                            >
+                              Claim Certificate
+                            </button>
+                          ) : alreadyIssued ? (
+                            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              Issued
+                            </span>
+                          ) : (
+                            <span className="text-[11px] font-mono text-stone-400 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200">
+                              Locked • Incomplete
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           )}
         </div>

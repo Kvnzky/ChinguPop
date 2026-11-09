@@ -74,7 +74,12 @@ export interface SkillProficiency {
   vocabulary: number;
 }
 
-export type CourseCompletionStatus = 'Not Started' | 'In Progress' | 'Completed';
+export type CourseCompletionStatus = 
+  | 'Not Started' 
+  | 'In Progress' 
+  | 'Awaiting Assessment' 
+  | 'Not Completed' 
+  | 'Completed';
 
 export interface CourseProgressInfo {
   courseId: string;

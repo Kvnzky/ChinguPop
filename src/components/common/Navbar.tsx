@@ -173,30 +173,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* SIGNED-OUT PUBLIC VISITOR CONTROLS (No user profile pill shown!) */}
+          {/* SIGNED-OUT SCHOLAR CONTROLS (Private Academy for Dhie & Mhie) */}
           {!isAuthenticated ? (
-            <>
-              <button
-                type="button"
-                onClick={() => triggerAuthModal('signin')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white text-[#2C1E6D] hover:bg-purple-50 border border-white text-xs font-extrabold transition-all shadow-sm active:scale-95"
-                title="Sign In to Existing Account"
-              >
-                <LogIn className="w-3.5 h-3.5 text-[#6C52EE]" />
-                <span>Sign In</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => triggerAuthModal('register')}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF4D94] hover:from-[#FF4D94] hover:to-[#E63985] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
-                title="Create Free Student Account"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Free Sign Up</span>
-                <span className="xs:hidden">Sign Up</span>
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => triggerAuthModal('signin')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#6C52EE] to-[#FF5CA8] hover:from-[#5A40DF] hover:to-[#E63985] text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+              title="Sign In to Scholar Account (Dhie & Mhie)"
+            >
+              <LogIn className="w-4 h-4 text-white" />
+              <span>Scholar Sign In</span>
+            </button>
           ) : (
             /* AUTHENTICATED USER PROFILE PILL & SIGN OUT CONTROLS */
             <>

@@ -74,11 +74,23 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                 <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
                   courseProg.status === 'Completed'
                     ? 'bg-emerald-500 text-white'
+                    : courseProg.status === 'Awaiting Assessment'
+                    ? 'bg-amber-500 text-white'
+                    : courseProg.status === 'Not Completed'
+                    ? 'bg-rose-500 text-white'
                     : courseProg.status === 'In Progress'
-                    ? 'bg-amber-400 text-amber-950'
+                    ? 'bg-purple-600 text-white'
                     : 'bg-stone-200 text-stone-600'
                 }`}>
-                  {courseProg.status === 'Completed' ? '100% Done' : courseProg.status === 'In Progress' ? `${courseProg.completionPercent}%` : 'Not Started'}
+                  {courseProg.status === 'Completed'
+                    ? '100% Done'
+                    : courseProg.status === 'Awaiting Assessment'
+                    ? 'Grading'
+                    : courseProg.status === 'Not Completed'
+                    ? 'Retake'
+                    : courseProg.status === 'In Progress'
+                    ? `${courseProg.completionPercent}%`
+                    : 'Not Started'}
                 </span>
               </div>
               <div className="font-serif font-bold text-xs mt-1 truncate max-w-[200px]">
@@ -117,12 +129,20 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                   <span className={`text-xs font-bold px-3 py-1.5 rounded-lg border ${
                     prog.status === 'Completed'
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                      : prog.status === 'Awaiting Assessment'
+                      ? 'bg-amber-50 text-amber-800 border-amber-300'
+                      : prog.status === 'Not Completed'
+                      ? 'bg-rose-50 text-rose-800 border-rose-300'
                       : prog.status === 'In Progress'
                       ? 'bg-purple-50 text-purple-700 border-purple-300'
                       : 'bg-stone-100 text-stone-600 border-stone-200'
                   }`}>
                     {prog.status === 'Completed'
                       ? '✓ Course Completed (100%)'
+                      : prog.status === 'Awaiting Assessment'
+                      ? '⏳ Awaiting Grading (100%)'
+                      : prog.status === 'Not Completed'
+                      ? '⚠ Assessment Retake Required'
                       : prog.status === 'In Progress'
                       ? `In Progress (${prog.completionPercent}%)`
                       : 'Not Started (0%)'}

@@ -317,8 +317,8 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
                   : 'text-purple-200 hover:text-white hover:bg-white/10'
               }`}
             >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>Create Account</span>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Scholars Policy</span>
             </button>
 
             <button
@@ -504,6 +504,59 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
               </button>
             </div>
 
+            {/* Quick Enrolled Scholar Selector (Dhie & Mhie) */}
+            <div className="pt-3 border-t border-stone-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-wider">
+                  Enrolled Private Scholars:
+                </span>
+                <span className="text-[10px] text-[#6C52EE] font-bold">1-Click Sign In</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSignInEmail('dhie@chingupop.com');
+                    setSignInPassword(STARTER_STUDENT_DEFAULT_PASSWORD);
+                    setError(null);
+                  }}
+                  className="p-3 rounded-2xl border border-purple-200 hover:border-[#6C52EE] bg-purple-50/60 hover:bg-purple-100/80 text-left transition-all active:scale-95 group cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#6C52EE] to-[#FF5CA8] text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                      D
+                    </div>
+                    <div>
+                      <div className="font-extrabold text-xs text-[#1E1B4B] group-hover:text-[#6C52EE]">Dhie</div>
+                      <div className="text-[9px] font-mono text-purple-600 font-bold">CP-2026-DHIE</div>
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-stone-500 truncate">dhie@chingupop.com</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSignInEmail('mhie@chingupop.com');
+                    setSignInPassword(STARTER_STUDENT_DEFAULT_PASSWORD);
+                    setError(null);
+                  }}
+                  className="p-3 rounded-2xl border border-pink-200 hover:border-[#FF5CA8] bg-pink-50/60 hover:bg-pink-100/80 text-left transition-all active:scale-95 group cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#FF5CA8] to-[#6C52EE] text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                      M
+                    </div>
+                    <div>
+                      <div className="font-extrabold text-xs text-[#1E1B4B] group-hover:text-[#FF5CA8]">Mhie</div>
+                      <div className="text-[9px] font-mono text-pink-600 font-bold">CP-2026-MHIE</div>
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-stone-500 truncate">mhie@chingupop.com</div>
+                </button>
+              </div>
+            </div>
+
             <div className="text-center pt-1">
               <button
                 type="button"
@@ -511,9 +564,9 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
                   setTab('register');
                   setError(null);
                 }}
-                className="text-xs font-bold text-[#6C52EE] hover:underline"
+                className="text-[11px] font-bold text-stone-500 hover:text-[#6C52EE] transition-colors"
               >
-                New to ChinguPop? Create a free student account →
+                Academy Enrollment Policy & Scholar Information →
               </button>
             </div>
           </form>

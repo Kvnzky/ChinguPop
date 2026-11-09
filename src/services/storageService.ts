@@ -23,7 +23,7 @@ import {
 import { INITIAL_USERS, ADMIN_USER, DEFAULT_STARTER_STUDENT, PUBLIC_GUEST_USER, DHIE_USER, MHIE_USER } from '../data/initialMockUsers';
 import { COURSES_DATA } from '../data/curriculumData';
 import { INITIAL_VOCABULARY } from '../data/vocabularyData';
-import { INITIAL_ASSIGNMENTS, INITIAL_SUBMISSIONS } from '../data/assessmentData';
+import { INITIAL_ASSIGNMENTS, INITIAL_SUBMISSIONS, ACADEMY_QUIZZES } from '../data/assessmentData';
 
 const STORAGE_KEYS = {
   CURRENT_USER_ID: 'ha_current_user_id',
@@ -863,6 +863,13 @@ class StorageService {
     filipinoSupport?: boolean;
     bio?: string;
   }): UserProfile {
+    const isPublicRegistrationAllowed = false;
+    if (!isPublicRegistrationAllowed) {
+      throw new Error(
+        'Public registration is closed. ChinguPop Academy is a private language institution restricted to authorized enrolled scholars (Dhie & Mhie). Please sign in with your student credentials.'
+      );
+    }
+
     const cleanName = (data.name || '').trim();
     const cleanEmail = (data.email || '').trim().toLowerCase();
     const cleanPhone = (data.phone || '').trim();
@@ -2366,13 +2373,43 @@ class StorageService {
     const completedCount = lessonIds.filter(id => completedLessons.includes(id)).length;
     const percent = Math.min(100, Math.floor((completedCount / total) * 100));
 
+    const courseAssignments = this.getAssignments().filter(a => a.courseId === courseId);
+    const studentSubmissions = this.getSubmissions(studentId);
+    
+    // Check if any course assignment is submitted and awaiting grading
+    const hasPendingGrading = courseAssignments.some(a => {
+      const sub = studentSubmissions.find(s => s.assignmentId === a.id);
+      return sub && sub.status === 'submitted';
+    });
+
+    // Check course examinations/quizzes
+    const courseQuizzes = ACADEMY_QUIZZES.filter(q => q.courseId === courseId);
+    const studentExams = this.getExamAttempts(studentId);
+    
+    // Check if any mandatory exam was attempted and failed
+    let hasFailedMandatoryExam = false;
+    for (const quiz of courseQuizzes) {
+      const attempts = studentExams.filter(e => e.quizId === quiz.id);
+      if (attempts.length > 0) {
+        const latestAttempt = attempts[attempts.length - 1];
+        if (!latestAttempt.passed) {
+          hasFailedMandatoryExam = true;
+          break;
+        }
+      }
+    }
+
     let status: CourseCompletionStatus = 'Not Started';
     if (completedCount === 0) {
       status = 'Not Started';
-    } else if (completedCount >= total && percent === 100) {
-      status = 'Completed';
-    } else {
+    } else if (completedCount < total) {
       status = 'In Progress';
+    } else if (hasFailedMandatoryExam) {
+      status = 'Not Completed';
+    } else if (hasPendingGrading) {
+      status = 'Awaiting Assessment';
+    } else {
+      status = 'Completed';
     }
 
     return {
@@ -2382,6 +2419,12 @@ class StorageService {
       completionPercent: percent,
       status
     };
+  }
+
+  canIssueCertificate(studentId: string, courseId: string): boolean {
+    if (!studentId || studentId === 'guest-visitor') return false;
+    const progress = this.getCourseProgress(studentId, courseId);
+    return progress.status === 'Completed';
   }
 
   getCompletedCourses(studentId: string): string[] {
