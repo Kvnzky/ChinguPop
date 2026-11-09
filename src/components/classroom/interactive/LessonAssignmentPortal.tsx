@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UserProfile, Assignment, AssignmentSubmission } from '../../../types';
 import { storage } from '../../../services/storageService';
 import { speech } from '../../../services/speechService';
@@ -65,6 +65,17 @@ export const LessonAssignmentPortal: React.FC<LessonAssignmentPortalProps> = ({
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
   const [currentSubmission, setCurrentSubmission] = useState<AssignmentSubmission | null>(existingSubmission || null);
   const [showReuploadForm, setShowReuploadForm] = useState(false);
+
+  useEffect(() => {
+    const subs = storage.getSubmissions(currentUser.id);
+    const found = [...subs].reverse().find(s => s.assignmentId === assignment.id || s.assignmentId === `asg-${lessonId}`);
+    setCurrentSubmission(found || null);
+    setImagePreviewUrl(found?.imageUrl || null);
+    setStudentNotes(found?.content || '');
+    setSelectedFile(null);
+    setSubmissionSuccess(false);
+    setShowReuploadForm(false);
+  }, [currentUser.id, lessonId, assignment.id]);
 
   // Handle file selection (JPEG, PNG, WebP, etc.)
   const handleFileChange = (file: File) => {

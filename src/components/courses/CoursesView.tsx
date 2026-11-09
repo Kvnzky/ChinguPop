@@ -218,13 +218,16 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                 </button>
 
                 {/* Lessons in Unit */}
-                {isExpanded && (
-                  <div className="divide-y divide-stone-100 p-2">
-                    {unit.lessons.map((lesson, lessonIdx) => {
-                      const isDone = completedLessons.includes(lesson.id);
-                      const previousLessonId = lessonIdx > 0 ? unit.lessons[lessonIdx - 1].id : undefined;
-                      const isFaculty = currentUser.role === 'teacher' || currentUser.role === 'admin';
-                      const isUnlocked = isFaculty || storage.isLessonUnlocked(currentUser.id, lesson.lessonNumber, previousLessonId);
+                {isExpanded && (() => {
+                  const allCourseLessons = activeCourse.units.flatMap(u => u.lessons);
+                  return (
+                    <div className="divide-y divide-stone-100 p-2">
+                      {unit.lessons.map((lesson) => {
+                        const isDone = completedLessons.includes(lesson.id);
+                        const globalIdx = allCourseLessons.findIndex(l => l.id === lesson.id);
+                        const previousLessonId = globalIdx > 0 ? allCourseLessons[globalIdx - 1].id : undefined;
+                        const isFaculty = currentUser.role === 'teacher' || currentUser.role === 'admin' || storage.isAdminAuthenticated();
+                        const isUnlocked = isFaculty || storage.isLessonUnlocked(currentUser.id, globalIdx + 1, previousLessonId);
 
                       return (
                         <div
@@ -289,7 +292,8 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
                       );
                     })}
                   </div>
-                )}
+                  );
+                })()}
 
               </div>
             );

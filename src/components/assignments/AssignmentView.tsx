@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Assignment, AssignmentSubmission, UserProfile } from '../../types';
 import { storage } from '../../services/storageService';
 import { 
@@ -23,8 +23,17 @@ export const AssignmentView: React.FC<AssignmentViewProps> = ({ currentUser }) =
   const [selectedAsg, setSelectedAsg] = useState<Assignment>(assignments[0]);
   const [submissionText, setSubmissionText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const currentSubmission = submissions.find(s => s.assignmentId === selectedAsg.id);
+  useEffect(() => {
+    const freshAsgs = storage.getAssignments();
+    setAssignments(freshAsgs);
+    setSubmissions(storage.getSubmissions(currentUser.id));
+    setIsEditing(false);
+    setSubmissionText('');
+  }, [currentUser.id]);
+
+  const currentSubmission = [...submissions].reverse().find(s => s.assignmentId === selectedAsg.id);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +66,7 @@ export const AssignmentView: React.FC<AssignmentViewProps> = ({ currentUser }) =
     setSubmissions(storage.getSubmissions(currentUser.id));
     setSubmissionText('');
     setIsSubmitting(false);
+    setIsEditing(false);
   };
 
   return (
@@ -155,18 +165,30 @@ export const AssignmentView: React.FC<AssignmentViewProps> = ({ currentUser }) =
           </div>
 
           {/* If already submitted: show submission & grading report */}
-          {currentSubmission ? (
+          {currentSubmission && !isEditing ? (
             <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-200">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-stone-200">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-emerald-600" />
                   <span className="font-serif font-bold text-base text-academy-navy">
                     Submission Recorded
                   </span>
                 </div>
-                <span className="text-xs text-stone-400 font-mono">
-                  Submitted: {currentSubmission.submittedAt}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-stone-400 font-mono">
+                    Submitted: {currentSubmission.submittedAt}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmissionText(currentSubmission.content);
+                      setIsEditing(true);
+                    }}
+                    className="px-3 py-1 rounded-lg border border-stone-300 hover:bg-stone-100 text-xs font-bold text-academy-navy transition-colors"
+                  >
+                    Edit / Resubmit
+                  </button>
+                </div>
               </div>
 
               {/* If an image was uploaded */}

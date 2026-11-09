@@ -103,6 +103,9 @@ export function App() {
 
   const handleUserChange = (user: UserProfile) => {
     setCurrentUser(user);
+    if (user.role === 'student' && user.id !== 'guest-visitor' && !storage.isTourCompleted(user.id)) {
+      setIsTourOpen(true);
+    }
     if (user.role === 'admin' && storage.isAdminAuthenticated()) {
       setCurrentTab('admin-portal');
     } else {
@@ -214,6 +217,7 @@ export function App() {
                 userRole={storage.isAdminAuthenticated() ? 'admin' : currentUser.role}
                 pendingAssignmentsCount={Math.max(0, storage.getAssignments().length - storage.getSubmissions(currentUser.id).length)}
                 className="w-full flex-1"
+                forceExpanded={true}
               />
             </div>
           </div>
@@ -226,7 +230,15 @@ export function App() {
               currentUser={currentUser}
               courses={courses}
               onOpenAuth={handleOpenAuth}
-              onNavigate={(tab) => {
+              onNavigate={(tab, lessonId) => {
+                if (lessonId) {
+                  const foundLesson = courses
+                    .flatMap(c => c.units.flatMap(u => u.lessons))
+                    .find(l => l.id === lessonId);
+                  if (foundLesson) {
+                    setActiveLesson(foundLesson);
+                  }
+                }
                 setCurrentTab(tab);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
@@ -246,10 +258,10 @@ export function App() {
                   Protected Member Area
                 </span>
                 <h2 className="text-xl font-extrabold text-[#1E1B4B]">
-                  Sign In Required to Access Your Account
+                  Scholar Sign-In Required
                 </h2>
                 <p className="text-xs text-stone-600 leading-relaxed max-w-md mx-auto">
-                  You are currently signed out. Please sign in to your scholar account or create a free account to access personal profile settings, academic transcripts, assignments, and certificates.
+                  You are currently viewing ChinguPop in Guest Visitor mode. Please sign in with your enrolled scholar account (Dhie or Mhie) to access personal profile settings, academic transcripts, assignments, and official certificates.
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -258,21 +270,14 @@ export function App() {
                   onClick={() => handleOpenAuth('signin')}
                   className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#2C1E6D] to-[#6C52EE] hover:from-[#3B288C] hover:to-[#553ACF] text-white font-bold text-xs shadow-md transition-all"
                 >
-                  Sign In to Account
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleOpenAuth('register')}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5CA8] to-[#FF3D9A] text-white font-bold text-xs shadow-md transition-all"
-                >
-                  Create Free Account
+                  Sign In to Scholar Portal
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentTab('dashboard')}
                   className="px-4 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-600 font-bold text-xs transition-all"
                 >
-                  Back to Public Homepage
+                  Back to Home Dashboard
                 </button>
               </div>
             </div>
@@ -353,7 +358,13 @@ export function App() {
             <VirtualClassroom
               currentLesson={activeLesson}
               currentUser={currentUser}
+              courses={courses}
               onCompleteLesson={handleCompleteLesson}
+              onSelectLesson={handleSelectLessonFromCourses}
+              onNavigateTab={(tab) => {
+                setCurrentTab(tab as NavItemKey);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
             />
           )}
 

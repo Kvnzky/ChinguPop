@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VocabularyWord, UserProfile, SRSGrade } from '../../types';
 import { storage } from '../../services/storageService';
 import { calculateSM2 } from '../../services/srsService';
@@ -27,6 +27,12 @@ export const VocabularySRS: React.FC<VocabularySRSProps> = ({ currentUser }) => 
   const [isFlipped, setIsFlipped] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  useEffect(() => {
+    setWords(storage.getVocabulary(currentUser.id));
+    setCurrentCardIndex(0);
+    setIsFlipped(false);
+  }, [currentUser.id]);
 
   // New Word Form State
   const [newKorean, setNewKorean] = useState('');

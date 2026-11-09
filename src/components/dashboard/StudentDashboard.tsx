@@ -124,6 +124,26 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
     tab: NavItemKey;
   } | null>(null);
 
+  // Build authentic searchable items across all Korean courses, lessons, and academy labs
+  const searchableItems: Array<{ label: string; sublabel: string; tab: NavItemKey; lessonId?: string }> = [
+    ...courses.flatMap(c =>
+      c.units.flatMap(u =>
+        u.lessons.map(l => ({
+          label: `${l.title} (${l.koreanTitle})`,
+          sublabel: c.title,
+          tab: 'classroom' as NavItemKey,
+          lessonId: l.id
+        }))
+      )
+    ),
+    { label: 'Hangul Lab & Interactive Alphabet (한글 실험실)', sublabel: 'Phonetics & Stroke Order', tab: 'hangul-lab' as NavItemKey },
+    { label: 'Vocabulary Flashcard Deck (SRS 단어장)', sublabel: 'Spaced Repetition Lexicon', tab: 'vocabulary' as NavItemKey },
+    { label: 'Speaking & Pronunciation Studio (발음 연습실)', sublabel: 'Acoustic Shadowing', tab: 'speaking-lab' as NavItemKey },
+    { label: 'Professor Kim AI Korean Tutor (AI 한국어 선생님)', sublabel: '24/7 Grammar & Conversation Coach', tab: 'ai-tutor' as NavItemKey },
+    { label: 'Practice Arcade Games (한국어 게임 아케이드)', sublabel: '9 Interactive Korean Drills', tab: 'arcade' as NavItemKey },
+    { label: 'Examinations & Level Tests (정기 시험)', sublabel: 'Academic Certification', tab: 'examinations' as NavItemKey }
+  ];
+
   // Determine dynamic recommendations based on student performance
   const recommendations: {
     type: 'lesson' | 'review' | 'speaking' | 'assignment';
@@ -446,8 +466,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     />
                   </div>
                   <div className="flex items-center justify-between text-[10px] font-mono font-bold text-stone-500 pt-0.5">
-                    <span>{completedInCourse}/12 Lesson</span>
-                    <span className="text-[#7C5CF6]">{Math.max(15, competencies.hangulReading)}%</span>
+                    <span>{completedInCourse}/{totalLessonsInCourse} Lesson</span>
+                    <span className="text-[#7C5CF6]">{competencies.hangulReading}%</span>
                   </div>
                 </div>
               </div>
@@ -667,203 +687,76 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
       {/* 📟 2. DEDICATED TABLET (iPAD) LEARNING DASHBOARD VIEW (768px - 1279px) - MATCHING CHINGUPOP TABLET UX */}
       <div className="hidden md:block xl:hidden space-y-4">
         <div className="bg-white rounded-[32px] p-5 lg:p-6 shadow-sm border border-stone-200/80">
-          <div className="flex gap-5 items-stretch">
+          <div className="flex flex-col lg:flex-row gap-6 items-stretch">
             
-            {/* Left Nav Rail */}
-            <div className="w-48 shrink-0 flex flex-col justify-between pr-3 border-r border-stone-100">
-              <div className="space-y-6">
-                {/* Logo Header */}
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#6C52EE] via-[#FF5CA8] to-[#FF8A00] flex items-center justify-center text-white shadow-2xs p-1.5">
-                    <BookOpen className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="font-extrabold text-sm text-[#1E1B4B] tracking-tight">Lang Lab.</h2>
-                    <span className="text-[9px] font-bold text-[#6C52EE] uppercase tracking-wider block -mt-0.5">ChinguPop</span>
-                  </div>
-                </div>
-
-                {/* Navigation Rail Links */}
-                <div className="space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('dashboard')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-[#F4F1FE] text-[#6C52EE] font-bold text-xs relative text-left"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <LayoutDashboard className="w-4 h-4 text-[#6C52EE]" />
-                      <span>Dashboard</span>
-                    </div>
-                    <div className="w-1 h-5 bg-[#6C52EE] rounded-l-full absolute right-0" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('classroom')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
-                  >
-                    <GraduationCap className="w-4 h-4 text-stone-400" />
-                    <span>Classes</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('materials')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
-                  >
-                    <BookOpen className="w-4 h-4 text-stone-400" />
-                    <span>Resources</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('assignments')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Grid className="w-4 h-4 text-stone-400" />
-                      <span>Homework</span>
-                    </div>
-                    {pendingAssignments.length > 0 && (
-                      <span className="w-2 h-2 rounded-full bg-[#FF5CA8]" />
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('records')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
-                  >
-                    <BarChart3 className="w-4 h-4 text-stone-400" />
-                    <span>Analysis</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('academy-overview')}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
-                  >
-                    <Users className="w-4 h-4 text-stone-400" />
-                    <span>Friends</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('ai-tutor')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <MessageSquare className="w-4 h-4 text-stone-400" />
-                      <span>Messages</span>
-                    </div>
-                    <span className="w-4.5 h-4.5 rounded-full bg-purple-100 text-[#6C52EE] font-extrabold text-[9px] flex items-center justify-center">
-                      3
-                    </span>
-                  </button>
-                </div>
-
-                {/* Ready for exams? Countdown Card */}
-                <div
-                  onClick={() => onNavigate('examinations')}
-                  className="p-3 rounded-2xl bg-gradient-to-br from-[#FF9CAE] via-[#A18BFF] to-[#6C52EE] text-white shadow-xs cursor-pointer hover:shadow-md transition-all active:scale-98"
-                >
-                  <p className="text-[11px] font-bold mb-2 flex items-center gap-1 text-white">
-                    <Sparkles className="w-3 h-3 text-yellow-200" />
-                    <span>Ready for exams?</span>
-                  </p>
-                  <div className="grid grid-cols-3 gap-1 text-center">
-                    <div className="bg-white/95 rounded-lg py-1 shadow-2xs">
-                      <div className="text-[11px] font-black font-mono text-[#2C1E6D]">10</div>
-                      <div className="text-[7.5px] font-bold text-stone-400 uppercase">days</div>
-                    </div>
-                    <div className="bg-white/95 rounded-lg py-1 shadow-2xs">
-                      <div className="text-[11px] font-black font-mono text-[#2C1E6D]">16</div>
-                      <div className="text-[7.5px] font-bold text-stone-400 uppercase">hours</div>
-                    </div>
-                    <div className="bg-white/95 rounded-lg py-1 shadow-2xs">
-                      <div className="text-[11px] font-black font-mono text-[#2C1E6D]">42</div>
-                      <div className="text-[7.5px] font-bold text-stone-400 uppercase">min</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Nav Settings & Logout */}
-              <div className="space-y-0.5 pt-4 border-t border-stone-100">
-                <button
-                  type="button"
-                  onClick={() => onNavigate('settings')}
-                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-stone-500 hover:text-[#2C1E6D] hover:bg-stone-50 font-semibold text-xs transition-colors"
-                >
-                  <Settings className="w-3.5 h-3.5 text-stone-400" />
-                  <span>Settings</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => window.location.reload()}
-                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-stone-500 hover:text-rose-600 hover:bg-rose-50 font-semibold text-xs transition-colors"
-                >
-                  <LogOut className="w-3.5 h-3.5 text-stone-400" />
-                  <span>Log Out</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Center Main Workspace */}
+            {/* Center Main Workspace (Full width on 768px portrait, 2/3 width on 1024px landscape) */}
             <div className="flex-1 min-w-0 space-y-4">
               
-              {/* Buddies Stories Row */}
+              {/* ChinguPop Cohort & Faculty Quick Strip */}
               <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
                 <div className="flex flex-col items-center gap-1 shrink-0">
                   <button
                     type="button"
                     onClick={() => onNavigate('academy-overview')}
                     className="w-11 h-11 rounded-full border-2 border-dashed border-[#8E77F7] flex items-center justify-center text-[#6C52EE] hover:bg-purple-50 transition-colors"
-                    title="Add Chingu"
+                    title="View Cohort Roster"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                   </button>
-                  <span className="text-[9px] font-medium text-transparent">Add</span>
+                  <span className="text-[10px] font-semibold text-[#6C52EE]">Cohort</span>
                 </div>
 
                 {[
-                  { name: 'Thomas', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80' },
-                  { name: 'Kate', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80' },
-                  { name: 'Sabine', img: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80' },
-                  { name: 'Jessica', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80' },
-                  { name: 'Matthew', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80' },
+                  { name: 'Dhie', role: 'Scholar', tab: 'academy-overview' as NavItemKey, badge: 'D', color: 'from-[#6C52EE] to-[#8E77F7]' },
+                  { name: 'Mhie', role: 'Scholar', tab: 'academy-overview' as NavItemKey, badge: 'M', color: 'from-[#FF5CA8] to-[#FF8A00]' },
+                  { name: 'Prof. Kim', role: 'AI Tutor', tab: 'ai-tutor' as NavItemKey, badge: '김', color: 'from-[#1E1B4B] to-[#4338CA]' },
+                  { name: 'Hangul Lab', role: '40 Jamo', tab: 'hangul-lab' as NavItemKey, badge: '한', color: 'from-[#0D9488] to-[#14B8A6]' },
+                  { name: 'Arcade', role: '9 Games', tab: 'arcade' as NavItemKey, badge: '🎮', color: 'from-[#EA580C] to-[#F59E0B]' },
                 ].map((buddy, idx) => (
-                  <div
+                  <button
                     key={idx}
-                    onClick={() => onNavigate('academy-overview')}
+                    type="button"
+                    onClick={() => onNavigate(buddy.tab)}
                     className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group"
                   >
-                    <div className="w-11 h-11 rounded-full p-0.5 border-2 border-purple-200 group-hover:border-[#6C52EE] transition-all overflow-hidden bg-stone-100 shadow-2xs">
-                      <img src={buddy.img} alt={buddy.name} className="w-full h-full object-cover rounded-full" />
+                    <div className={`w-11 h-11 rounded-full p-0.5 border-2 border-purple-200 group-hover:border-[#6C52EE] transition-all overflow-hidden bg-gradient-to-tr ${buddy.color} text-white font-serif font-bold text-sm flex items-center justify-center shadow-2xs`}>
+                      {buddy.badge}
                     </div>
-                    <span className="text-[10px] font-medium text-stone-600 group-hover:text-[#6C52EE]">
+                    <span className="text-[10px] font-semibold text-stone-700 group-hover:text-[#6C52EE]">
                       {buddy.name}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
 
               {/* Welcome Hero Card */}
               <div className="bg-[#FAF9FF] border border-purple-100/90 rounded-3xl p-4 lg:p-5 relative overflow-hidden flex items-center justify-between shadow-xs">
-                <div className="space-y-1.5 z-10 max-w-[62%]">
+                <div className="space-y-1.5 z-10 max-w-[65%]">
+                  <span className="inline-block text-[10px] font-mono font-bold uppercase tracking-wider text-[#6C52EE] bg-purple-100/80 px-2.5 py-0.5 rounded-full">
+                    {courseStatus} • {completedInCourse}/{totalLessonsInCourse} Lessons
+                  </span>
                   <h2 className="text-lg lg:text-xl font-black text-[#1E1B4B] tracking-tight">
-                    Welcome back, <span className="text-[#6C52EE]">{currentUser.name.split(' ')[0]}!</span>
+                    환영합니다, <span className="text-[#6C52EE]">{currentUser.name.split(' ')[0]}!</span>
                   </h2>
-                  <p className="text-[11px] text-stone-500 font-medium leading-relaxed">
-                    Upgrade your account to unlock all features.
+                  <p className="text-[11px] text-stone-600 font-medium leading-relaxed">
+                    {nextLesson
+                      ? `Next Lesson: ${nextLesson.title} (${nextLesson.koreanTitle})`
+                      : 'Continue your structured Korean mastery from Pre-A1 to C1.'}
                   </p>
-                  <div className="pt-2">
+                  <div className="pt-2 flex flex-wrap items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => onNavigate('classroom')}
+                      onClick={() => onNavigate('classroom', nextLesson?.id)}
                       className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF7DA0] to-[#7C5CF6] hover:from-[#FF6B93] hover:to-[#6C52EE] text-white font-extrabold text-xs shadow-xs transition-all active:scale-98"
                     >
-                      Upgrade Now
+                      {completedInCourse > 0 ? 'Resume Classroom' : 'Start Lesson 1'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('examinations')}
+                      className="px-3.5 py-2 rounded-xl bg-white border border-purple-200 text-[#2C1E6D] hover:bg-purple-50 font-bold text-xs transition-all"
+                    >
+                      Level Exams
                     </button>
                   </div>
                 </div>
@@ -903,25 +796,26 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 </div>
               </div>
 
-              {/* Middle 2 Cards (Last Results & Work Hours) */}
-              <div className="grid grid-cols-2 gap-3.5">
+              {/* Middle 2 Cards (Last Results & Course Mastery) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {/* Last Results */}
                 <div className="bg-white rounded-2xl p-3.5 border border-stone-200/90 shadow-2xs flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-2.5">
-                    <h3 className="font-extrabold text-xs text-[#1E1B4B]">Last Results</h3>
+                    <h3 className="font-extrabold text-xs text-[#1E1B4B]">Unit Progress</h3>
                     <button 
                       type="button"
                       onClick={() => onNavigate('records')}
                       className="text-[10px] font-bold text-[#6C52EE] hover:underline bg-purple-50 px-2 py-0.5 rounded-md"
                     >
-                      More &gt;
+                      Transcript &gt;
                     </button>
                   </div>
 
                   <div className="space-y-2.5">
                     <div className="space-y-1">
-                      <div className="text-[9.5px] font-semibold text-stone-600 truncate">
-                        Unit 1 • Hangul Basic Vowels (기본 모음)
+                      <div className="flex items-center justify-between text-[9.5px] font-semibold text-stone-600">
+                        <span className="truncate">Unit 1 • Hangul Basic Vowels (기본 모음)</span>
+                        <span className="font-mono font-bold text-[#6C52EE]">{competencies.hangulReading}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
                         <div className="h-full bg-[#6C52EE] rounded-full" style={{ width: `${competencies.hangulReading}%` }} />
@@ -929,8 +823,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <div className="text-[9.5px] font-semibold text-stone-600 truncate">
-                        Unit 2 • Basic Consonants (기본 자음)
+                      <div className="flex items-center justify-between text-[9.5px] font-semibold text-stone-600">
+                        <span className="truncate">Unit 2 • Basic Consonants (기본 자음)</span>
+                        <span className="font-mono font-bold text-[#7C5CF6]">{competencies.grammar}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
                         <div className="h-full bg-[#B4A0FF] rounded-full" style={{ width: `${competencies.grammar}%` }} />
@@ -938,8 +833,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <div className="text-[9.5px] font-semibold text-stone-600 truncate">
-                        Unit 3 • Final Consonants (받침 Batchim)
+                      <div className="flex items-center justify-between text-[9.5px] font-semibold text-stone-600">
+                        <span className="truncate">Unit 3 • Final Consonants (받침 Batchim)</span>
+                        <span className="font-mono font-bold text-amber-600">{competencies.hangulWriting}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
                         <div className="h-full bg-[#F59E0B] rounded-full" style={{ width: `${competencies.hangulWriting}%` }} />
@@ -948,10 +844,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   </div>
                 </div>
 
-                {/* Work Hours Donut */}
+                {/* Course Completion Donut */}
                 <div className="bg-white rounded-2xl p-3.5 border border-stone-200/90 shadow-2xs flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-extrabold text-xs text-[#1E1B4B]">Work Hours</h3>
+                    <h3 className="font-extrabold text-xs text-[#1E1B4B]">Course Mastery</h3>
                     <div className="relative">
                       <button
                         type="button"
@@ -996,18 +892,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                         strokeLinecap="round"
                         transform="rotate(-90 50 50)"
                       />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="38"
-                        fill="none"
-                        stroke="#F59E0B"
-                        strokeWidth="9"
-                        strokeDasharray="238.76"
-                        strokeDashoffset="195"
-                        strokeLinecap="round"
-                        transform="rotate(120 50 50)"
-                      />
                     </svg>
 
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -1022,11 +906,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   <div className="flex items-center justify-center gap-3 text-[9px] font-semibold text-stone-500">
                     <div className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#6C52EE]" />
-                      <span>Done</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
-                      <span>Progress</span>
+                      <span>Completed ({completedInCourse}/{totalLessonsInCourse})</span>
                     </div>
                   </div>
                 </div>
@@ -1034,8 +914,17 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
               {/* Your Courses */}
               <div className="space-y-2 pt-1">
-                <h3 className="font-extrabold text-xs text-[#1E1B4B]">Your Courses</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-extrabold text-xs text-[#1E1B4B]">Enrolled Korean Courses</h3>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('courses')}
+                    className="text-[10px] font-bold text-[#6C52EE] hover:underline"
+                  >
+                    Full Catalog ({courses.length} Courses) &gt;
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div
                     onClick={() => onNavigate('classroom')}
                     className="bg-white rounded-2xl p-3 border border-stone-200/90 shadow-2xs cursor-pointer hover:border-[#6C52EE]/50 transition-all group flex flex-col justify-between"
@@ -1043,16 +932,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="font-bold text-xs text-[#1E1B4B] group-hover:text-[#6C52EE] transition-colors truncate">
-                          Korean Foundations & Hangul
+                          Level 1: Pre-A1 Hangul Foundations
                         </h4>
-                        <MoreHorizontal className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                        <ArrowRight className="w-3.5 h-3.5 text-stone-400 shrink-0" />
                       </div>
                       <div className="flex items-center gap-1.5 text-[9.5px] text-stone-500 mb-2.5">
-                        <img
-                          src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&auto=format&fit=crop&q=80"
-                          alt="Teacher"
-                          className="w-4 h-4 rounded-full object-cover"
-                        />
+                        <span className="w-4 h-4 rounded-full bg-[#6C52EE] text-white font-serif font-bold text-[9px] flex items-center justify-center shrink-0">
+                          김
+                        </span>
                         <span className="truncate">Prof. Min-jun Kim (김민준)</span>
                       </div>
                     </div>
@@ -1060,11 +947,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     <div className="flex items-center justify-between text-[9px] text-stone-500 border-t border-stone-100 pt-2 font-medium">
                       <span className="flex items-center gap-1">
                         <BookOpen className="w-3 h-3 text-stone-400" />
-                        9 lessons
+                        {totalLessonsInCourse} lessons
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3 text-stone-400" />
-                        11 hours
+                        {courseStatus}
                       </span>
                     </div>
                   </div>
@@ -1076,16 +963,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="font-bold text-xs text-[#1E1B4B] group-hover:text-[#6C52EE] transition-colors truncate">
-                          Essential Korean Grammar
+                          Level 2: Beginner Korean 1 (TOPIK I)
                         </h4>
-                        <MoreHorizontal className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                        <ArrowRight className="w-3.5 h-3.5 text-stone-400 shrink-0" />
                       </div>
                       <div className="flex items-center gap-1.5 text-[9.5px] text-stone-500 mb-2.5">
-                        <img
-                          src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&auto=format&fit=crop&q=80"
-                          alt="Teacher"
-                          className="w-4 h-4 rounded-full object-cover"
-                        />
+                        <span className="w-4 h-4 rounded-full bg-[#FF5CA8] text-white font-serif font-bold text-[9px] flex items-center justify-center shrink-0">
+                          박
+                        </span>
                         <span className="truncate">Prof. Ji-won Park (박지원)</span>
                       </div>
                     </div>
@@ -1093,11 +978,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     <div className="flex items-center justify-between text-[9px] text-stone-500 border-t border-stone-100 pt-2 font-medium">
                       <span className="flex items-center gap-1">
                         <BookOpen className="w-3 h-3 text-stone-400" />
-                        11 lessons
+                        8 lessons
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3 text-stone-400" />
-                        13 hours
+                        16 hours
                       </span>
                     </div>
                   </div>
@@ -1106,126 +991,139 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
             </div>
 
-            {/* Right Panel */}
-            <div className="w-56 shrink-0 space-y-4 pl-3 border-l border-stone-100">
+            {/* Right Panel (Stacks cleanly on 768px portrait, side column on 1024px landscape) */}
+            <div className="w-full lg:w-64 shrink-0 space-y-4 pt-4 lg:pt-0 lg:pl-4 border-t lg:border-t-0 lg:border-l border-stone-100">
               
-              {/* Search anything */}
+              {/* Search Korean Lessons & Modules */}
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={tabletSearchQuery}
                   onChange={(e) => setTabletSearchQuery(e.target.value)}
-                  placeholder="Search anything..."
-                  className="w-full bg-[#F8F9FD] rounded-xl pl-8 pr-3 py-1.5 text-xs border border-stone-200/80 focus:outline-none focus:ring-1 focus:ring-[#6C52EE] text-stone-800 placeholder-stone-400 font-medium"
+                  placeholder="Search Korean lessons..."
+                  className="w-full bg-[#F8F9FD] rounded-xl pl-8 pr-7 py-2 text-xs border border-stone-200/80 focus:outline-none focus:ring-1 focus:ring-[#6C52EE] text-stone-800 placeholder-stone-400 font-medium"
                 />
+                {tabletSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setTabletSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-xs font-bold"
+                  >
+                    ✕
+                  </button>
+                )}
+                {tabletSearchQuery.trim().length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl border border-stone-200 shadow-xl z-50 p-2 space-y-1 max-h-60 overflow-y-auto">
+                    {searchableItems
+                      .filter(item => item.label.toLowerCase().includes(tabletSearchQuery.toLowerCase()) || item.sublabel.toLowerCase().includes(tabletSearchQuery.toLowerCase()))
+                      .slice(0, 6)
+                      .map((item, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setTabletSearchQuery('');
+                            onNavigate(item.tab, item.lessonId);
+                          }}
+                          className="w-full text-left p-2 rounded-xl hover:bg-purple-50 text-[11px] text-[#2C1E6D] font-semibold flex items-center justify-between gap-2"
+                        >
+                          <span className="truncate">{item.label}</span>
+                          <ArrowRight className="w-3 h-3 text-stone-400 shrink-0" />
+                        </button>
+                      ))}
+                  </div>
+                )}
               </div>
 
               {/* Student Profile Snapshot */}
               <div className="text-center pt-1 pb-2">
                 <div className="w-14 h-14 rounded-full mx-auto p-0.5 bg-gradient-to-tr from-[#6C52EE] via-[#EC4899] to-[#38BDF8] shadow-md mb-2">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-white">
-                    <img
-                      src={currentUser.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"}
-                      alt={currentUser.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center font-serif font-black text-lg text-[#2C1E6D]">
+                    {currentUser.name.charAt(0)}
                   </div>
                 </div>
                 <h3 className="font-extrabold text-xs text-[#1E1B4B]">{currentUser.name}</h3>
+                <span className="text-[10px] font-mono text-stone-500">{currentUser.studentId}</span>
 
-                {/* Competency levels */}
-                <div className="mt-3.5 space-y-2 text-left">
+                {/* Real Korean Competency Tracks */}
+                <div className="mt-3.5 space-y-2.5 text-left">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono font-bold text-[11px] text-[#1E1B4B] w-5 shrink-0">C1</span>
+                    <span className="font-mono font-bold text-[10px] text-[#6C52EE] w-7 shrink-0">A0</span>
                     <div className="flex-1">
-                      <div className="text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
-                        French
-                        <span className="text-[8.5px] text-stone-400 font-normal ml-1">Advanced</span>
+                      <div className="flex items-center justify-between text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
+                        <span>Hangul & Phonetics</span>
+                        <span className="font-mono text-stone-500">{competencies.hangulReading}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#4F35C8] rounded-full" style={{ width: '85%' }} />
+                        <div className="h-full bg-[#4F35C8] rounded-full" style={{ width: `${competencies.hangulReading}%` }} />
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono font-bold text-[11px] text-[#1E1B4B] w-5 shrink-0">B2</span>
+                    <span className="font-mono font-bold text-[10px] text-[#7C5CF6] w-7 shrink-0">A1</span>
                     <div className="flex-1">
-                      <div className="text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
-                        English
-                        <span className="text-[8.5px] text-stone-400 font-normal ml-1">Upper Inter.</span>
+                      <div className="flex items-center justify-between text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
+                        <span>Korean Grammar</span>
+                        <span className="font-mono text-stone-500">{competencies.grammar}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#7C5CF6] rounded-full" style={{ width: '65%' }} />
+                        <div className="h-full bg-[#7C5CF6] rounded-full" style={{ width: `${competencies.grammar}%` }} />
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono font-bold text-[11px] text-[#1E1B4B] w-5 shrink-0">A1</span>
+                    <span className="font-mono font-bold text-[10px] text-[#FF5CA8] w-7 shrink-0">SRS</span>
                     <div className="flex-1">
-                      <div className="text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
-                        German
-                        <span className="text-[8.5px] text-stone-400 font-normal ml-1">Elementary</span>
+                      <div className="flex items-center justify-between text-[9.5px] font-semibold text-stone-700 leading-none mb-1">
+                        <span>Korean Vocabulary</span>
+                        <span className="font-mono text-stone-500">{competencies.vocabulary}%</span>
                       </div>
                       <div className="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#A088FF] rounded-full" style={{ width: '35%' }} />
+                        <div className="h-full bg-[#A088FF] rounded-full" style={{ width: `${competencies.vocabulary}%` }} />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* My Classes */}
+              {/* Active Korean Studio */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-extrabold text-[11px] text-[#1E1B4B]">My Classes</h4>
+                  <h4 className="font-extrabold text-[11px] text-[#1E1B4B]">Active Korean Studio</h4>
                   <button 
                     type="button"
-                    onClick={() => onNavigate('classroom')}
+                    onClick={() => onNavigate('speaking-lab')}
                     className="text-[9.5px] font-bold text-stone-400 hover:text-[#6C52EE]"
                   >
-                    View All
+                    Open Lab
                   </button>
                 </div>
 
                 <div
-                  onClick={() => onNavigate('classroom')}
+                  onClick={() => onNavigate('speaking-lab')}
                   className="bg-white rounded-xl p-2.5 border border-stone-200/90 shadow-2xs border-l-4 border-l-[#FF8A00] cursor-pointer hover:shadow-xs transition-all"
                 >
                   <div className="flex items-center justify-between mb-0.5">
-                    <h5 className="font-bold text-[11px] text-[#1E1B4B] truncate">Speaking club (English)</h5>
-                    <MoreHorizontal className="w-3 h-3 text-stone-400 shrink-0" />
+                    <h5 className="font-bold text-[11px] text-[#1E1B4B] truncate">Korean Speaking Studio (발음 연습)</h5>
+                    <Mic className="w-3.5 h-3.5 text-[#FF8A00] shrink-0" />
                   </div>
                   <p className="text-[9.5px] text-stone-500 font-medium mb-2">
-                    Mon 13 PM - 15 PM
+                    Daily Acoustic Shadowing • {currentUser.dailyStudyMinutes} mins
                   </p>
 
-                  <div className="flex items-center -space-x-1.5">
-                    <img
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&auto=format&fit=crop&q=80"
-                      alt="Student"
-                      className="w-4.5 h-4.5 rounded-full border border-white object-cover"
-                    />
-                    <img
-                      src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=60&auto=format&fit=crop&q=80"
-                      alt="Student"
-                      className="w-4.5 h-4.5 rounded-full border border-white object-cover"
-                    />
-                    <img
-                      src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=60&auto=format&fit=crop&q=80"
-                      alt="Student"
-                      className="w-4.5 h-4.5 rounded-full border border-white object-cover"
-                    />
+                  <div className="flex items-center gap-1.5 text-[9px] font-bold text-[#6C52EE]">
+                    <span>Practice Native Pronunciation &rarr;</span>
                   </div>
                 </div>
               </div>
 
-              {/* Completed Tasks */}
+              {/* Academic Assignments & Assessments */}
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-extrabold text-[11px] text-[#1E1B4B]">Completed Tasks</h4>
+                  <h4 className="font-extrabold text-[11px] text-[#1E1B4B]">Academic Tasks</h4>
                   <button 
                     type="button"
                     onClick={() => onNavigate('assignments')}
@@ -1240,15 +1138,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     onClick={() => onNavigate('examinations')}
                     className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-stone-50 cursor-pointer transition-colors"
                   >
-                    <div className="w-6 h-6 rounded-lg bg-red-50 flex items-center justify-center shrink-0 text-xs shadow-2xs">
-                      🇬🇧
+                    <div className="w-6 h-6 rounded-lg bg-purple-50 text-[#6C52EE] font-serif font-bold flex items-center justify-center shrink-0 text-xs shadow-2xs">
+                      한
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[10px] font-bold text-[#1E1B4B] truncate">
-                        Hangul Stroke & Calligraphy
+                        Hangul Mastery Examination
                       </div>
-                      <div className="text-[8.5px] text-stone-400 font-medium">
-                        08 Feb 2026, Friday
+                      <div className="text-[8.5px] text-stone-500 font-medium">
+                        {courseProgress.status === 'Completed' ? 'Passed ✓' : 'Required for Course Completion'}
                       </div>
                     </div>
                   </div>
@@ -1257,15 +1155,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     onClick={() => onNavigate('assignments')}
                     className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-stone-50 cursor-pointer transition-colors"
                   >
-                    <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 text-xs shadow-2xs">
-                      🇫🇷
+                    <div className="w-6 h-6 rounded-lg bg-pink-50 text-pink-600 font-serif font-bold flex items-center justify-center shrink-0 text-xs shadow-2xs">
+                      글
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[10px] font-bold text-[#1E1B4B] truncate">
                         Self-Introduction Essay (자기소개서)
                       </div>
-                      <div className="text-[8.5px] text-stone-400 font-medium">
-                        13 Feb 2026, Thursday
+                      <div className="text-[8.5px] text-stone-500 font-medium">
+                        {submissions.length} Submitted • {pendingAssignments.length} Pending
                       </div>
                     </div>
                   </div>
@@ -1304,32 +1202,43 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             )}
 
             {/* Quick Search Dropdown */}
-            {searchQuery.trim().length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-stone-200 shadow-xl z-50 p-3 space-y-2">
-                <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-2">
-                  Matching Lessons & Modules
-                </div>
-                {['Basic Vowels (ㅏ, ㅑ, ㅓ, ㅕ, ㅗ, ㅛ, ㅜ, ㅠ, ㅡ, ㅣ)', 'Hangul Stroke Lab', 'Vocabulary Flashcard Deck (SRS)', 'Sentence Grammar & Particles', 'Speaking Studio & Native Voice']
-                  .filter(item => item.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .map((item, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => {
-                        setSearchQuery('');
-                        if (item.includes('Vowels')) onNavigate('classroom');
-                        else if (item.includes('Hangul')) onNavigate('hangul-lab');
-                        else if (item.includes('Vocabulary')) onNavigate('vocabulary');
-                        else if (item.includes('Grammar')) onNavigate('courses');
-                        else onNavigate('speaking-lab');
-                      }}
-                      className="p-2 rounded-xl hover:bg-purple-50 text-xs text-[#2C1E6D] font-medium cursor-pointer flex items-center justify-between"
-                    >
-                      <span>{item}</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-stone-400" />
+            {searchQuery.trim().length > 0 && (() => {
+              const matched = searchableItems.filter(
+                item =>
+                  item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  item.sublabel.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+              return (
+                <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-stone-200 shadow-xl z-50 p-3 space-y-2 max-h-72 overflow-y-auto">
+                  <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-2">
+                    Matching Korean Lessons & Modules ({matched.length})
+                  </div>
+                  {matched.length === 0 ? (
+                    <div className="p-2.5 text-xs text-stone-500">
+                      No matching Korean lessons or modules found for &ldquo;{searchQuery}&rdquo;.
                     </div>
-                  ))}
-              </div>
-            )}
+                  ) : (
+                    matched.slice(0, 8).map((item, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery('');
+                          onNavigate(item.tab, item.lessonId);
+                        }}
+                        className="w-full p-2.5 rounded-xl hover:bg-purple-50 text-left text-xs text-[#2C1E6D] font-medium cursor-pointer flex items-center justify-between gap-2"
+                      >
+                        <div>
+                          <div className="font-bold">{item.label}</div>
+                          <div className="text-[10px] text-stone-500">{item.sublabel}</div>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                      </button>
+                    ))
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Right Icons: Assignments/Folder, Notifications, Profile Avatar */}
@@ -1776,58 +1685,64 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               </div>
             </div>
 
-            {/* 2. UPCOMING COURSES */}
+            {/* 2. ACADEMIC CURRICULUM TRACKS */}
             <div className="space-y-4">
-              <h3 className="text-base font-extrabold text-[#1E1B4B] tracking-tight">
-                Upcoming courses
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-extrabold text-[#1E1B4B] tracking-tight">
+                  Academic Curriculum Tracks
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('courses')}
+                  className="text-xs font-bold text-[#6C52EE] hover:underline"
+                >
+                  All 8 Levels &rarr;
+                </button>
+              </div>
 
               {/* Course Card 1 */}
               <div className="bg-white rounded-3xl p-5 border border-stone-200/90 shadow-2xs space-y-3 hover:shadow-md transition-all">
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[10px] font-bold">
-                    Beginner
+                    TOPIK I • A1
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full bg-[#CCFBF1] text-[#0F766E] text-[10px] font-bold">
-                    Grammar
+                    Grammar & Particles
                   </span>
                 </div>
 
-                <div className="flex items-baseline justify-between">
+                <div className="flex items-baseline justify-between gap-2">
                   <h4 className="font-extrabold text-sm text-[#1E1B4B]">
-                    Korean Grammar
+                    Beginner Korean 1 (초급 한국어 1)
                   </h4>
-                  <span className="font-bold text-xs text-stone-700 font-mono">
-                    $50.99
+                  <span className="font-bold text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-mono shrink-0">
+                    Enrolled
                   </span>
                 </div>
 
                 <p className="text-[11px] text-stone-500 leading-relaxed">
-                  Basic Korean grammar includes learning verbs, nouns, and simple sentence structure for effective communication.
+                  Master Korean SOV sentence structure, topic/subject markers (은/는, 이/가), polite -아/어요 conjugation, and everyday expressions.
                 </p>
 
                 <div className="flex items-center gap-4 text-[10px] text-stone-500 font-medium">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3 text-stone-400" />
-                    <span>3 month</span>
+                    <span>16 hours</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <BookOpen className="w-3 h-3 text-stone-400" />
-                    <span>56 lessons</span>
+                    <span>8 lessons</span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-                  {/* Classmates Avatar Stack */}
+                  {/* Enrolled Cohort Stack */}
                   <div className="flex items-center -space-x-2">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-pink-400 to-purple-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-pink-400 to-purple-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs" title="Dhie">
                       D
                     </div>
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs" title="Mhie">
                       M
-                    </div>
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
-                      K
                     </div>
                   </div>
 
@@ -1836,7 +1751,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     onClick={() => onNavigate('courses')}
                     className="px-5 py-2 rounded-2xl bg-[#18181B] hover:bg-black text-white text-xs font-bold transition-all shadow-xs active:scale-95"
                   >
-                    Buy course
+                    Open Syllabus
                   </button>
                 </div>
               </div>
@@ -1845,45 +1760,45 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               <div className="bg-white rounded-3xl p-5 border border-stone-200/90 shadow-2xs space-y-3 hover:shadow-md transition-all">
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-[#FFEDD5] text-[#C2410C] text-[10px] font-bold">
-                    Intermediate
+                    SRS Lexicon
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full bg-[#FCE7F3] text-[#BE185D] text-[10px] font-bold">
                     Vocabulary
                   </span>
                 </div>
 
-                <div className="flex items-baseline justify-between">
+                <div className="flex items-baseline justify-between gap-2">
                   <h4 className="font-extrabold text-sm text-[#1E1B4B]">
-                    Idioms about friendship
+                    Core Korean Vocabulary & SRS (핵심 어휘)
                   </h4>
-                  <span className="font-bold text-xs text-stone-700 font-mono">
-                    $25.99
+                  <span className="font-bold text-[10px] text-[#6C52EE] bg-purple-50 px-2 py-0.5 rounded-full font-mono shrink-0">
+                    {vocabulary.length} Words
                   </span>
                 </div>
 
                 <p className="text-[11px] text-stone-500 leading-relaxed">
-                  Friendship idioms add colorful expressions to language, like to be on the same page or to have someone's back, enhancing communication...
+                  Build long-term retention of essential Korean nouns, action verbs, counters, and honorific expressions with Spaced Repetition flashcards.
                 </p>
 
                 <div className="flex items-center gap-4 text-[10px] text-stone-500 font-medium">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3 text-stone-400" />
-                    <span>2 weeks</span>
+                    <span>Daily SRS</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <BookOpen className="w-3 h-3 text-stone-400" />
-                    <span>10 lessons</span>
+                    <span>{vocabLearnedCount} Mastered</span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-                  {/* Classmates Avatar Stack */}
+                  {/* Enrolled Cohort Stack */}
                   <div className="flex items-center -space-x-2">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
-                      H
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-pink-400 to-purple-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs" title="Dhie">
+                      D
                     </div>
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-400 to-pink-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs">
-                      S
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs" title="Mhie">
+                      M
                     </div>
                   </div>
 
@@ -1892,7 +1807,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     onClick={() => onNavigate('vocabulary')}
                     className="px-5 py-2 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold transition-all shadow-xs active:scale-95"
                   >
-                    Buy course
+                    Practice Deck
                   </button>
                 </div>
               </div>

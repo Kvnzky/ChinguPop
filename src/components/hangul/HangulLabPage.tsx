@@ -27,11 +27,11 @@ export const HangulLabPage: React.FC = () => {
         </div>
 
         {/* Sub-tab pills */}
-        <div className="flex items-center gap-1.5 bg-stone-100 p-1.5 rounded-xl border border-stone-200">
+        <div className="flex items-center gap-1.5 bg-stone-100 p-1.5 rounded-xl border border-stone-200 overflow-x-auto max-w-full no-scrollbar">
           <button
             type="button"
             onClick={() => setSubTab('chart')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               subTab === 'chart'
                 ? 'bg-academy-navy text-academy-ivory shadow-sm'
                 : 'text-stone-600 hover:text-academy-navy'
@@ -43,7 +43,7 @@ export const HangulLabPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setSubTab('builder')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               subTab === 'builder'
                 ? 'bg-academy-navy text-academy-ivory shadow-sm'
                 : 'text-stone-600 hover:text-academy-navy'
@@ -55,7 +55,7 @@ export const HangulLabPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setSubTab('canvas')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               subTab === 'canvas'
                 ? 'bg-academy-navy text-academy-ivory shadow-sm'
                 : 'text-stone-600 hover:text-academy-navy'

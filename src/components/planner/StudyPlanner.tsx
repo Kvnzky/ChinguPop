@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StudyPlanItem, UserProfile } from '../../types';
 import { studyPlanner } from '../../services/studyPlannerService';
 import { storage } from '../../services/storageService';
@@ -30,7 +30,19 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({ currentUser }) => {
     return generated;
   });
 
+  useEffect(() => {
+    const saved = storage.getStudyPlan(currentUser.id);
+    if (saved && saved.length > 0) {
+      setPlanItems(saved);
+    } else {
+      const generated = studyPlanner.generateWeeklyPlan(currentUser);
+      storage.saveStudyPlan(currentUser.id, generated);
+      setPlanItems(generated);
+    }
+  }, [currentUser.id]);
+
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const koreanDayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
   const currentDayItems = planItems.filter(item => item.dayOfWeek === selectedDay);
   const completedToday = currentDayItems.filter(i => i.completed).length;
@@ -96,7 +108,7 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({ currentUser }) => {
       </div>
 
       {/* 7-Day Day Selector Strip */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {dayNames.map((name, idx) => {
           const isSelected = selectedDay === idx;
           const dayItems = planItems.filter(i => i.dayOfWeek === idx);
@@ -108,19 +120,19 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({ currentUser }) => {
               key={name}
               type="button"
               onClick={() => setSelectedDay(idx)}
-              className={`p-3 rounded-xl border text-center transition-all ${
+              className={`p-1.5 sm:p-3 rounded-xl border text-center transition-all ${
                 isSelected
                   ? 'border-academy-navy bg-academy-navy text-academy-ivory shadow-md ring-2 ring-academy-gold/40'
                   : 'border-stone-200 hover:border-stone-300 bg-white text-stone-700'
               }`}
             >
-              <div className="text-[10px] uppercase font-mono tracking-wider font-semibold opacity-75">
+              <div className="text-[10px] font-serif font-bold opacity-85">
+                {koreanDayNames[idx]}
+              </div>
+              <div className="text-[11px] sm:text-sm font-bold mt-0.5">
                 {name.slice(0, 3)}
               </div>
-              <div className="text-sm font-bold mt-0.5">
-                {name.slice(0, 3)}
-              </div>
-              <div className="text-[10px] mt-1 font-mono">
+              <div className="text-[9px] sm:text-[10px] mt-1 font-mono">
                 {isDone ? (
                   <span className="text-emerald-400 font-bold">Done ✓</span>
                 ) : (
@@ -132,17 +144,28 @@ export const StudyPlanner: React.FC<StudyPlannerProps> = ({ currentUser }) => {
         })}
       </div>
 
-      {/* Today's 60-Minute Allocation Schedule */}
+      {/* Today's Allocation Schedule */}
       <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm space-y-6">
-        <div className="flex items-center justify-between pb-4 border-b border-stone-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-200">
           <div>
             <h3 className="font-serif font-bold text-lg text-academy-navy flex items-center gap-2">
-              <span>{dayNames[selectedDay]}'s 60-Minute Curriculum Schedule</span>
+              <span>{dayNames[selectedDay]} ({koreanDayNames[selectedDay]}요일) • {currentUser.dailyStudyMinutes}-Minute Curriculum Schedule</span>
             </h3>
             <p className="text-xs text-stone-500 mt-0.5">
-              Structured University Routine: 20m Core Lecture + 10m Vocab + 10m Listening + 10m Speaking + 5m Reading + 5m Homework.
+              Structured University Routine: Core Lecture + Vocabulary + Listening + Speaking + Reading/Writing + Homework.
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              const regenerated = studyPlanner.generateWeeklyPlan(currentUser);
+              storage.saveStudyPlan(currentUser.id, regenerated);
+              setPlanItems(regenerated);
+            }}
+            className="px-3.5 py-2 rounded-lg border border-stone-200 hover:bg-stone-50 text-xs font-bold text-academy-navy shrink-0 self-start sm:self-center transition-colors"
+          >
+            Recalibrate Plan
+          </button>
         </div>
 
         <div className="space-y-3">

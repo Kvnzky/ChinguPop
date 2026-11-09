@@ -50,6 +50,7 @@ interface SidebarProps {
   userRole: UserRole;
   pendingAssignmentsCount?: number;
   className?: string;
+  forceExpanded?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -57,7 +58,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   userRole,
   pendingAssignmentsCount = 1,
-  className = ''
+  className = '',
+  forceExpanded = false
 }) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     return localStorage.getItem('chingupop_sidebar_collapsed') === 'true';
@@ -91,7 +93,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { key: 'settings', label: 'Settings', korean: '환경 설정', icon: Settings }
   ];
 
-  if (isCollapsed) {
+  if (isCollapsed && !forceExpanded) {
     return (
       <aside className={`w-20 bg-white border-r border-stone-200/90 flex flex-col justify-between items-center h-[calc(100vh-4rem)] sticky top-16 py-4 select-none ${className}`}>
         

@@ -1672,7 +1672,7 @@ class StorageService {
     localStorage.setItem(STORAGE_KEYS.EXAM_ATTEMPTS, JSON.stringify(list));
 
     // Award 50 XP base + score bonus for completing examination
-    const percentage = attempt.totalQuestions > 0 ? Math.round((attempt.score / attempt.totalQuestions) * 100) : 0;
+    const percentage = Math.min(100, Math.max(0, Math.round(attempt.score)));
     const scoreBonus = Math.round((percentage / 100) * 25);
     const xpEarned = 50 + scoreBonus;
     this.addXP(attempt.studentId, xpEarned, `Completed Exam: ${attempt.quizTitle} (${percentage}%)`, `exam-${attempt.quizId}-${attempt.id}`);

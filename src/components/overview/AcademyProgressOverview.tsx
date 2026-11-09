@@ -3,17 +3,11 @@ import { UserProfile, Course } from '../../types';
 import { storage } from '../../services/storageService';
 import { ProgressBar } from '../common/ProgressBar';
 import { 
-  Users, 
   GraduationCap, 
-  Award, 
-  Calendar, 
-  BookOpen, 
   Sparkles, 
   Clock, 
   CheckCircle2, 
-  TrendingUp, 
   HeartHandshake,
-  ShieldCheck,
   ChevronRight
 } from 'lucide-react';
 
@@ -30,6 +24,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
   onSelectStudent,
   onNavigateTab
 }) => {
+  const isAdmin = storage.isAdminAuthenticated() || currentUser.role === 'admin';
   const registeredStudents = storage.getStudents();
   const allStudents = registeredStudents.length > 0 ? registeredStudents : [currentUser];
 
@@ -40,14 +35,17 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
     const vocab = storage.getVocabulary(st.id);
     const subs = storage.getSubmissions(st.id);
     const c = courses.find(cr => cr.id === st.currentCourseId) || courses[0];
-    const rate = Math.min(100, Math.round((completed.length / (c?.totalLessons || 12)) * 100));
+    const courseProgress = storage.getCourseProgress(st.id, c?.id || 'course-pre-a1');
+    const attendanceDays = storage.getAttendance(st.id).length;
     return {
       profile: st,
       course: c,
+      courseProgress,
       completedLessons: completed,
       vocabulary: vocab,
       submissions: subs,
-      completionRate: rate,
+      attendanceDays,
+      completionRate: courseProgress.completionPercent,
       color: idx % 2 === 0 ? 'border-amber-300 bg-amber-50/30' : 'border-emerald-300 bg-emerald-50/30',
       badgeColor: idx % 2 === 0 ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-emerald-100 text-emerald-900 border-emerald-300',
       topSkill: completed.length > 0 ? 'Hangul Foundations Articulation' : 'Enrolled • Ready to Begin'
@@ -57,7 +55,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
   const combinedLessonsCompleted = students.reduce((acc, s) => acc + s.completedLessons.length, 0);
   const combinedVocabLearned = students.reduce((acc, s) => acc + s.vocabulary.filter(isWordLearned).length, 0);
   const combinedSubmissions = students.reduce((acc, s) => acc + s.submissions.length, 0);
-  const combinedStudyHours = students.reduce((acc, s) => acc + s.completedLessons.length * 1.0 + storage.getAttendance(s.profile.id).length * 0.5, 0).toFixed(1);
+  const combinedStudyHours = students.reduce((acc, s) => acc + s.completedLessons.length * 1.0 + s.attendanceDays * 0.5, 0).toFixed(1);
 
   return (
     <div className="space-y-6">
@@ -137,6 +135,7 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {students.map((student, idx) => {
           const isCurrent = student.profile.id === currentUser.id;
+          const canViewPrivateDetails = isCurrent || isAdmin;
           return (
             <div
               key={student.profile.id}
@@ -153,11 +152,11 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
 
               {/* Student Header */}
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-academy-navy text-academy-gold font-serif font-bold text-2xl flex items-center justify-center shadow-md">
+                <div className="w-14 h-14 rounded-2xl bg-academy-navy text-academy-gold font-serif font-bold text-2xl flex items-center justify-center shadow-md shrink-0">
                   {student.profile.name.charAt(0)}
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="font-serif font-bold text-xl text-academy-navy">
                       {student.profile.name}
                     </h2>
@@ -165,8 +164,8 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
                       {student.profile.studentId}
                     </span>
                   </div>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    {student.profile.email} • {student.profile.dailyStudyMinutes} min/day
+                  <p className="text-xs text-stone-500 mt-0.5 truncate">
+                    {canViewPrivateDetails ? student.profile.email : 'Enrolled Academy Scholar'} • {student.profile.dailyStudyMinutes} min/day
                   </p>
                 </div>
               </div>
@@ -184,26 +183,24 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
                 </div>
 
                 <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-                  <span className="text-[11px] text-stone-500 block">Academic Standing</span>
+                  <span className="text-[11px] text-stone-500 block">Course Status</span>
                   <span className="font-serif font-bold text-sm text-academy-gold-dark">
-                    {student.completedLessons.length > 0 || student.submissions.length > 0
-                      ? `Grade ${student.profile.currentAcademicGrade}`
-                      : 'Enrolled (Not Started)'}
+                    {student.courseProgress.status}
                   </span>
                   <span className="text-[10px] text-stone-400 font-semibold block mt-0.5">
-                    {student.completedLessons.length > 0 ? `${student.profile.attendancePercentage}% Attendance` : '0 Days Active'}
+                    {student.attendanceDays} {student.attendanceDays === 1 ? 'Day' : 'Days'} Active
                   </span>
                 </div>
               </div>
 
               {/* Course Progress Bar */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-serif font-bold text-academy-navy">
+                <div className="flex items-center justify-between text-xs gap-2">
+                  <span className="font-serif font-bold text-academy-navy truncate">
                     {student.course.title}
                   </span>
-                  <span className="font-mono text-stone-500">
-                    {student.completionRate}% ({student.completedLessons.length}/{student.course.totalLessons} Lessons)
+                  <span className="font-mono text-stone-500 shrink-0">
+                    {student.completionRate}% ({student.courseProgress.completedLessonsCount}/{student.courseProgress.totalLessons} Lessons)
                   </span>
                 </div>
                 <ProgressBar
@@ -244,10 +241,22 @@ export const AcademyProgressOverview: React.FC<AcademyProgressOverviewProps> = (
               {onSelectStudent && (
                 <button
                   type="button"
-                  onClick={() => onSelectStudent(student.profile.id)}
+                  onClick={() => {
+                    if (isCurrent && onNavigateTab) {
+                      onNavigateTab('dashboard');
+                    } else {
+                      onSelectStudent(student.profile.id);
+                    }
+                  }}
                   className="w-full py-3 px-4 min-h-[48px] rounded-xl border border-purple-200 bg-purple-50 hover:bg-[#6C52EE] hover:text-white text-[#6C52EE] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-98 shadow-2xs"
                 >
-                  <span>Switch to {student.profile.name}'s Dashboard</span>
+                  <span>
+                    {isCurrent
+                      ? `Return to My Dashboard`
+                      : isAdmin
+                      ? `Inspect ${student.profile.name}'s Dashboard`
+                      : `Sign In as ${student.profile.name}`}
+                  </span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               )}

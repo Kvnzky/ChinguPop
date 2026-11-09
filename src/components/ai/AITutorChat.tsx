@@ -36,35 +36,38 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ currentUser }) => {
   const [inputText, setInputText] = useState('');
   const [currentMode, setCurrentMode] = useState<AIMode>('Grammar Tutor');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    const saved = storage.getAIMessages(currentUser.id);
-    if (saved && saved.length > 0) {
-      setMessages(saved);
-    } else {
-      // Seed initial welcome message from Professor Kim
-      const welcome: AIMessage = {
-        id: 'msg-welcome',
-        sender: 'tutor',
-        text: `안녕하세요, ${currentUser.name} 씨! I am your AI Korean Language Teacher at ChinguPop (친구팝).
+  const createWelcomeMessage = (): AIMessage => ({
+    id: `msg-welcome-${Date.now()}`,
+    sender: 'tutor',
+    text: `안녕하세요, ${currentUser.name} 씨! I am your AI Korean Language Teacher at ChinguPop (친구팝).
 
 I am here to guide you from ${currentUser.proficiency} to advanced fluency. You can ask me any grammar questions, practice Korean dialogues, test particle usage (은/는 vs 이/가), or simulate real conversations in Seoul.
 
 ${currentUser.filipinoSupport ? '🇵🇭 Filipino grammatical explanations are active to help clarify tough concepts.' : ''}
 
 How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "What is the difference between 은/는 and 이/가?"`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        koreanSnippet: '안녕하세요! 무엇을 도와드릴까요?',
-        grammarTip: 'Classroom Polite Opening'
-      };
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    koreanSnippet: '안녕하세요! 무엇을 도와드릴까요?',
+    grammarTip: 'Classroom Polite Opening'
+  });
+
+  useEffect(() => {
+    const saved = storage.getAIMessages(currentUser.id);
+    if (saved && saved.length > 0) {
+      setMessages(saved);
+    } else {
+      const welcome = createWelcomeMessage();
       setMessages([welcome]);
       storage.saveAIMessages(currentUser.id, [welcome]);
     }
   }, [currentUser.id]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleSend = async (e: React.FormEvent) => {
@@ -96,8 +99,9 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
   };
 
   const handleResetConversation = () => {
-    storage.saveAIMessages(currentUser.id, []);
-    setMessages([]);
+    const welcome = createWelcomeMessage();
+    storage.saveAIMessages(currentUser.id, [welcome]);
+    setMessages([welcome]);
   };
 
   const quickPrompts = [
@@ -157,7 +161,7 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-stone-50/50">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-stone-50/50">
         {messages.map((msg) => {
           const isTutor = msg.sender === 'tutor';
           return (
@@ -243,8 +247,6 @@ How can I help you today? Try saying: "선생님, 안녕하세요!" or ask: "Wha
             <span>Professor Kim is analyzing your Korean sentence...</span>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Suggested Quick Question Chips */}

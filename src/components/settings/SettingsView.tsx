@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, KoreanProficiency, ImmersionStage } from '../../types';
 import { storage } from '../../services/storageService';
+import { studyPlanner } from '../../services/studyPlannerService';
 import { Settings, Save, Check, Globe, Clock, Calendar, Lock, ShieldCheck, Key, User, Mail, AlertCircle } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -39,7 +40,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
     setExplanationLang(currentUser.explanationLanguage);
   }, [currentUser]);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwdMsg(null);
     setPwdError(null);
@@ -54,11 +55,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
       return;
     }
 
-    storage.setPassword(currentUser.id, newPassword);
-    setNewPassword('');
-    setConfirmPassword('');
-    setPwdMsg('Account password updated securely!');
-    setTimeout(() => setPwdMsg(null), 4000);
+    try {
+      await storage.setPassword(currentUser.id, newPassword);
+      setNewPassword('');
+      setConfirmPassword('');
+      setPwdMsg('Account password updated securely!');
+      setTimeout(() => setPwdMsg(null), 4000);
+    } catch (err: any) {
+      setPwdError(err?.message || 'Could not update password.');
+    }
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -86,6 +91,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
       };
 
       storage.saveUser(updated);
+      if (
+        Number(dailyMinutes) !== currentUser.dailyStudyMinutes ||
+        Number(studyDays) !== currentUser.studyDaysPerWeek ||
+        proficiency !== currentUser.proficiency
+      ) {
+        const updatedPlan = studyPlanner.generateWeeklyPlan(updated);
+        storage.saveStudyPlan(currentUser.id, updatedPlan);
+      }
       const fresh = storage.getUserById(currentUser.id) || updated;
       onUserUpdate(fresh);
       setStatusMsg('Student academic profile and immersion settings updated successfully!');
@@ -244,10 +257,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
           <div className="space-y-1">
             <span className="font-serif font-bold text-sm text-academy-navy flex items-center gap-2">
               <Globe className="w-4 h-4 text-amber-800" />
-              <span>Filipino Language Linguistic Support (Tagalog Bridge)</span>
+              <span>Optional Filipino Linguistic Support (Approximation Only)</span>
             </span>
             <p className="text-xs text-stone-600 leading-relaxed">
-              When enabled, difficult grammatical markers (such as 은/는 vs 이/가) and pronunciation rules will include Filipino comparisons (e.g. comparing topic markers to "ang" / "kung tungkol kay").
+              When enabled, grammatical markers (such as 은/는 vs 이/가) and pronunciation notes include optional Filipino approximations alongside primary Korean/English explanations.
             </p>
           </div>
           <input
@@ -259,7 +272,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, onUserU
         </div>
 
         {/* Study Availability */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-academy-navy uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />

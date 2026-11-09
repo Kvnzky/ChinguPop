@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile, ReviewItem } from '../../types';
 import { storage } from '../../services/storageService';
 import { speechService } from '../../services/speechService';
@@ -28,6 +28,27 @@ export const ReviewRoom: React.FC<ReviewRoomProps> = ({ currentUser, onNavigateT
   const [activePracticeIndex, setActivePracticeIndex] = useState<number | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'vocabulary' | 'grammar' | 'pronunciation' | 'listening'>('all');
+
+  useEffect(() => {
+    setQueue(storage.getReviewQueue(currentUser.id));
+    setActivePracticeIndex(null);
+    setIsFlipped(false);
+  }, [currentUser.id]);
+
+  const handleSeedFoundationDeck = () => {
+    const starterItems: Array<{ type: ReviewItem['type']; korean: string; romanization: string; english: string; hint: string }> = [
+      { type: 'pronunciation', korean: 'ㅏ vs ㅓ', romanization: 'a vs eo', english: 'Bright "ah" (ㅏ) vs Open-back "eo" (ㅓ)', hint: 'Drop your jaw slightly lower for ㅓ.' },
+      { type: 'pronunciation', korean: 'ㅗ vs ㅜ', romanization: 'o vs u', english: 'Rounded high "o" (ㅗ) vs Pursed forward "oo" (ㅜ)', hint: 'ㅗ points up (Heaven), ㅜ points down (Earth).' },
+      { type: 'vocabulary', korean: '안녕하세요', romanization: 'annyeonghaseyo', english: 'Hello / Good day (Polite)', hint: 'Standard polite greeting used at any time of day.' },
+      { type: 'vocabulary', korean: '감사합니다', romanization: 'gamsahamnida', english: 'Thank you (Formal Polite)', hint: 'Used to express polite gratitude.' },
+      { type: 'grammar', korean: '은 / 는', romanization: 'eun / neun', english: 'Topic Marker Particle', hint: 'Use 은 after a consonant Batchim, 는 after a vowel.' },
+      { type: 'grammar', korean: '이 / 가', romanization: 'i / ga', english: 'Subject Marker Particle', hint: 'Use 이 after a consonant Batchim, 가 after a vowel.' },
+      { type: 'listening', korean: '우유', romanization: 'uyu', english: 'Milk', hint: 'Composed of horizontal vowels ㅜ (u) and ㅠ (yu).' },
+      { type: 'vocabulary', korean: '한국어', romanization: 'hangugeo', english: 'Korean Language', hint: 'Pronounced [한구거] due to Batchim liaison.' }
+    ];
+    starterItems.forEach(item => storage.addReviewItem(currentUser.id, item));
+    setQueue(storage.getReviewQueue(currentUser.id));
+  };
 
   const todayStr = new Date().toISOString().split('T')[0];
   const dueItems = queue.filter(item => item.nextReviewDate <= todayStr);
@@ -259,74 +280,104 @@ export const ReviewRoom: React.FC<ReviewRoomProps> = ({ currentUser, onNavigateT
           </div>
 
           {/* Items Queue Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {filteredItems.map((item) => {
-              const isDue = item.nextReviewDate <= todayStr;
-              return (
-                <div
-                  key={item.id}
-                  className={`bg-white rounded-2xl p-4 border transition-all flex items-start justify-between gap-3 ${
-                    isDue 
-                      ? 'border-amber-300 bg-amber-50/20 shadow-xs' 
-                      : 'border-stone-200/80 shadow-2xs'
-                  }`}
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-stone-100 text-stone-600">
-                        {item.type}
-                      </span>
-                      {isDue ? (
-                        <span className="text-[10px] font-black uppercase text-amber-600 flex items-center gap-1">
-                          <Flame className="w-3 h-3 fill-amber-500" />
-                          <span>Due Today</span>
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-medium text-stone-400">
-                          Next: {item.nextReviewDate} ({item.intervalDays}d interval)
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-baseline gap-2 pt-0.5">
-                      <h4 className="text-base font-black text-[#1E1B4B] truncate">
-                        {item.korean}
-                      </h4>
-                      {item.romanization && (
-                        <span className="text-xs text-stone-400 font-mono">
-                          {item.romanization}
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-stone-600 font-medium">
-                      {item.english}
-                    </p>
-
-                    {item.hint && (
-                      <p className="text-[11px] text-stone-400 italic">
-                        Tip: {item.hint}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => speechService.speak(item.korean)}
-                      className="w-8 h-8 rounded-xl bg-purple-50 text-[#6C52EE] hover:bg-purple-100 flex items-center justify-center transition-colors"
-                      title="Listen"
-                    >
-                      <Volume2 className="w-4 h-4" />
-                    </button>
-                    <span className="text-[9px] font-bold text-stone-400">
-                      {item.consecutiveCorrect} streak
-                    </span>
-                  </div>
+          {filteredItems.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-stone-200 p-8 text-center space-y-3 shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#6C52EE] flex items-center justify-center mx-auto">
+                <BrainCircuit className="w-6 h-6" />
+              </div>
+              <h4 className="font-serif font-bold text-base text-[#1E1B4B]">
+                {queue.length === 0
+                  ? 'Your Spaced Repetition Review Queue is Currently Empty'
+                  : `No ${filterType} items in your review queue`}
+              </h4>
+              <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
+                {queue.length === 0
+                  ? 'Items you miss in classroom quizzes or arcade games are automatically added here. You can also load the Foundation Review Deck right now to practice core Hangul vowels, particles, and greetings.'
+                  : 'Try switching the filter tab above to view all review items.'}
+              </p>
+              {queue.length === 0 && (
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSeedFoundationDeck}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#6C52EE] hover:bg-[#5839DE] text-white font-extrabold text-xs shadow-md transition-all"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Load Foundation Review Deck (8 Items)</span>
+                  </button>
                 </div>
-              );
-            })}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {filteredItems.map((item) => {
+                const isDue = item.nextReviewDate <= todayStr;
+                return (
+                  <div
+                    key={item.id}
+                    className={`bg-white rounded-2xl p-4 border transition-all flex items-start justify-between gap-3 ${
+                      isDue 
+                        ? 'border-amber-300 bg-amber-50/20 shadow-xs' 
+                        : 'border-stone-200/80 shadow-2xs'
+                    }`}
+                  >
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-stone-100 text-stone-600">
+                          {item.type}
+                        </span>
+                        {isDue ? (
+                          <span className="text-[10px] font-black uppercase text-amber-600 flex items-center gap-1">
+                            <Flame className="w-3 h-3 fill-amber-500" />
+                            <span>Due Today</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-medium text-stone-400">
+                            Next: {item.nextReviewDate} ({item.intervalDays}d interval)
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-baseline gap-2 pt-0.5">
+                        <h4 className="text-base font-black text-[#1E1B4B] truncate">
+                          {item.korean}
+                        </h4>
+                        {item.romanization && (
+                          <span className="text-xs text-stone-400 font-mono">
+                            {item.romanization}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-stone-600 font-medium">
+                        {item.english}
+                      </p>
+
+                      {item.hint && (
+                        <p className="text-[11px] text-stone-400 italic">
+                          Tip: {item.hint}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => speechService.speak(item.korean)}
+                        className="w-8 h-8 rounded-xl bg-purple-50 text-[#6C52EE] hover:bg-purple-100 flex items-center justify-center transition-colors"
+                        title="Listen"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                      </button>
+                      <span className="text-[9px] font-bold text-stone-400">
+                        {item.consecutiveCorrect} streak
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
         </div>
       )}

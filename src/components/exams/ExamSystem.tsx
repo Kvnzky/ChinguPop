@@ -27,6 +27,13 @@ export const ExamSystem: React.FC<ExamSystemProps> = ({ currentUser }) => {
   const [attempts, setAttempts] = useState<ExamAttempt[]>(storage.getExamAttempts(currentUser.id));
 
   useEffect(() => {
+    setAttempts(storage.getExamAttempts(currentUser.id));
+    setActiveQuiz(null);
+    setIsExamCompleted(false);
+    setExamResult(null);
+  }, [currentUser.id]);
+
+  useEffect(() => {
     let timer: any;
     if (activeQuiz && !isExamCompleted && timeLeftSeconds > 0) {
       timer = setInterval(() => {
@@ -130,7 +137,7 @@ export const ExamSystem: React.FC<ExamSystemProps> = ({ currentUser }) => {
         /* Examination Catalog */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {quizzes.map((quiz) => {
-            const pastAttempt = attempts.find(a => a.quizId === quiz.id);
+            const pastAttempt = [...attempts].reverse().find(a => a.quizId === quiz.id);
             return (
               <div key={quiz.id} className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
@@ -268,7 +275,7 @@ export const ExamSystem: React.FC<ExamSystemProps> = ({ currentUser }) => {
         <div className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 shadow-sm space-y-6">
           
           {/* Top Bar: Progress & Timer */}
-          <div className="flex items-center justify-between pb-4 border-b border-stone-200">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-stone-200">
             <div>
               <span className="text-xs font-serif font-bold text-academy-navy">
                 {activeQuiz.title}
@@ -278,9 +285,18 @@ export const ExamSystem: React.FC<ExamSystemProps> = ({ currentUser }) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-300 font-mono font-bold text-sm text-academy-navy">
-              <Timer className="w-4 h-4 text-academy-wine" />
-              <span>{formatTime(timeLeftSeconds)}</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-300 font-mono font-bold text-sm text-academy-navy">
+                <Timer className="w-4 h-4 text-academy-wine" />
+                <span>{formatTime(timeLeftSeconds)}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveQuiz(null)}
+                className="px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 text-xs font-semibold text-stone-600 transition-colors"
+              >
+                Exit Exam
+              </button>
             </div>
           </div>
 
